@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import coil.compose.AsyncImage
 import androidx.compose.runtime.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -294,7 +296,7 @@ private fun ProfileScreen(modifier: Modifier) {
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
     var savedMessage by remember { mutableStateOf("") }
-    Column(modifier.fillMaxSize().background(Ink)) {
+    Column(modifier.fillMaxSize().background(Ink).verticalScroll(rememberScrollState())) {
         BrandHeader()
         Text("Profil et préférences", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
         OutlinedTextField(value = displayName, onValueChange = { displayName = it },
