@@ -1,8 +1,13 @@
 package com.kalsu.relive
 
 import android.os.Bundle
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +29,7 @@ import com.kalsu.relive.core.NetworkStatus
 import com.kalsu.relive.data.ChatMessage
 import com.kalsu.relive.data.ChatStore
 import com.kalsu.relive.voice.ChamaSpeech
+import com.kalsu.relive.notifications.ReminderScheduler
 
 private val Ink = Color(0xFF090909)
 private val Panel = Color(0xFF171717)
@@ -53,7 +59,8 @@ private fun ReliveApp() {
                         Triple("home", "Accueil", Icons.Default.Home),
                         Triple("chat", "Parler", Icons.Default.Chat),
                         Triple("gallery", "Photos", Icons.Default.PhotoLibrary),
-                        Triple("profile", "Profil", Icons.Default.Person)
+                        Triple("profile", "Profil", Icons.Default.Person),
+                        Triple("reminders", "Rappels", Icons.Default.Notifications)
                     )
                     tabs.forEach { (key, label, icon) ->
                         NavigationBarItem(
@@ -75,6 +82,7 @@ private fun ReliveApp() {
                 "chat" -> ChatScreen(Modifier.padding(padding))
                 "gallery" -> GalleryScreen(Modifier.padding(padding))
                 "profile" -> ProfileScreen(Modifier.padding(padding))
+                "reminders" -> RemindersScreen(Modifier.padding(padding))
                 else -> HomeScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" })
             }
         }
@@ -241,5 +249,53 @@ private fun ProfileScreen(modifier: Modifier) {
             Text(it, color = Cream, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)
                 .background(Panel, RoundedCornerShape(12.dp)).padding(16.dp))
         }
+    }
+}
+
+
+@Composable
+private fun RemindersScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    var title by remember { mutableStateOf("Mon rappel RELIVE") }
+    var message by remember { mutableStateOf("Prends un moment pour toi.") }
+    var minutes by remember { mutableStateOf("30") }
+    var status by remember { mutableStateOf("Programme un rappel local sur cet appareil.") }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        status = if (granted) "Autorisation accordée." else "Notifications refusées : le rappel ne pourra pas afficher d'alerte."
+    }
+    Column(modifier.fillMaxSize().background(Ink)) {
+        BrandHeader()
+        Text("Rappels personnels", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
+        Text("Les rappels sont planifiés localement et fonctionnent sans connexion Internet.", color = Muted, modifier = Modifier.padding(20.dp))
+        OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Titre du rappel") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), singleLine = true)
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(value = message, onValueChange = { message = it }, label = { Text("Message") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), minLines = 2)
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(value = minutes, onValueChange = { minutes = it.filter(Char::isDigit).take(5) }, label = { Text("Dans combien de minutes ?") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), singleLine = true)
+        Spacer(Modifier.height(18.dp))
+        Button(onClick = {
+            val delay = minutes.toLongOrNull()
+            if (title.isBlank() || message.isBlank() || delay == null || delay <= 0L) {
+                status = "Vérifie les champs et indique un délai supérieur à zéro."
+            } else {
+                if (Build.VERSION.SDK_INT >= 33 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                try {
+                    ReminderScheduler.schedule(context, title.trim(), message.trim(), delay)
+                    status = "Rappel programmé dans " + delay + " minute(s)."
+                } catch (error: Exception) {
+                    status = "Erreur de programmation : " + (error.localizedMessage ?: "inconnue")
+                }
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(52.dp), colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
+            Icon(Icons.Default.Alarm, contentDescription = null, tint = Ink)
+            Spacer(Modifier.width(8.dp))
+            Text("Programmer le rappel", color = Ink, fontWeight = FontWeight.Bold)
+        }
+        OutlinedButton(onClick = { ReminderScheduler.cancelAll(context); status = "Rappels en attente annulés." }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+            Text("Annuler les rappels en attente", color = Gold)
+        }
+        Text(status, color = Gold, modifier = Modifier.padding(20.dp))
     }
 }
