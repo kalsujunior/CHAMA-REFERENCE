@@ -252,7 +252,7 @@ private fun ChatScreen(modifier: Modifier) {
                         val memories = memoryStore.load().map { it.text }
                         online.value = NetworkStatus.isOnline(context)
                         val history = store.load().takeLast(20).map { it.author to it.text }
-                        val answer = if (online.value) AiGateway.reply(text, preferences.languageTag, memories, history) else null
+                        val answer = if (online.value && preferences.remoteAiEnabled) AiGateway.reply(text, preferences.languageTag, memories, history) else null
                         addMessage("Chama", answer ?: localReply(text))
                         sending = false
                     }
@@ -312,6 +312,7 @@ private fun ProfileScreen(modifier: Modifier) {
     var displayName by remember { mutableStateOf(preferences.displayName) }
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
+    var remoteAiEnabled by remember { mutableStateOf(preferences.remoteAiEnabled) }
     var savedMessage by remember { mutableStateOf("") }
     Column(modifier.fillMaxSize().background(Ink).verticalScroll(rememberScrollState())) {
         BrandHeader()
@@ -329,6 +330,13 @@ private fun ProfileScreen(modifier: Modifier) {
             Text("Activer la lecture vocale", color = Cream, modifier = Modifier.weight(1f))
             Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it })
         }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Autoriser l'IA distante", color = Cream)
+                Text("Envoie les messages et souvenirs au serveur configuré.", color = Muted, fontSize = 11.sp)
+            }
+            Switch(checked = remoteAiEnabled, onCheckedChange = { remoteAiEnabled = it })
+        }
         Button(onClick = {
             if (displayName.isBlank()) {
                 savedMessage = "Le nom ne peut pas être vide."
@@ -336,6 +344,7 @@ private fun ProfileScreen(modifier: Modifier) {
                 preferences.displayName = displayName
                 preferences.languageTag = language
                 preferences.voiceEnabled = voiceEnabled
+                preferences.remoteAiEnabled = remoteAiEnabled
                 savedMessage = "Préférences enregistrées sur cet appareil."
             }
         }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
