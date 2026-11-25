@@ -16,7 +16,7 @@ const readGeminiReply = (data) => {
     : "";
 };
 
-async function askGroq(env, messages) {
+async function askGroq(env, messages, model) {
   const response = await fetch(env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -24,7 +24,7 @@ async function askGroq(env, messages) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: env.GROQ_MODEL,
+      model,
       messages,
       temperature: 0.7,
       max_tokens: 700
@@ -37,8 +37,8 @@ async function askGroq(env, messages) {
   return reply;
 }
 
-async function askGemini(env, system, history, message) {
-  const model = encodeURIComponent(env.GEMINI_MODEL);
+async function askGemini(env, system, history, message, modelId) {
+  const model = encodeURIComponent(modelId);
   const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" +
     model + ":generateContent?key=" + encodeURIComponent(env.GEMINI_API_KEY);
   const contents = [
@@ -81,8 +81,10 @@ export default {
     }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, cors);
 
-    const hasGroq = Boolean(env.GROQ_API_KEY && env.GROQ_MODEL);
-    const hasGemini = Boolean(env.GEMINI_API_KEY && env.GEMINI_MODEL);
+    const groqModel = env.GROQ_MODEL || 'openai/gpt-oss-20b';
+    const geminiModel = env.GEMINI_MODEL || 'gemini-3.8-flash';
+    const hasGroq = Boolean(env.GROQ_API_KEY);
+    const hasGemini = Boolean(env.GEMINI_API_KEY);
     if ((!hasGroq && !hasGemini) || !env.RELIVE_ACCESS_TOKEN || !env.RATE_LIMITER) {
       return json({ error: "Backend is not fully configured" }, 503, cors);
     }
@@ -128,8 +130,8 @@ export default {
     ].join("\n\n");
 
     const providers = [];
-    if (hasGroq) providers.push({ name: "groq", run: () => askGroq(env, [{ role: "system", content: system }, ...history, { role: "user", content: message }]) });
-    if (hasGemini) providers.push({ name: "gemini", run: () => askGemini(env, system, history, message) });
+    if (hasGroq) providers.push({ name: "groq", run: () => askGroq(env, [{ role: "system", content: system }, ...history, { role: "user", content: message }], groqModel) });
+    if (hasGemini) providers.push({ name: "gemini", run: () => askGemini(env, system, history, message, geminiModel) });
 
     const failures = [];
     for (const provider of providers) {
