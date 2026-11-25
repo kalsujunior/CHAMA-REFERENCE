@@ -17,7 +17,7 @@ object AiGateway {
     suspend fun reply(message: String, languageTag: String, memories: List<String>, history: List<Pair<String, String>>): String? =
         withContext(Dispatchers.IO) {
             val baseUrl = BuildConfig.RELIVE_API_BASE_URL.trim().trimEnd('/')
-            if (baseUrl.isBlank()) return@withContext null
+            if (!baseUrl.startsWith("https://", ignoreCase = true)) return@withContext null
 
             var connection: HttpURLConnection? = null
             try {
