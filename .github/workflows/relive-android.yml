@@ -13,6 +13,10 @@ on:
       - ".github/workflows/relive-android.yml"
   workflow_dispatch:
 
+concurrency:
+  group: relive-android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   assemble-debug:
     runs-on: ubuntu-latest
