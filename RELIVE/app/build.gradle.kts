@@ -25,7 +25,7 @@ android {
     }
 }
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2026.10.00"))
+    implementation(platform("androidx.compose:compose-bom:2026.09.00"))
     implementation("io.github.sceneview:sceneview:4.74.0")
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation("androidx.compose.ui:ui")
