@@ -132,20 +132,12 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
             Spacer(Modifier.height(22.dp))
             Box(Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp).background(Panel, RoundedCornerShape(28.dp)),
                 contentAlignment = Alignment.Center) {
-                if (mainPhoto != null) {
-                    AsyncImage(model = mainPhoto, contentDescription = "Portrait original de Chama",
-                        modifier = Modifier.fillMaxSize())
-                } else {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(Modifier.size(112.dp).background(Color(0xFF302719), CircleShape), contentAlignment = Alignment.Center) {
-                            Text("C", color = Gold, fontSize = 58.sp, fontWeight = FontWeight.Light)
-                        }
-                        Spacer(Modifier.height(16.dp))
-                        Text("ESPÉRANCE RUCHAMA KEFORA", color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        Text("Chama", color = Cream, fontSize = 25.sp, fontWeight = FontWeight.Medium)
-                        Text("Ajoute son portrait dans Photos", color = Muted, fontSize = 12.sp)
-                    }
-                }
+                AsyncImage(
+                    model = mainPhoto ?: R.drawable.chama_portrait,
+                    contentDescription = "Portrait principal intégré de Chama",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
             }
             Spacer(Modifier.height(18.dp))
             Button(onClick = onTalk, modifier = Modifier.fillMaxWidth().height(54.dp),
@@ -241,9 +233,13 @@ private fun ChatScreen(modifier: Modifier) {
             items(messages, key = { it.id }) { message ->
                 val fromChama = message.author == "Chama"
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = if (fromChama) Arrangement.Start else Arrangement.End, verticalAlignment = Alignment.Bottom) {
-                    if (fromChama && chamaAvatar != null) {
-                        AsyncImage(model = chamaAvatar, contentDescription = "Avatar original de Chama",
-                            modifier = Modifier.size(38.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+                    if (fromChama) {
+                        AsyncImage(
+                            model = chamaAvatar ?: R.drawable.chama_portrait,
+                            contentDescription = "Avatar intégré de Chama",
+                            modifier = Modifier.size(38.dp).clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
                         Spacer(Modifier.width(7.dp))
                     }
                     Surface(color = if (fromChama) Panel else Color(0xFF302719), shape = RoundedCornerShape(16.dp)) {
@@ -326,8 +322,17 @@ private fun GalleryScreen(modifier: Modifier) {
         Text("Sélectionne les photos originales depuis ton téléphone. RELIVE les conserve sans retoucher leur apparence.", color = Muted, modifier = Modifier.padding(20.dp))
         slots.forEachIndexed { index, uri ->
             Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 7.dp).background(Panel, RoundedCornerShape(14.dp)).padding(12.dp)) {
-                if (uri != null) {
-                    AsyncImage(model = uri, contentDescription = labels[index], modifier = Modifier.fillMaxWidth().height(190.dp))
+                if (uri != null || index == 0) {
+                    AsyncImage(
+                        model = uri ?: R.drawable.chama_portrait,
+                        contentDescription = labels[index],
+                        modifier = Modifier.fillMaxWidth().height(190.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    if (uri == null && index == 0) {
+                        Text("Portrait principal intégré à RELIVE", color = Gold, fontSize = 11.sp,
+                            modifier = Modifier.padding(top = 6.dp))
+                    }
                 } else {
                     Box(Modifier.fillMaxWidth().height(90.dp).background(Color(0xFF242424), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
                         Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = Gold, modifier = Modifier.size(34.dp))
