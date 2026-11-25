@@ -40,20 +40,20 @@ private val RoomCream: Color @Composable get() = LocalRelivePalette.current.text
 private val RoomRose: Color @Composable get() = LocalRelivePalette.current.secondary
 
 @Composable
-private fun RoomEnvironment(modifier: Modifier = Modifier) {
+private fun RoomEnvironment(modifier: Modifier = Modifier, palette: RelivePalette) {
     Canvas(modifier = modifier) {
         val w = size.width
         val h = size.height
         drawRect(
             brush = Brush.verticalGradient(
-                listOf(Color(0xFF6B343B), Color(0xFF302126), Color(0xFF171717)),
+                listOf(palette.primary.copy(alpha = 0.42f), palette.background.copy(alpha = 0.88f), palette.background),
                 endY = h * 0.82f
             ),
             size = Size(w, h)
         )
         drawRoundRect(
             brush = Brush.linearGradient(
-                listOf(Color(0x99F5D8C8), Color(0x553F2027)),
+                listOf(palette.surface.copy(alpha = 0.60f), palette.secondary.copy(alpha = 0.28f)),
                 start = Offset(w * 0.07f, h * 0.12f),
                 end = Offset(w * 0.37f, h * 0.43f)
             ),
@@ -61,30 +61,30 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
             size = Size(w * 0.30f, h * 0.31f),
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(18f, 18f)
         )
-        drawLine(Color(0x99D9B979), Offset(w * 0.22f, h * 0.12f), Offset(w * 0.22f, h * 0.43f), 3f)
-        drawLine(Color(0x99D9B979), Offset(w * 0.07f, h * 0.275f), Offset(w * 0.37f, h * 0.275f), 3f)
-        drawRoundRect(Color(0xAA17131C), Offset(w * 0.78f, h * 0.20f), Size(w * 0.15f, h * 0.42f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
+        drawLine(palette.primary.copy(alpha = 0.60f), Offset(w * 0.22f, h * 0.12f), Offset(w * 0.22f, h * 0.43f), 3f)
+        drawLine(palette.primary.copy(alpha = 0.60f), Offset(w * 0.07f, h * 0.275f), Offset(w * 0.37f, h * 0.275f), 3f)
+        drawRoundRect(palette.surface.copy(alpha = 0.72f), Offset(w * 0.78f, h * 0.20f), Size(w * 0.15f, h * 0.42f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
         for (i in 1..3) {
             val y = h * (0.20f + i * 0.105f)
-            drawLine(Color(0x99C49D59), Offset(w * 0.80f, y), Offset(w * 0.91f, y), 3f)
+            drawLine(palette.primary.copy(alpha = 0.65f), Offset(w * 0.80f, y), Offset(w * 0.91f, y), 3f)
         }
         val floor = Path().apply {
             moveTo(0f, h * 0.76f); lineTo(w, h * 0.76f)
             lineTo(w, h); lineTo(0f, h); close()
         }
-        drawPath(floor, Brush.verticalGradient(listOf(Color(0xFF5A3436), Color(0xFF171717)), h * 0.76f, h))
-        drawLine(Color(0x77D7B56D), Offset(0f, h * 0.76f), Offset(w, h * 0.76f), 2f)
-        drawRoundRect(Color(0xFFE8B9C1), Offset(w * 0.04f, h * 0.62f), Size(w * 0.34f, h * 0.15f), androidx.compose.ui.geometry.CornerRadius(26f, 26f))
-        drawRoundRect(Color(0xFFF5F1EA), Offset(w * 0.07f, h * 0.59f), Size(w * 0.28f, h * 0.12f), androidx.compose.ui.geometry.CornerRadius(22f, 22f))
-        drawLine(Color(0xFFD7B56D), Offset(w * 0.69f, h * 0.44f), Offset(w * 0.69f, h * 0.75f), 5f)
-        drawRoundRect(Color(0xFFE0BD75), Offset(w * 0.64f, h * 0.40f), Size(w * 0.10f, h * 0.055f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
-        drawCircle(Color(0x22E8C77F), radius = w * 0.18f, center = Offset(w * 0.69f, h * 0.49f))
-        drawRoundRect(Color(0xFF8A6847), Offset(w * 0.88f, h * 0.70f), Size(w * 0.07f, h * 0.09f), androidx.compose.ui.geometry.CornerRadius(8f, 8f))
+        drawPath(floor, Brush.verticalGradient(listOf(palette.secondary.copy(alpha = 0.70f), palette.background), h * 0.76f, h))
+        drawLine(palette.primary.copy(alpha = 0.48f), Offset(0f, h * 0.76f), Offset(w, h * 0.76f), 2f)
+        drawRoundRect(palette.secondary, Offset(w * 0.04f, h * 0.62f), Size(w * 0.34f, h * 0.15f), androidx.compose.ui.geometry.CornerRadius(26f, 26f))
+        drawRoundRect(palette.surface, Offset(w * 0.07f, h * 0.59f), Size(w * 0.28f, h * 0.12f), androidx.compose.ui.geometry.CornerRadius(22f, 22f))
+        drawLine(palette.primary, Offset(w * 0.69f, h * 0.44f), Offset(w * 0.69f, h * 0.75f), 5f)
+        drawRoundRect(palette.primary, Offset(w * 0.64f, h * 0.40f), Size(w * 0.10f, h * 0.055f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
+        drawCircle(palette.primary.copy(alpha = 0.14f), radius = w * 0.18f, center = Offset(w * 0.69f, h * 0.49f))
+        drawRoundRect(palette.secondary.copy(alpha = 0.85f), Offset(w * 0.88f, h * 0.70f), Size(w * 0.07f, h * 0.09f), androidx.compose.ui.geometry.CornerRadius(8f, 8f))
         for (i in 0..4) {
             val x = w * (0.915f + (i - 2) * 0.018f)
             val y = h * (0.58f + kotlin.math.abs(i - 2) * 0.018f)
-            drawLine(Color(0xFF78906B), Offset(w * 0.915f, h * 0.72f), Offset(x, y), 5f)
-            drawCircle(Color(0xFF78906B), radius = 7f, center = Offset(x, y))
+            drawLine(palette.secondary.copy(alpha = 0.85f), Offset(w * 0.915f, h * 0.72f), Offset(x, y), 5f)
+            drawCircle(palette.secondary.copy(alpha = 0.85f), radius = 7f, center = Offset(x, y))
         }
     }
 }
@@ -92,6 +92,7 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
 @Composable
 fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGallery: () -> Unit) {
     val context = LocalContext.current
+    val palette = LocalRelivePalette.current
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
@@ -117,7 +118,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
     Column(
         modifier.fillMaxSize().background(
-            Brush.verticalGradient(listOf(Color(0xFF3A2429), Color(0xFF211719), RoomInk))
+            Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.38f), palette.background.copy(alpha = 0.94f), RoomInk))
         )
     ) {
         Row(
@@ -127,9 +128,9 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         ) {
             Column {
                 Text("L'ESPACE DE CHAMA", color = RoomGold, fontSize = 18.sp, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp)
-                Text("Un lieu calme pour vous retrouver", color = Color.LightGray, fontSize = 11.sp)
+                Text("Un lieu calme pour vous retrouver", color = palette.muted, fontSize = 11.sp)
             }
-            Surface(color = Color(0xFF5A202B), shape = CircleShape) {
+            Surface(color = palette.surface, shape = CircleShape) {
                 Text("KS", color = RoomGold, fontWeight = FontWeight.Bold, modifier = Modifier.padding(14.dp))
             }
         }
@@ -137,9 +138,9 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         Box(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp)
                 .clip(RoundedCornerShape(30.dp))
-                .background(Brush.verticalGradient(listOf(Color(0xFF68434A), Color(0xFF302126), Color(0xFF171717))))
+                .background(Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.36f), palette.surface, palette.background)))
         ) {
-            RoomEnvironment(modifier = Modifier.fillMaxSize())
+            RoomEnvironment(modifier = Modifier.fillMaxSize(), palette = palette)
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(16.dp))
                 Text("Bienvenue dans mon univers", color = RoomCream, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
@@ -148,7 +149,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
                 Box(
                     Modifier.weight(1f).fillMaxWidth().padding(horizontal = 18.dp)
-                        .clip(RoundedCornerShape(26.dp)).background(Color(0xFF24191B)),
+                        .clip(RoundedCornerShape(26.dp)).background(palette.surface.copy(alpha = 0.90f)),
                     contentAlignment = Alignment.Center
                 ) {
                     ChamaPortrait(modifier = Modifier.fillMaxSize())
@@ -168,7 +169,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
                 Spacer(Modifier.height(12.dp))
                 Text(status, color = RoomCream, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
-                Text("Choisis une interaction", color = Color.LightGray, fontSize = 11.sp, modifier = Modifier.padding(top = 5.dp, bottom = 8.dp))
+                Text("Choisis une interaction", color = palette.muted, fontSize = 11.sp, modifier = Modifier.padding(top = 5.dp, bottom = 8.dp))
 
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = 12.dp),
@@ -177,7 +178,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     FilledTonalButton(
                         onClick = { act("Coucou ! Je suis heureuse de te retrouver. ❤️") },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFFF4DDE1), contentColor = RoomInk),
+                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = palette.secondary, contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
                     ) {
                         Icon(Icons.Default.WavingHand, contentDescription = null, modifier = Modifier.size(17.dp))
@@ -186,7 +187,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     FilledTonalButton(
                         onClick = { act("Je t'écoute. Raconte-moi ce que tu as sur le cœur.") },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFFF4DDE1), contentColor = RoomInk),
+                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = palette.secondary, contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
                     ) {
                         Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(17.dp))
@@ -195,7 +196,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     FilledTonalButton(
                         onClick = { act("Un petit moment de joie rien que pour nous !") },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFFF4DDE1), contentColor = RoomInk),
+                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = palette.secondary, contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
                     ) {
                         Icon(Icons.Default.MusicNote, contentDescription = null, modifier = Modifier.size(17.dp))
