@@ -4,7 +4,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -46,5 +45,5 @@ fun MarkdownMessageText(value: String, modifier: Modifier = Modifier) {
             }
         }
     }
-    Text(annotated, color = Color(0xFFF5EBDD), modifier = modifier)
+    Text(annotated, color = LocalRelivePalette.current.text, modifier = modifier)
 }
