@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.net.Uri
+import android.provider.CalendarContract
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -403,6 +404,25 @@ private fun RemindersScreen(modifier: Modifier) {
             Icon(Icons.Default.Alarm, contentDescription = null, tint = Ink)
             Spacer(Modifier.width(8.dp))
             Text("Programmer le rappel", color = Ink, fontWeight = FontWeight.Bold)
+        }
+        OutlinedButton(onClick = {
+            val begin = System.currentTimeMillis() + 60L * 60L * 1000L
+            val end = begin + 30L * 60L * 1000L
+            val calendarIntent = Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.Events.TITLE, title.ifBlank { "Rendez-vous RELIVE" })
+                .putExtra(CalendarContract.Events.DESCRIPTION, message)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, begin)
+                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, end)
+            try {
+                context.startActivity(calendarIntent)
+                status = "Ouvre ton calendrier pour confirmer et enregistrer l'événement."
+            } catch (_: Exception) {
+                status = "Aucune application de calendrier compatible n'a été trouvée."
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+            Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Gold)
+            Spacer(Modifier.width(8.dp))
+            Text("Ajouter au calendrier", color = Gold)
         }
         OutlinedButton(onClick = { ReminderScheduler.cancelAll(context); status = "Rappels en attente annulés." }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
             Text("Annuler les rappels en attente", color = Gold)
