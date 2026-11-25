@@ -37,9 +37,9 @@ Configurer dans Cloudflare > Worker `relive-chama-api` > Settings > Variables an
 
 Secrets :
 - `ELEVENLABS_API_KEY` : clé API ElevenLabs.
-
-Variables texte :
 - `CHAMA_VOICE_ID` : identifiant de la voix clonée après sa création.
+
+Variable texte :
 - `CHAMA_VOICE_MODEL` (facultatif) : modèle de synthèse, par défaut `eleven_v4`.
 
 Le mode vocal personnalisé est désactivé par défaut dans RELIVE et doit être activé dans Profil. Le texte des réponses est alors envoyé au Worker puis au fournisseur vocal. L'application retombe automatiquement sur la synthèse Android si le service n'est pas configuré, si le réseau est indisponible ou si l'appel échoue.
