@@ -21,6 +21,11 @@ class PreferenceStore(context: Context) {
         get() = prefs.getBoolean("remote_ai_enabled", false)
         set(value) { prefs.edit().putBoolean("remote_ai_enabled", value).apply() }
 
+    /** Sends reply text to the configured voice provider only when the user opts in. */
+    var personalizedVoiceEnabled: Boolean
+        get() = prefs.getBoolean("personalized_voice_enabled", false)
+        set(value) { prefs.edit().putBoolean("personalized_voice_enabled", value).apply() }
+
     var remoteAccessToken: String
         get() = prefs.getString("remote_access_token", "") ?: ""
         set(value) { prefs.edit().putString("remote_access_token", value.trim()).apply() }
