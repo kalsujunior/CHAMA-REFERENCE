@@ -4,6 +4,66 @@ const json = (value, status = 200, headers = {}) =>
     headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...headers }
   });
 
+const readGroqReply = (data) => {
+  const value = data?.choices?.[0]?.message?.content;
+  return typeof value === "string" ? value.trim() : "";
+};
+
+const readGeminiReply = (data) => {
+  const parts = data?.candidates?.[0]?.content?.parts;
+  return Array.isArray(parts)
+    ? parts.map(part => typeof part.text === "string" ? part.text : "").join("").trim()
+    : "";
+};
+
+async function askGroq(env, messages) {
+  const response = await fetch(env.GROQ_API_URL || "https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + env.GROQ_API_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: env.GROQ_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: 700
+    })
+  });
+  if (!response.ok) throw new Error("Groq HTTP " + response.status);
+  const data = await response.json();
+  const reply = readGroqReply(data);
+  if (!reply) throw new Error("Groq returned an empty reply");
+  return reply;
+}
+
+async function askGemini(env, system, history, message) {
+  const model = encodeURIComponent(env.GEMINI_MODEL);
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" +
+    model + ":generateContent?key=" + encodeURIComponent(env.GEMINI_API_KEY);
+  const contents = [
+    ...history.map(item => ({
+      role: item.role === "assistant" ? "model" : "user",
+      parts: [{ text: item.content }]
+    })),
+    { role: "user", parts: [{ text: message }] }
+  ];
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents,
+      generationConfig: { temperature: 0.7, maxOutputTokens: 700 }
+    })
+  });
+  if (!response.ok) throw new Error("Gemini HTTP " + response.status);
+  const data = await response.json();
+  const reply = readGeminiReply(data);
+  if (!reply) throw new Error("Gemini returned an empty reply");
+  return reply;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin");
@@ -16,11 +76,14 @@ export default {
       if (!origin || !allowedOrigin || origin !== allowedOrigin) return new Response(null, { status: 403 });
       return new Response(null, {
         status: 204,
-        headers: { ...cors, "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type", "Access-Control-Max-Age": "86400" }
+        headers: { ...cors, "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-RELIVE-ACCESS", "Access-Control-Max-Age": "86400" }
       });
     }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, cors);
-    if (!env.AI_API_KEY || !env.AI_MODEL || !env.RELIVE_ACCESS_TOKEN || !env.RATE_LIMITER) {
+
+    const hasGroq = Boolean(env.GROQ_API_KEY && env.GROQ_MODEL);
+    const hasGemini = Boolean(env.GEMINI_API_KEY && env.GEMINI_MODEL);
+    if ((!hasGroq && !hasGemini) || !env.RELIVE_ACCESS_TOKEN || !env.RATE_LIMITER) {
       return json({ error: "Backend is not fully configured" }, 503, cors);
     }
     if (request.headers.get("X-RELIVE-ACCESS") !== env.RELIVE_ACCESS_TOKEN) {
@@ -64,34 +127,23 @@ export default {
         : "Aucun souvenir personnel n'a été fourni."
     ].join("\n\n");
 
-    const endpoint = env.AI_API_URL || "https://api.openai.com/v1/chat/completions";
-    let upstream;
-    try {
-      upstream = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer " + env.AI_API_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: env.AI_MODEL,
-          messages: [{ role: "system", content: system }, ...history, { role: "user", content: message }],
-          temperature: 0.7,
-          max_tokens: 700
-        })
-      });
-    } catch (_) {
-      return json({ error: "AI provider unavailable" }, 502, cors);
-    }
-    if (!upstream.ok) return json({ error: "AI provider request failed" }, 502, cors);
+    const providers = [];
+    if (hasGroq) providers.push({ name: "groq", run: () => askGroq(env, [{ role: "system", content: system }, ...history, { role: "user", content: message }]) });
+    if (hasGemini) providers.push({ name: "gemini", run: () => askGemini(env, system, history, message) });
 
-    let response;
-    try { response = await upstream.json(); }
-    catch (_) { return json({ error: "Invalid AI provider response" }, 502, cors); }
-    const reply = response && response.choices && response.choices[0] && response.choices[0].message
-      ? response.choices[0].message.content
-      : null;
-    if (typeof reply !== "string" || !reply.trim()) return json({ error: "AI provider returned no reply" }, 502, cors);
-    return json({ reply: reply.trim() }, 200, cors);
+    const failures = [];
+    for (const provider of providers) {
+      try {
+        const reply = await provider.run();
+        return json({ reply, provider: provider.name }, 200, cors);
+      } catch (_) {
+        failures.push(provider.name);
+      }
+    }
+
+    return json({
+      error: "AI providers unavailable",
+      providersAttempted: failures
+    }, 502, cors);
   }
 };
