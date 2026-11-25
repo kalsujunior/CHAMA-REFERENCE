@@ -47,14 +47,36 @@ import com.kalsu.relive.voice.ChamaSpeech
 import com.kalsu.relive.notifications.ReminderScheduler
 import kotlinx.coroutines.launch
 
-// Palette Chama : pull blanc à cœurs rouges, noir doux et accents rose/or.
-private val Ink = Color(0xFFF5F1EA)       // fond blanc crème
-private val Panel = Color(0xFFFFFFFF)    // surfaces blanches
-private val Gold = Color(0xFFC6283D)     // rouge cœur (accent principal)
-private val Cream = Color(0xFF24191B)    // texte brun-noir
-private val Muted = Color(0xFF777777)    // texte secondaire
-private val ChamaRose = Color(0xFFE8B9C1)
+// Palette RELIVE centralisée : les écrans lisent la palette active.
+private data class RelivePalette(
+    val background: Color,
+    val surface: Color,
+    val primary: Color,
+    val secondary: Color,
+    val text: Color,
+    val muted: Color
+)
 
+private val ChamaOutfitPalette = RelivePalette(
+    Color(0xFFF5F1EA), Color(0xFFFFFFFF), Color(0xFFC6283D),
+    Color(0xFFE8B9C1), Color(0xFF24191B), Color(0xFF777777)
+)
+private val RosePalette = RelivePalette(
+    Color(0xFFFFF1F4), Color(0xFFFFFFFF), Color(0xFFAD4963),
+    Color(0xFFF0C5D0), Color(0xFF39232B), Color(0xFF806B73)
+)
+private val MidnightPalette = RelivePalette(
+    Color(0xFF171717), Color(0xFF262326), Color(0xFFD4AF37),
+    Color(0xFF6B343B), Color(0xFFF5F1EA), Color(0xFFB8ADB0)
+)
+
+private val LocalRelivePalette = staticCompositionLocalOf { ChamaOutfitPalette }
+private val Ink: Color @Composable get() = LocalRelivePalette.current.background
+private val Panel: Color @Composable get() = LocalRelivePalette.current.surface
+private val Gold: Color @Composable get() = LocalRelivePalette.current.primary
+private val Cream: Color @Composable get() = LocalRelivePalette.current.text
+private val Muted: Color @Composable get() = LocalRelivePalette.current.muted
+private val ChamaRose: Color @Composable get() = LocalRelivePalette.current.secondary
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,10 +87,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun ReliveApp() {
+    val context = LocalContext.current
+    val preferences = remember { PreferenceStore(context) }
     var page by remember { mutableStateOf("home") }
+    var themeMode by remember { mutableStateOf(preferences.themeMode) }
+    var themePreset by remember { mutableStateOf(preferences.themePreset) }
+    val activePalette = when (themeMode) {
+        "manual" -> when (themePreset) {
+            "rose" -> RosePalette
+            "midnight" -> MidnightPalette
+            else -> ChamaOutfitPalette
+        }
+        else -> ChamaOutfitPalette
+    }
+    CompositionLocalProvider(LocalRelivePalette provides activePalette) {
     MaterialTheme(colorScheme = lightColorScheme(
-        primary = Gold, secondary = ChamaRose, background = Ink, surface = Panel,
-        onPrimary = Color.White, onSecondary = Cream, onBackground = Cream, onSurface = Cream
+        primary = activePalette.primary, secondary = activePalette.secondary,
+        background = activePalette.background, surface = activePalette.surface,
+        onPrimary = Color.White, onSecondary = activePalette.text,
+        onBackground = activePalette.text, onSurface = activePalette.text
     )) {
         Scaffold(
             containerColor = Ink,
@@ -100,12 +137,13 @@ private fun ReliveApp() {
             when (page) {
                 "chat" -> ChatScreen(Modifier.padding(padding))
                 "gallery" -> GalleryScreen(Modifier.padding(padding))
-                "profile" -> ProfileScreen(Modifier.padding(padding))
+                "profile" -> ProfileScreen(Modifier.padding(padding), onThemeChanged = { mode, preset -> themeMode = mode; themePreset = preset })
                 "reminders" -> RemindersScreen(Modifier.padding(padding))
                 "space" -> VirtualSpaceScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" })
                 else -> HomeScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" }, { page = "space" })
             }
         }
+    }
     }
 }
 
@@ -353,7 +391,7 @@ private fun GalleryScreen(modifier: Modifier) {
 }
 
 @Composable
-private fun ProfileScreen(modifier: Modifier) {
+private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -> Unit) {
     val context = LocalContext.current
     val preferences = remember { PreferenceStore(context) }
     val memoryStore = remember { MemoryStore(context) }
@@ -364,6 +402,8 @@ private fun ProfileScreen(modifier: Modifier) {
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
     var remoteAiEnabled by remember { mutableStateOf(preferences.remoteAiEnabled) }
     var remoteAccessToken by remember { mutableStateOf(preferences.remoteAccessToken) }
+    var themeMode by remember { mutableStateOf(preferences.themeMode) }
+    var themePreset by remember { mutableStateOf(preferences.themePreset) }
     var savedMessage by remember { mutableStateOf("") }
     Column(modifier.fillMaxSize().background(Ink).verticalScroll(rememberScrollState())) {
         BrandHeader()
@@ -371,6 +411,25 @@ private fun ProfileScreen(modifier: Modifier) {
         OutlinedTextField(value = displayName, onValueChange = { displayName = it },
             label = { Text("Nom affiché de Chama") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), singleLine = true)
+        Text("Apparence de RELIVE", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 20.dp, top = 20.dp))
+        Text("Mode de couleurs", color = Cream, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = themeMode == "outfit", onClick = { themeMode = "outfit"; preferences.themeMode = themeMode; onThemeChanged(themeMode, themePreset) }, label = { Text("Suivre la tenue") })
+            FilterChip(selected = themeMode == "manual", onClick = { themeMode = "manual"; preferences.themeMode = themeMode; onThemeChanged(themeMode, themePreset) }, label = { Text("Thème fixe") })
+        }
+        if (themeMode == "manual") {
+            Text("Palette préférée", color = Cream, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                listOf("chama" to "Crème & cœur rouge", "rose" to "Rose tendre", "midnight" to "Noir & or").forEach { (key, label) ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = themePreset == key, onClick = { themePreset = key; preferences.themePreset = key; onThemeChanged(themeMode, key) })
+                        Text(label, color = Cream)
+                    }
+                }
+            }
+        } else {
+            Text("La palette suit actuellement les couleurs de la tenue principale. La détection automatique des nouvelles tenues sera ajoutée séparément.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+        }
         Text("Langue de la voix", color = Gold, modifier = Modifier.padding(start = 20.dp, top = 18.dp))
         Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
             FilterChip(selected = language == "fr-FR", onClick = { language = "fr-FR" }, label = { Text("Français") })
@@ -406,6 +465,9 @@ private fun ProfileScreen(modifier: Modifier) {
                 preferences.voiceEnabled = voiceEnabled
                 preferences.remoteAiEnabled = remoteAiEnabled
                 preferences.remoteAccessToken = remoteAccessToken.trim()
+                preferences.themeMode = themeMode
+                preferences.themePreset = themePreset
+                onThemeChanged(themeMode, themePreset)
                 savedMessage = "Préférences enregistrées sur cet appareil."
             }
         }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
