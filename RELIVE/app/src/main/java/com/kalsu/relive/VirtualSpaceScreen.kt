@@ -51,7 +51,6 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
             ),
             size = Size(w, h)
         )
-        // Warm window and its golden frame.
         drawRoundRect(
             brush = Brush.linearGradient(
                 listOf(Color(0x99F5D8C8), Color(0x553F2027)),
@@ -64,27 +63,22 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
         )
         drawLine(Color(0x99D9B979), Offset(w * 0.22f, h * 0.12f), Offset(w * 0.22f, h * 0.43f), 3f)
         drawLine(Color(0x99D9B979), Offset(w * 0.07f, h * 0.275f), Offset(w * 0.37f, h * 0.275f), 3f)
-        // Bookcase on the right.
         drawRoundRect(Color(0xAA17131C), Offset(w * 0.78f, h * 0.20f), Size(w * 0.15f, h * 0.42f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
         for (i in 1..3) {
             val y = h * (0.20f + i * 0.105f)
             drawLine(Color(0x99C49D59), Offset(w * 0.80f, y), Offset(w * 0.91f, y), 3f)
         }
-        // Perspective floor.
         val floor = Path().apply {
             moveTo(0f, h * 0.76f); lineTo(w, h * 0.76f)
             lineTo(w, h); lineTo(0f, h); close()
         }
         drawPath(floor, Brush.verticalGradient(listOf(Color(0xFF5A3436), Color(0xFF171717)), h * 0.76f, h))
         drawLine(Color(0x77D7B56D), Offset(0f, h * 0.76f), Offset(w, h * 0.76f), 2f)
-        // Sofa silhouette.
         drawRoundRect(Color(0xFFE8B9C1), Offset(w * 0.04f, h * 0.62f), Size(w * 0.34f, h * 0.15f), androidx.compose.ui.geometry.CornerRadius(26f, 26f))
         drawRoundRect(Color(0xFFF5F1EA), Offset(w * 0.07f, h * 0.59f), Size(w * 0.28f, h * 0.12f), androidx.compose.ui.geometry.CornerRadius(22f, 22f))
-        // Floor lamp with warm glow.
         drawLine(Color(0xFFD7B56D), Offset(w * 0.69f, h * 0.44f), Offset(w * 0.69f, h * 0.75f), 5f)
         drawRoundRect(Color(0xFFE0BD75), Offset(w * 0.64f, h * 0.40f), Size(w * 0.10f, h * 0.055f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
         drawCircle(Color(0x22E8C77F), radius = w * 0.18f, center = Offset(w * 0.69f, h * 0.49f))
-        // Decorative indoor plant.
         drawRoundRect(Color(0xFF8A6847), Offset(w * 0.88f, h * 0.70f), Size(w * 0.07f, h * 0.09f), androidx.compose.ui.geometry.CornerRadius(8f, 8f))
         for (i in 0..4) {
             val x = w * (0.915f + (i - 2) * 0.018f)
@@ -190,7 +184,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         Spacer(Modifier.width(4.dp)); Text("Bonjour", fontSize = 11.sp)
                     }
                     FilledTonalButton(
-                        onClick = { act("listen", "Je t'écoute. Raconte-moi ce que tu as sur le cœur.") },
+                        onClick = { act("Je t'écoute. Raconte-moi ce que tu as sur le cœur.") },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFFF4DDE1), contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
