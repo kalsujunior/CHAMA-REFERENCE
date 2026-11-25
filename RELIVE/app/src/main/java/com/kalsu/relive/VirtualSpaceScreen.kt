@@ -1,10 +1,5 @@
 package com.kalsu.relive
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -156,7 +151,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     if (speaking) {
                         Surface(
                             modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
-                            color = Color(0xDDF4DDE1), shape = RoundedCornerShape(50)
+                            color = palette.secondary.copy(alpha = 0.88f), shape = RoundedCornerShape(50)
                         ) {
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.VolumeUp, contentDescription = null, tint = RoomGold, modifier = Modifier.size(16.dp))
