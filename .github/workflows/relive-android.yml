@@ -3,7 +3,7 @@ name: RELIVE Android build
 
 on:
   push:
-    branches: [relive-app]
+    branches: [relive-app, "feature/**"]
     paths:
       - "RELIVE/**"
       - ".github/workflows/relive-android.yml"
@@ -39,6 +39,15 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
+      - name: Set up Node.js for Worker tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Test RELIVE Cloudflare Worker
+        working-directory: RELIVE/backend/cloudflare-worker
+        run: npm test
+
       - name: Build RELIVE
         run: gradle -p RELIVE assembleDebug --stacktrace
       - name: Upload debug APK

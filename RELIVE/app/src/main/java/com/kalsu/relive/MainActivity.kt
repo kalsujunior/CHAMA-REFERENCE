@@ -43,6 +43,8 @@ import com.kalsu.relive.data.PhotoStore
 import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.data.MemoryStore
 import com.kalsu.relive.voice.ChamaSpeech
+import com.kalsu.relive.voice.ChamaVoiceGateway
+import com.kalsu.relive.voice.ChamaVoicePlayer
 import com.kalsu.relive.notifications.ReminderScheduler
 import kotlinx.coroutines.launch
 
@@ -204,6 +206,7 @@ private fun ChatScreen(modifier: Modifier) {
     val chamaAvatar = remember { PhotoStore(context).get(0) }
     val scope = rememberCoroutineScope()
     val speech = remember { ChamaSpeech(context) }
+    val voicePlayer = remember { ChamaVoicePlayer(context) }
     var sending by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(store.load()) }
@@ -213,13 +216,33 @@ private fun ChatScreen(modifier: Modifier) {
         if (!recognized.isNullOrBlank()) draft = recognized
     }
 
-    DisposableEffect(speech) {
-        onDispose { speech.release() }
+    DisposableEffect(speech, voicePlayer) {
+        onDispose {
+            speech.release()
+            voicePlayer.stop()
+        }
     }
 
     fun addMessage(author: String, text: String) {
         val saved = store.append(author, text)
         messages = (messages + saved).takeLast(1000)
+    }
+
+    fun speakChama(text: String) {
+        val usePersonalVoice = preferences.personalizedVoiceEnabled &&
+            preferences.languageTag == "fr-FR" &&
+            online.value &&
+            preferences.remoteAccessToken.isNotBlank()
+        if (!usePersonalVoice) {
+            speech.speak(text, preferences.languageTag)
+            return
+        }
+        speech.stop()
+        scope.launch {
+            val audio = ChamaVoiceGateway.generate(text, preferences.remoteAccessToken, preferences.languageTag)
+            if (audio != null) voicePlayer.play(audio)
+            else speech.speak(text, preferences.languageTag)
+        }
     }
 
     Column(modifier.fillMaxSize().background(Ink)) {
@@ -251,7 +274,7 @@ private fun ChatScreen(modifier: Modifier) {
                             Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             MarkdownMessageText(message.text, modifier = Modifier.padding(top = 4.dp))
                             if (fromChama && preferences.voiceEnabled) {
-                                TextButton(onClick = { speech.speak(message.text, preferences.languageTag) }, contentPadding = PaddingValues(0.dp)) {
+                                TextButton(onClick = { speakChama(message.text) }, contentPadding = PaddingValues(0.dp)) {
                                     Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Gold, modifier = Modifier.size(16.dp))
                                     Spacer(Modifier.width(5.dp))
                                     Text("Écouter", color = Gold, fontSize = 11.sp)
@@ -294,7 +317,7 @@ private fun ChatScreen(modifier: Modifier) {
                         } else localReply(text, memories, preferences.languageTag)
                         val finalReply = answer ?: fallback
                         addMessage("Chama", finalReply)
-                        if (preferences.voiceEnabled) speech.speak(finalReply, preferences.languageTag)
+                        if (preferences.voiceEnabled) speakChama(finalReply)
                         sending = false
                     }
                 }
@@ -353,6 +376,7 @@ private fun ProfileScreen(modifier: Modifier) {
     var displayName by remember { mutableStateOf(preferences.displayName) }
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
+    var personalizedVoiceEnabled by remember { mutableStateOf(preferences.personalizedVoiceEnabled) }
     var remoteAiEnabled by remember { mutableStateOf(preferences.remoteAiEnabled) }
     var remoteAccessToken by remember { mutableStateOf(preferences.remoteAccessToken) }
     var savedMessage by remember { mutableStateOf("") }
@@ -371,6 +395,13 @@ private fun ProfileScreen(modifier: Modifier) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("Activer la lecture vocale", color = Cream, modifier = Modifier.weight(1f))
             Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it })
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Voix personnalisée de Chama (français)", color = Cream)
+                Text("Avec ton accord, le texte des réponses est envoyé au Worker RELIVE pour générer l'audio. Si le service n'est pas configuré ou échoue, la voix Android prend le relais. Le créole reste sur la voix Android jusqu'à validation.", color = Muted, fontSize = 11.sp)
+            }
+            Switch(checked = personalizedVoiceEnabled, onCheckedChange = { personalizedVoiceEnabled = it })
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -395,6 +426,7 @@ private fun ProfileScreen(modifier: Modifier) {
                 preferences.displayName = displayName
                 preferences.languageTag = language
                 preferences.voiceEnabled = voiceEnabled
+                preferences.personalizedVoiceEnabled = personalizedVoiceEnabled
                 preferences.remoteAiEnabled = remoteAiEnabled
                 preferences.remoteAccessToken = remoteAccessToken.trim()
                 savedMessage = "Préférences enregistrées sur cet appareil."

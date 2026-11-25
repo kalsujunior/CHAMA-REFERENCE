@@ -26,6 +26,18 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 - Workflow GitHub Actions qui compile Android Debug et publie l'APK.
 
+## Identité vocale personnalisée de Chama
+
+- Le moteur Android existant reste disponible comme voix de secours locale.
+- Une option « Voix personnalisée de Chama » peut être activée dans Profil ; elle est désactivée par défaut.
+- En français uniquement, l'application envoie le texte de la réponse au endpoint HTTPS `/speech` du Worker RELIVE. Le Worker transmet la demande à ElevenLabs et renvoie un MP3.
+- La clé `ELEVENLABS_API_KEY` reste un secret Cloudflare. L'identifiant `CHAMA_VOICE_ID` est configuré côté Worker après la création de la voix.
+- Si la voix personnalisée n'est pas configurée ou si le service échoue, RELIVE utilise automatiquement la synthèse Android.
+- Le créole haïtien reste sur la synthèse Android : il n'est pas encore validé sur le moteur distant.
+- La génération de la voix clonée n'est pas incluse dans le dépôt : elle nécessite l'enregistrement plus long de la personne concernée, son autorisation, un compte fournisseur et la création effective de la voix.
+
+Voir `backend/cloudflare-worker/README.md` pour la configuration et le test de l'endpoint vocal.
+
 ## Backend IA à deux fournisseurs
 
 Le Worker Cloudflare est déployé à l'adresse :
