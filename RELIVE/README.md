@@ -1,26 +1,36 @@
 # RELIVE — KAL-SU
 
-Base de l'application Android native RELIVE, en Kotlin et Jetpack Compose, centrée sur la compagne virtuelle Chama.
+Application Android native en Kotlin et Jetpack Compose, centrée sur ESPÉRANCE RUCHAMA KEFORA (Chama).
 
-## Inclus dans cette première base
-- Navigation Accueil / Conversation / Galerie / Profil.
+## État du dépôt
+
+Cette branche contient une base fonctionnelle en cours de développement. Elle n'est pas encore une livraison complète et aucune compilation Android n'a été exécutée dans cet environnement.
+
+### Déjà implémenté
+- Navigation Compose : Accueil, Conversation, Galerie et Profil.
 - Identité visuelle noir et or.
-- Emplacement réservé au portrait principal.
-- Écrans de démonstration en français.
+- Persistance locale de l'historique (jusqu'à 1 000 messages) via SharedPreferences.
+- Réponses locales de secours simples, distinctes d'une véritable IA.
+- Vérification de la connectivité réseau.
+- Synthèse vocale Android locale (TextToSpeech).
+- Permissions INTERNET et ACCESS_NETWORK_STATE.
+
+### Pas encore implémenté / dépendances nécessaires
+- IA distante : nécessite un backend HTTPS et une configuration serveur sécurisée. Aucun secret d'API ne doit être placé dans l'application.
+- Reconnaissance vocale et gestion du consentement.
+- Mémoire structurée de long terme, préférences et export/suppression des données.
+- Intégration des trois photos originales. Le portrait principal est la photo au pull blanc avec cœurs rouges ; les deux autres vont dans la galerie. Les images doivent être copiées sans retouche dans les ressources Android.
+- Notifications, rappels et calendrier.
+- Comptes, authentification, synchronisation et sauvegarde cloud.
+- Paramètres complets, confidentialité, tests automatisés et accessibilité.
+- Vérification de compilation avec JDK, Gradle et SDK Android compatibles.
 
 ## Photos de Chama
-La photo principale choisie est la première photo envoyée dans la conversation (pull blanc avec cœurs rouges). Les deux autres photos sont destinées à la galerie. Les fichiers originaux devront être copiés dans les ressources Android avant de remplacer les emplacements de démonstration. Aucun visage ne doit être retouché ou régénéré.
+Ne pas régénérer, retoucher ou modifier le visage, les cheveux, les vêtements ou les proportions des photos de référence. Les fichiers originaux doivent être fournis dans les ressources du module app.
 
 ## Compilation
-Ouvrir ce dossier dans Android Studio ou Code On The Go avec le SDK Android installé, synchroniser Gradle puis lancer `assembleDebug`.
+Depuis le dossier RELIVE, avec JDK 17 et SDK Android configuré :
 
-## À développer
-1. Intégrer les trois fichiers photo originaux.
-2. Persistance locale des conversations et préférences.
-3. Comptes et authentification sécurisée avec backend.
-4. IA conversationnelle avec service distant et gestion des clés côté serveur.
-5. Notifications, rendez-vous, carte/localisation et fonctions multimédias avec autorisations explicites.
-6. Tableau d'administration protégé.
-7. Tests, sécurité, accessibilité et publication.
+    gradle assembleDebug
 
-Les réponses de Chama dans cette version sont des démonstrations locales ; aucune connexion IA réelle n'est configurée.
+La compilation ne doit être déclarée validée qu'après exécution réussie de cette commande dans un environnement Android correctement configuré.
