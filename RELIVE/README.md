@@ -76,13 +76,15 @@ Les deux photos secondaires sont sélectionnées dans l'écran Photos. L'emplace
 ## Compilation
 
 Configuration du projet :
-- Android Gradle Plugin 8.7.3
-- Kotlin 2.0.21
-- compileSdk 35
-- minSdk 23
-- Java / Kotlin JVM target 17
+- Android Gradle Plugin 9.4.0
+- Kotlin intégré à AGP 9.x ; plugin Compose Kotlin 2.4.20
+- SceneView 4.74.0 / Filament
+- compileSdk 37
+- minSdk 24 (SceneView 4.x l'exige)
+- Java / Kotlin JVM target 21
+- Gradle 9.6.0 ou supérieur compatible avec AGP 9.4
 
-Prérequis recommandés : JDK 17, Gradle compatible avec AGP 8.7.3 et Android SDK Platform 35.
+Prérequis recommandés : JDK 21, Gradle 9.6.0 ou supérieur et Android SDK Platform 37 avec Build Tools 36.0.0.
 
 Depuis le dossier `RELIVE` :
 
@@ -92,4 +94,4 @@ gradle assembleDebug
 
 APK : `app/build/outputs/apk/debug/app-debug.apk`.
 
-La compilation de la version courante doit être vérifiée après le lot de modifications ; les commits GitHub ne constituent pas une preuve de compilation réussie.
+SceneView 4.x est ajouté au projet ; la scène 3D et ses modèles restent à intégrer. La compilation de la migration doit être vérifiée ; les commits GitHub ne constituent pas une preuve de compilation réussie.
