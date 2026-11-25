@@ -34,7 +34,9 @@ jobs:
         with:
           packages: platform-tools
       - name: Install Android platform and build tools
-        run: sdkmanager "platforms;android-37" "build-tools;36.0.0"
+        run: sdkmanager "platforms;android-37.0" "build-tools;36.0.0"
+        # SDK Manager publishes API 37 as android-37.0; AGP resolves compileSdk 37 as android-37.
+        ln -s "$ANDROID_HOME/platforms/android-37.0" "$ANDROID_HOME/platforms/android-37"
       - name: Set up Gradle 9.6
         uses: gradle/actions/setup-gradle@v4
         with:
