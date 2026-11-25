@@ -38,8 +38,6 @@ import coil.compose.AsyncImage
 import com.kalsu.relive.data.PhotoStore
 import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.voice.ChamaSpeech
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 private val RoomGold = Color(0xFFD7B56D)
 private val RoomInk = Color(0xFF090909)
@@ -51,7 +49,6 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     val portrait = remember { PhotoStore(context).get(0) }
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
-    val scope = rememberCoroutineScope()
     var gesture by remember { mutableStateOf("idle") }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
     var speaking by remember { mutableStateOf(false) }
@@ -88,9 +85,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         gesture = kind
         status = line
         speaking = true
-        speech.speak(line, preferences.languageTag)
-        scope.launch {
-            delay(2200)
+        speech.speak(line, preferences.languageTag) {
             speaking = false
             gesture = "idle"
         }
