@@ -48,7 +48,7 @@ import com.kalsu.relive.notifications.ReminderScheduler
 import kotlinx.coroutines.launch
 
 // Palette RELIVE centralisée : les écrans lisent la palette active.
-private data class RelivePalette(
+internal data class RelivePalette(
     val background: Color,
     val surface: Color,
     val primary: Color,
@@ -70,7 +70,7 @@ private val MidnightPalette = RelivePalette(
     Color(0xFF6B343B), Color(0xFFF5F1EA), Color(0xFFB8ADB0)
 )
 
-private val LocalRelivePalette = staticCompositionLocalOf { ChamaOutfitPalette }
+internal val LocalRelivePalette = staticCompositionLocalOf { ChamaOutfitPalette }
 private val Ink: Color @Composable get() = LocalRelivePalette.current.background
 private val Panel: Color @Composable get() = LocalRelivePalette.current.surface
 private val Gold: Color @Composable get() = LocalRelivePalette.current.primary
