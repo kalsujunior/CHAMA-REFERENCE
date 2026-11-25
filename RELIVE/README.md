@@ -19,7 +19,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 
 ## Limites et éléments encore nécessaires
 - Le client IA hybride est présent : si une URL de backend est configurée et que le réseau est disponible, l'application envoie message, langue, 20 derniers échanges et souvenirs au endpoint HTTPS /chat ; en cas d'absence de backend ou d'échec réseau, elle revient aux réponses locales. Le serveur doit renvoyer un JSON avec le champ reply. Le modèle IA n'est pas encore déployé.
-- URL du backend configurable à la compilation avec la propriété Gradle reliveApiBaseUrl. La clé du fournisseur IA doit rester côté serveur, jamais dans l'APK.
+- URL du backend configurable à la compilation avec la propriété Gradle reliveApiBaseUrl. La connexion distante exige HTTPS et un consentement explicite dans Profil. La clé du fournisseur IA doit rester côté serveur, jamais dans l'APK.
 - Les trois photos originales ne sont pas stockées dans le dépôt : il faut les choisir depuis le téléphone dans l'écran Photos. Aucun visage n'est retouché par RELIVE.
 - La dictée dépend d'un service de reconnaissance vocale installé sur Android et peut nécessiter une connexion.
 - La synthèse vocale créole dépend des voix installées sur le téléphone ; Android peut utiliser une voix de remplacement si elle n'existe pas.
