@@ -100,7 +100,6 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     val context = LocalContext.current
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
-    var gesture by remember { mutableStateOf("idle") }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
     var speaking by remember { mutableStateOf(false) }
 
@@ -108,17 +107,17 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         onDispose { speech.release() }
     }
 
-    fun act(kind: String, line: String) {
-        gesture = kind
+    fun act(line: String) {
         status = line
+        if (!preferences.voiceEnabled) {
+            speaking = false
+            return
+        }
         speaking = true
         speech.speak(
             text = line,
             languageTag = preferences.languageTag,
-            onDone = {
-                speaking = false
-                gesture = "idle"
-            },
+            onDone = { speaking = false },
         )
     }
 
@@ -158,21 +157,16 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         .clip(RoundedCornerShape(26.dp)).background(Color(0xFF24191B)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Chama3DAvatar(
-                        gesture = gesture,
-                        speaking = speaking,
-                        viseme = "REST",
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    ChamaPortrait(modifier = Modifier.fillMaxSize())
                     if (speaking) {
                         Surface(
                             modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
-                            color = Color(0xDD332A19), shape = RoundedCornerShape(50)
+                            color = Color(0xDDF4DDE1), shape = RoundedCornerShape(50)
                         ) {
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.VolumeUp, contentDescription = null, tint = RoomGold, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(7.dp))
-                                Text("Chama parle", color = RoomCream, fontSize = 12.sp)
+                                Text("Chama parle", color = RoomInk, fontSize = 12.sp)
                             }
                         }
                     }
@@ -187,31 +181,31 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     horizontalArrangement = Arrangement.spacedBy(7.dp)
                 ) {
                     FilledTonalButton(
-                        onClick = { act("wave", "Coucou ! Je te fais un grand signe de la main. ❤️") },
+                        onClick = { act("Coucou ! Je suis heureuse de te retrouver. ❤️") },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFF332A19), contentColor = RoomGold),
+                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFFF4DDE1), contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
                     ) {
                         Icon(Icons.Default.WavingHand, contentDescription = null, modifier = Modifier.size(17.dp))
-                        Spacer(Modifier.width(4.dp)); Text("Saluer", fontSize = 11.sp)
+                        Spacer(Modifier.width(4.dp)); Text("Bonjour", fontSize = 11.sp)
                     }
                     FilledTonalButton(
                         onClick = { act("listen", "Je t'écoute. Raconte-moi ce que tu as sur le cœur.") },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFF332A19), contentColor = RoomGold),
+                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFFF4DDE1), contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
                     ) {
                         Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(17.dp))
                         Spacer(Modifier.width(4.dp)); Text("Écouter", fontSize = 11.sp)
                     }
                     FilledTonalButton(
-                        onClick = { act("dance", "Un petit moment de joie rien que pour nous !") },
+                        onClick = { act("Un petit moment de joie rien que pour nous !") },
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFF332A19), contentColor = RoomGold),
+                        colors = ButtonDefaults.filledTonalButtonColors(containerColor = Color(0xFFF4DDE1), contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
                     ) {
                         Icon(Icons.Default.MusicNote, contentDescription = null, modifier = Modifier.size(17.dp))
-                        Spacer(Modifier.width(4.dp)); Text("Danser", fontSize = 11.sp)
+                        Spacer(Modifier.width(4.dp)); Text("Partager", fontSize = 11.sp)
                     }
                 }
 
