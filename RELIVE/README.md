@@ -24,7 +24,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 Le Worker Cloudflare est déployé à l'adresse :
 https://relive-chama-api.kalsujunior.workers.dev
 
-Le Worker essaie GroqCloud en premier et bascule automatiquement sur Google Gemini si Groq est indisponible ou atteint une limite. Un seul fournisseur configuré permet déjà de démarrer ; les deux sont nécessaires pour le secours automatique. Les deux clés API et le code privé sont conservés comme secrets Cloudflare, jamais dans l'APK ou le dépôt.
+Le Worker essaie GroqCloud en premier (modèle par défaut `openai/gpt-oss-20b`) et bascule automatiquement sur Google Gemini (modèle par défaut `gemini-3.8-flash`) si Groq est indisponible ou atteint une limite. Un seul fournisseur configuré permet déjà de démarrer ; les deux sont nécessaires pour le secours automatique. Les deux clés API et le code privé sont conservés comme secrets Cloudflare, jamais dans l'APK ou le dépôt.
 
 Voir `backend/cloudflare-worker/README.md` pour les étapes de configuration et les noms exacts des variables. Le même `RELIVE_ACCESS_TOKEN` doit être saisi dans RELIVE > Profil. Le consentement IA distant reste désactivé par défaut.
 
