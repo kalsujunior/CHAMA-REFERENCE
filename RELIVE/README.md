@@ -21,7 +21,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 ## Backend IA (à déployer par le propriétaire)
 Le client Android attend un endpoint HTTPS POST /chat qui accepte un message, la langue, jusqu'à 20 souvenirs et les 20 derniers échanges. La réponse attendue est un JSON avec le champ reply.
 
-Un modèle de backend Cloudflare Worker est fourni dans backend/cloudflare-worker. Il appelle une API compatible OpenAI Chat Completions. La clé fournisseur doit être ajoutée comme secret Cloudflare AI_API_KEY, jamais dans le dépôt ou l'APK. Il faut configurer AI_MODEL et le binding de limitation de débit RATE_LIMITER. Le Worker refuse les requêtes si le binding ou la clé API manque.
+Le backend Cloudflare Worker est déployé à l’adresse https://relive-chama-api.kalsujunior.workers.dev. Son code source est conservé dans backend/cloudflare-worker. Il appelle une API compatible OpenAI Chat Completions. La clé fournisseur doit être ajoutée comme secret Cloudflare AI_API_KEY, jamais dans le dépôt ou l'APK. Il faut configurer AI_MODEL et le binding de limitation de débit RATE_LIMITER. Le Worker refuse les requêtes si le binding ou la clé API manque.
 
 Pour compiler avec l'URL du Worker :
 ```bash

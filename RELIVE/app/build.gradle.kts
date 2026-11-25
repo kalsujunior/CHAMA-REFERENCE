@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
-val reliveApiBaseUrl = providers.gradleProperty("reliveApiBaseUrl").orNull ?: ""
+val reliveApiBaseUrl = providers.gradleProperty("reliveApiBaseUrl").orNull ?: "https://relive-chama-api.kalsujunior.workers.dev"
 
 android {
     namespace = "com.kalsu.relive"
