@@ -1,0 +1,13 @@
+name = "relive-chama-api"
+main = "src/index.js"
+compatibility_date = "2026-11-25"
+
+[vars]
+AI_API_URL = "https://api.openai.com/v1/chat/completions"
+# Configure AI_MODEL as a Worker variable in the Cloudflare dashboard.
+# Configure ALLOWED_ORIGIN only when a browser client needs CORS.
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 15, period = 60 }
