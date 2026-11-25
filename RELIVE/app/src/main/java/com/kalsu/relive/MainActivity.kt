@@ -110,6 +110,8 @@ private fun BrandHeader() {
 
 @Composable
 private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> Unit) {
+    val context = LocalContext.current
+    val mainPhoto = remember { PhotoStore(context).get(0) }
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
         Column(Modifier.fillMaxSize().padding(horizontal = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -118,14 +120,19 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
             Spacer(Modifier.height(22.dp))
             Box(Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp).background(Panel, RoundedCornerShape(28.dp)),
                 contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(Modifier.size(112.dp).background(Color(0xFF302719), CircleShape), contentAlignment = Alignment.Center) {
-                        Text("C", color = Gold, fontSize = 58.sp, fontWeight = FontWeight.Light)
+                if (mainPhoto != null) {
+                    AsyncImage(model = mainPhoto, contentDescription = "Portrait original de Chama",
+                        modifier = Modifier.fillMaxSize())
+                } else {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(Modifier.size(112.dp).background(Color(0xFF302719), CircleShape), contentAlignment = Alignment.Center) {
+                            Text("C", color = Gold, fontSize = 58.sp, fontWeight = FontWeight.Light)
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        Text("ESPÉRANCE RUCHAMA KEFORA", color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text("Chama", color = Cream, fontSize = 25.sp, fontWeight = FontWeight.Medium)
+                        Text("Ajoute son portrait dans Photos", color = Muted, fontSize = 12.sp)
                     }
-                    Spacer(Modifier.height(16.dp))
-                    Text("ESPÉRANCE RUCHAMA KEFORA", color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                    Text("Chama", color = Cream, fontSize = 25.sp, fontWeight = FontWeight.Medium)
-                    Text("Portrait original à intégrer", color = Muted, fontSize = 12.sp)
                 }
             }
             Spacer(Modifier.height(18.dp))
