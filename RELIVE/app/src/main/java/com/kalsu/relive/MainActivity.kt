@@ -16,9 +16,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kalsu.relive.core.NetworkStatus
+import com.kalsu.relive.data.ChatMessage
+import com.kalsu.relive.data.ChatStore
+import com.kalsu.relive.voice.ChamaSpeech
 
 private val Ink = Color(0xFF090909)
 private val Panel = Color(0xFF171717)
@@ -98,7 +103,6 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
             Text("Heureuse de te retrouver", color = Cream, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
             Text("Je suis Chama. Je suis là pour toi.", color = Muted, fontSize = 14.sp)
             Spacer(Modifier.height(22.dp))
-            // Emplacement réservé à la photo originale principale, à intégrer sans retouche.
             Box(Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp).background(Panel, RoundedCornerShape(28.dp)),
                 contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -108,7 +112,7 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
                     Spacer(Modifier.height(16.dp))
                     Text("ESPÉRANCE RUCHAMA KEFORA", color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     Text("Chama", color = Cream, fontSize = 25.sp, fontWeight = FontWeight.Medium)
-                    Text("Photo principale à intégrer", color = Muted, fontSize = 12.sp)
+                    Text("Portrait original à intégrer", color = Muted, fontSize = 12.sp)
                 }
             }
             Spacer(Modifier.height(18.dp))
@@ -124,27 +128,82 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
     }
 }
 
+private fun localReply(message: String): String {
+    val value = message.lowercase()
+    return when {
+        listOf("bonjour", "salut", "coucou", "bonjou").any { value.contains(it) } ->
+            "Coucou ! Je suis contente de te lire. Comment te sens-tu aujourd'hui ?"
+        listOf("triste", "malheureux", "difficile", "fatigué", "fatigue").any { value.contains(it) } ->
+            "Je suis là pour t'écouter. Tu peux me raconter ce qui te pèse, à ton rythme."
+        listOf("merci", "mesi").any { value.contains(it) } ->
+            "Avec plaisir. Je suis heureuse de pouvoir échanger avec toi."
+        listOf("créole", "kreyòl", "creole").any { value.contains(it) } ->
+            "Mwen la avèk ou. M ap aprann adapte konvèsasyon nou an ak lang ou prefere."
+        else -> "J'ai bien reçu ton message. Le mode conversation local est actif ; la connexion au service d'intelligence artificielle distant reste à configurer."
+    }
+}
+
 @Composable
 private fun ChatScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    val store = remember { ChatStore(context) }
+    val speech = remember { ChamaSpeech(context) }
     var draft by remember { mutableStateOf("") }
-    val messages = remember { mutableStateListOf("Chama : Coucou ! Comment s'est passée ta journée ?") }
+    var messages by remember { mutableStateOf(store.load()) }
+    val online = remember { mutableStateOf(NetworkStatus.isOnline(context)) }
+
+    DisposableEffect(speech) {
+        onDispose { speech.release() }
+    }
+
+    fun addMessage(author: String, text: String) {
+        val saved = store.append(author, text)
+        messages = (messages + saved).takeLast(1000)
+    }
+
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
-        Text("Conversation", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Conversation", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Text(if (online.value) "Réseau disponible" else "Mode hors ligne",
+                color = if (online.value) Gold else Muted, fontSize = 11.sp)
+            IconButton(onClick = {
+                store.clear()
+                messages = emptyList()
+            }) { Icon(Icons.Default.DeleteOutline, contentDescription = "Effacer l'historique", tint = Muted) }
+        }
+        if (messages.isEmpty()) {
+            Text("Votre conversation commencera ici. Les messages seront conservés sur cet appareil.",
+                color = Muted, modifier = Modifier.padding(20.dp))
+        }
         LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(messages) { message ->
-                Surface(color = Panel, shape = RoundedCornerShape(16.dp)) {
-                    Text(message, color = Cream, modifier = Modifier.padding(14.dp))
+            items(messages, key = { it.id }) { message ->
+                val fromChama = message.author == "Chama"
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = if (fromChama) Arrangement.Start else Arrangement.End) {
+                    Surface(color = if (fromChama) Panel else Color(0xFF302719), shape = RoundedCornerShape(16.dp)) {
+                        Column(Modifier.widthIn(max = 300.dp).padding(12.dp)) {
+                            Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            Text(message.text, color = Cream, modifier = Modifier.padding(top = 4.dp))
+                            if (fromChama) {
+                                TextButton(onClick = { speech.speak(message.text) }, contentPadding = PaddingValues(0.dp)) {
+                                    Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Gold, modifier = Modifier.size(16.dp))
+                                    Spacer(Modifier.width(5.dp))
+                                    Text("Écouter", color = Gold, fontSize = 11.sp)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
         Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(value = draft, onValueChange = { draft = it }, modifier = Modifier.weight(1f),
-                placeholder = { Text("Écris à Chama…") }, singleLine = true)
+                placeholder = { Text("Écris à Chama…") }, singleLine = false, maxLines = 4)
             IconButton(onClick = {
-                if (draft.isNotBlank()) {
-                    messages.add("Toi : $draft")
-                    messages.add("Chama : Je t'écoute. Raconte-moi davantage. (Réponse de démonstration)")
+                val text = draft.trim()
+                if (text.isNotEmpty()) {
+                    addMessage("Toi", text)
+                    addMessage("Chama", localReply(text))
                     draft = ""
                 }
             }) { Icon(Icons.Default.Send, contentDescription = "Envoyer", tint = Gold) }
@@ -157,8 +216,9 @@ private fun GalleryScreen(modifier: Modifier) {
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
         Text("Galerie de Chama", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
-        Text("Les trois photos originales seront placées ici sans retouche.", color = Muted, modifier = Modifier.padding(20.dp))
-        listOf("Photo principale — pull blanc avec cœurs rouges", "Photo 2 — maillot bleu", "Photo 3 — robe rose").forEachIndexed { index, title ->
+        Text("Les trois fichiers photo originaux doivent être ajoutés aux ressources de l'application. Ils ne sont pas encore présents dans le dépôt.",
+            color = Muted, modifier = Modifier.padding(20.dp))
+        listOf("Photo principale — pull blanc avec cœurs rouges", "Photo 2 — galerie", "Photo 3 — galerie").forEachIndexed { index, title ->
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 7.dp).background(Panel, RoundedCornerShape(14.dp)).padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(44.dp).background(Color(0xFF302719), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
@@ -176,8 +236,8 @@ private fun ProfileScreen(modifier: Modifier) {
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
         Text("Profil et préférences", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
-        listOf("Langue : Français", "Créole haïtien : prévu", "Mémoire : stockage local à configurer",
-            "Notifications : à configurer", "Compte : mode démonstration").forEach {
+        listOf("Nom : ESPÉRANCE RUCHAMA KEFORA", "Surnom : Chama", "Langues prévues : français et créole haïtien",
+            "Conversation : sauvegardée localement", "Voix : synthèse vocale Android", "IA distante : backend à connecter").forEach {
             Text(it, color = Cream, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)
                 .background(Panel, RoundedCornerShape(12.dp)).padding(16.dp))
         }
