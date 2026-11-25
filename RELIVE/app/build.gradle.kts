@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+val reliveApiBaseUrl = providers.gradleProperty("reliveApiBaseUrl").orNull ?: ""
+
 android {
     namespace = "com.kalsu.relive"
     compileSdk = 35
@@ -12,8 +14,12 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "RELIVE_API_BASE_URL", "\"$reliveApiBaseUrl\"")
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
