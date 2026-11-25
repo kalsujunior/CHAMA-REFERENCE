@@ -143,13 +143,12 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                             },
                             contentScale = ContentScale.Fit
                         )
-                        AnimatedVisibility(
-                            visible = gesture == "wave" || gesture == "dance" || gesture == "listen",
-                            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
-                            enter = fadeIn() + scaleIn(),
-                            exit = fadeOut() + scaleOut()
-                        ) {
-                            Surface(color = Color(0xDD211B2B), shape = CircleShape) {
+                        if (gesture == "wave" || gesture == "dance" || gesture == "listen") {
+                            Surface(
+                                modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
+                                color = Color(0xDD211B2B),
+                                shape = CircleShape
+                            ) {
                                 Text(
                                     text = when (gesture) { "wave" -> "👋"; "dance" -> "♪"; else -> "♡" },
                                     fontSize = 30.sp,
