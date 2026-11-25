@@ -33,6 +33,7 @@ import com.kalsu.relive.core.NetworkStatus
 import com.kalsu.relive.data.ChatMessage
 import com.kalsu.relive.data.ChatStore
 import com.kalsu.relive.data.PhotoStore
+import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.voice.ChamaSpeech
 import com.kalsu.relive.notifications.ReminderScheduler
 
@@ -282,17 +283,49 @@ private fun GalleryScreen(modifier: Modifier) {
 
 @Composable
 private fun ProfileScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    val preferences = remember { PreferenceStore(context) }
+    var displayName by remember { mutableStateOf(preferences.displayName) }
+    var language by remember { mutableStateOf(preferences.languageTag) }
+    var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
+    var savedMessage by remember { mutableStateOf("") }
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
         Text("Profil et préférences", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
-        listOf("Nom : ESPÉRANCE RUCHAMA KEFORA", "Surnom : Chama", "Langues prévues : français et créole haïtien",
-            "Conversation : sauvegardée localement", "Voix : synthèse vocale Android", "IA distante : backend à connecter").forEach {
-            Text(it, color = Cream, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)
+        OutlinedTextField(value = displayName, onValueChange = { displayName = it },
+            label = { Text("Nom affiché de Chama") },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), singleLine = true)
+        Text("Langue de la voix", color = Gold, modifier = Modifier.padding(start = 20.dp, top = 18.dp))
+        Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            FilterChip(selected = language == "fr-FR", onClick = { language = "fr-FR" }, label = { Text("Français") })
+            Spacer(Modifier.width(10.dp))
+            FilterChip(selected = language == "ht-HT", onClick = { language = "ht-HT" }, label = { Text("Kreyòl ayisyen") })
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Activer la lecture vocale", color = Cream, modifier = Modifier.weight(1f))
+            Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it })
+        }
+        Button(onClick = {
+            if (displayName.isBlank()) {
+                savedMessage = "Le nom ne peut pas être vide."
+            } else {
+                preferences.displayName = displayName
+                preferences.languageTag = language
+                preferences.voiceEnabled = voiceEnabled
+                savedMessage = "Préférences enregistrées sur cet appareil."
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
+            Text("Enregistrer les préférences", color = Ink, fontWeight = FontWeight.Bold)
+        }
+        Text(savedMessage, color = Gold, modifier = Modifier.padding(20.dp))
+        listOf("Identité : ESPÉRANCE RUCHAMA KEFORA", "Conversation : sauvegardée localement",
+            "Photos : stockage local des originaux", "IA distante : backend sécurisé à connecter").forEach {
+            Text(it, color = Cream, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                 .background(Panel, RoundedCornerShape(12.dp)).padding(16.dp))
         }
     }
 }
-
 
 @Composable
 private fun RemindersScreen(modifier: Modifier) {
