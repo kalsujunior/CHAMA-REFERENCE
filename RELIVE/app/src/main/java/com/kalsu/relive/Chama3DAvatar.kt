@@ -63,6 +63,7 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
     private var positionHandle = 0
     private var colorHandle = 0
     private var mvpHandle = 0
+    private var scaleHandle = 0
     private var vertexBuffer: FloatBuffer? = null
     private var vertexCount = 0
     private val projection = FloatArray(16)
@@ -79,10 +80,11 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         val vertexShader = """
             uniform mat4 uMVP;
+            uniform vec3 uScale;
             attribute vec3 aPosition;
             varying vec3 vNormal;
             void main() {
-              vNormal = normalize(aPosition);
+              vNormal = normalize(aPosition / max(uScale, vec3(0.001)));
               gl_Position = uMVP * vec4(aPosition, 1.0);
             }
         """.trimIndent()
@@ -91,16 +93,20 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
             uniform vec4 uColor;
             varying vec3 vNormal;
             void main() {
-              vec3 light = normalize(vec3(-0.35, 0.75, 0.65));
-              float diffuse = max(dot(normalize(vNormal), light), 0.0);
-              float shade = 0.48 + diffuse * 0.58;
-              gl_FragColor = vec4(uColor.rgb * shade, uColor.a);
+              vec3 n = normalize(vNormal);
+              vec3 light = normalize(vec3(-0.35, 0.75, 0.85));
+              float diffuse = max(dot(n, light), 0.0);
+              float specular = pow(max(dot(reflect(-light, n), vec3(0.0, 0.0, 1.0)), 0.0), 22.0);
+              float rim = pow(1.0 - max(n.z, 0.0), 2.0) * 0.12;
+              vec3 lit = uColor.rgb * (0.42 + diffuse * 0.62 + rim) + vec3(1.0, 0.82, 0.66) * specular * 0.16;
+              gl_FragColor = vec4(lit, uColor.a);
             }
         """.trimIndent()
         program = linkProgram(compileShader(GLES20.GL_VERTEX_SHADER, vertexShader), compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShader))
         positionHandle = GLES20.glGetAttribLocation(program, "aPosition")
         colorHandle = GLES20.glGetUniformLocation(program, "uColor")
         mvpHandle = GLES20.glGetUniformLocation(program, "uMVP")
+        scaleHandle = GLES20.glGetUniformLocation(program, "uScale")
         vertexBuffer = makeSphere()
     }
 
@@ -137,15 +143,37 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
             draw(x + offset, 0.55f, 0.12f, 0.055f, 0.95f, 0.06f, 0.16f, 0.075f, 0.045f, i * 5f)
             draw(x + offset * 1.2f, -0.34f, 0.12f, 0.052f, 0.72f, 0.055f, 0.20f, 0.10f, 0.055f, -i * 3f)
         }
-        // Face details: eyes, nose and animated mouth.
-        draw(-0.22f, 1.62f, 0.405f, 0.075f, blink, 0.025f, 0.045f, 0.025f, 0.018f)
-        draw(0.18f, 1.62f, 0.405f, 0.075f, blink, 0.025f, 0.045f, 0.025f, 0.018f)
-        draw(-0.22f, 1.62f, 0.431f, 0.022f, 0.025f, 0.015f, 0.02f, 0.012f, 0.008f)
-        draw(0.18f, 1.62f, 0.431f, 0.022f, 0.025f, 0.015f, 0.02f, 0.012f, 0.008f)
-        draw(-0.02f, 1.43f, 0.455f, 0.045f, 0.09f, 0.045f, 0.34f, 0.17f, 0.13f)
-        draw(-0.02f, 1.28f, 0.45f, 0.105f, mouthOpen, 0.025f, 0.22f, 0.045f, 0.055f)
-        draw(-0.22f, 1.72f, 0.405f, 0.095f, 0.018f, 0.025f, 0.16f, 0.075f, 0.055f, -5f)
-        draw(0.18f, 1.72f, 0.405f, 0.095f, 0.018f, 0.025f, 0.16f, 0.075f, 0.055f, 5f)
+        // Ears and subtle warm inner-ear details.
+        draw(-0.535f, 1.53f, 0.02f, 0.105f, 0.17f, 0.10f, 0.43f, 0.22f, 0.17f)
+        draw(0.495f, 1.53f, 0.02f, 0.105f, 0.17f, 0.10f, 0.43f, 0.22f, 0.17f)
+        draw(-0.545f, 1.52f, 0.105f, 0.035f, 0.075f, 0.025f, 0.62f, 0.34f, 0.27f)
+        draw(0.505f, 1.52f, 0.105f, 0.035f, 0.075f, 0.025f, 0.62f, 0.34f, 0.27f)
+        // Layered eyes: ivory sclera, dark irises, pupils and catchlights.
+        draw(-0.22f, 1.62f, 0.414f, 0.092f, blink, 0.035f, 0.96f, 0.91f, 0.83f)
+        draw(0.18f, 1.62f, 0.414f, 0.092f, blink, 0.035f, 0.96f, 0.91f, 0.83f)
+        draw(-0.22f, 1.62f, 0.445f, 0.039f, blink * 0.78f, 0.018f, 0.20f, 0.105f, 0.065f)
+        draw(0.18f, 1.62f, 0.445f, 0.039f, blink * 0.78f, 0.018f, 0.20f, 0.105f, 0.065f)
+        draw(-0.22f, 1.62f, 0.461f, 0.018f, blink * 0.55f, 0.012f, 0.035f, 0.025f, 0.022f)
+        draw(0.18f, 1.62f, 0.461f, 0.018f, blink * 0.55f, 0.012f, 0.035f, 0.025f, 0.022f)
+        draw(-0.232f, 1.641f, 0.474f, 0.010f, 0.010f, 0.007f, 1f, 0.98f, 0.91f)
+        draw(0.168f, 1.641f, 0.474f, 0.010f, 0.010f, 0.007f, 1f, 0.98f, 0.91f)
+        // Eyelids, brows and soft nose bridge.
+        draw(-0.22f, 1.705f, 0.414f, 0.105f, 0.025f, 0.035f, 0.12f, 0.055f, 0.045f, -4f)
+        draw(0.18f, 1.705f, 0.414f, 0.105f, 0.025f, 0.035f, 0.12f, 0.055f, 0.045f, 4f)
+        draw(-0.22f, 1.755f, 0.405f, 0.105f, 0.035f, 0.035f, 0.20f, 0.105f, 0.075f, -7f)
+        draw(0.18f, 1.755f, 0.405f, 0.105f, 0.035f, 0.035f, 0.20f, 0.105f, 0.075f, 7f)
+        draw(-0.02f, 1.52f, 0.445f, 0.035f, 0.16f, 0.035f, 0.53f, 0.31f, 0.24f)
+        draw(-0.02f, 1.425f, 0.469f, 0.075f, 0.055f, 0.045f, 0.58f, 0.34f, 0.27f)
+        draw(-0.055f, 1.414f, 0.507f, 0.012f, 0.008f, 0.008f, 0.30f, 0.13f, 0.11f)
+        draw(0.015f, 1.414f, 0.507f, 0.012f, 0.008f, 0.008f, 0.30f, 0.13f, 0.11f)
+        // Mouth cavity and separate upper/lower lips for clearer viseme shapes.
+        draw(-0.02f, 1.285f, 0.468f, 0.112f, mouthOpen, 0.024f, 0.19f, 0.025f, 0.045f)
+        draw(-0.02f, 1.305f, 0.491f, 0.105f, 0.025f + mouthOpen * 0.20f, 0.018f, 0.55f, 0.20f, 0.20f)
+        draw(-0.02f, 1.255f, 0.492f, 0.082f, 0.018f + mouthOpen * 0.18f, 0.018f, 0.69f, 0.29f, 0.29f)
+        // Tiny gold earrings and sweater collar.
+        draw(-0.55f, 1.36f, 0.11f, 0.035f, 0.045f, 0.025f, 0.84f, 0.66f, 0.30f)
+        draw(0.52f, 1.36f, 0.11f, 0.035f, 0.045f, 0.025f, 0.84f, 0.66f, 0.30f)
+        draw(-0.02f, 0.48f, 0.365f, 0.28f, 0.09f, 0.045f, 0.78f, 0.75f, 0.72f)
         // Arms: raised and waving when greeted.
         draw(-0.70f, 0.05f, 0f, 0.20f, 0.58f, 0.20f, 0.94f, 0.91f, 0.88f, -18f + dance)
         draw(0.68f, 0.02f, 0f, 0.20f, 0.58f, 0.20f, 0.94f, 0.91f, 0.88f, 18f - dance)
@@ -171,6 +199,7 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
         Matrix.scaleM(model, 0, sx, sy, sz)
         Matrix.multiplyMM(mvp, 0, vp, 0, model, 0)
         GLES20.glUniformMatrix4fv(mvpHandle, 1, false, mvp, 0)
+        GLES20.glUniform3f(scaleHandle, sx, sy, sz)
         GLES20.glUniform4f(colorHandle, r, g, b, 1f)
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount)
     }
