@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kalsu.relive.core.NetworkStatus
+import com.kalsu.relive.ai.AiGateway
 import com.kalsu.relive.data.ChatMessage
 import com.kalsu.relive.data.ChatStore
 import com.kalsu.relive.data.PhotoStore
@@ -40,6 +41,7 @@ import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.data.MemoryStore
 import com.kalsu.relive.voice.ChamaSpeech
 import com.kalsu.relive.notifications.ReminderScheduler
+import kotlinx.coroutines.launch
 
 private val Ink = Color(0xFF090909)
 private val Panel = Color(0xFF171717)
@@ -173,7 +175,10 @@ private fun ChatScreen(modifier: Modifier) {
     val context = LocalContext.current
     val store = remember { ChatStore(context) }
     val preferences = remember { PreferenceStore(context) }
+    val memoryStore = remember { MemoryStore(context) }
+    val scope = rememberCoroutineScope()
     val speech = remember { ChamaSpeech(context) }
+    var sending by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(store.load()) }
     val online = remember { mutableStateOf(NetworkStatus.isOnline(context)) }
@@ -237,14 +242,23 @@ private fun ChatScreen(modifier: Modifier) {
             }) { Icon(Icons.Default.Mic, contentDescription = "Dicter un message", tint = Gold) }
             OutlinedTextField(value = draft, onValueChange = { draft = it }, modifier = Modifier.weight(1f),
                 placeholder = { Text("Écris à Chama…") }, singleLine = false, maxLines = 4)
-            IconButton(onClick = {
+            IconButton(enabled = !sending, onClick = {
                 val text = draft.trim()
-                if (text.isNotEmpty()) {
+                if (text.isNotEmpty() && !sending) {
                     addMessage("Toi", text)
-                    addMessage("Chama", localReply(text))
                     draft = ""
+                    sending = true
+                    scope.launch {
+                        val memories = memoryStore.load().map { it.text }
+                        val answer = AiGateway.reply(text, preferences.languageTag, memories)
+                        addMessage("Chama", answer ?: localReply(text))
+                        sending = false
+                    }
                 }
-            }) { Icon(Icons.Default.Send, contentDescription = "Envoyer", tint = Gold) }
+            }) {
+                if (sending) CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Gold, strokeWidth = 2.dp)
+                else Icon(Icons.Default.Send, contentDescription = "Envoyer", tint = Gold)
+            }
         }
     }
 }
