@@ -1,16 +1,15 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 val reliveApiBaseUrl = providers.gradleProperty("reliveApiBaseUrl").orNull ?: "https://relive-chama-api.kalsujunior.workers.dev"
 
 android {
     namespace = "com.kalsu.relive"
-    compileSdk = 35
+    compileSdk = 37
     defaultConfig {
         applicationId = "com.kalsu.relive"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 35
         versionCode = 4
         versionName = "0.4.0"
@@ -21,13 +20,13 @@ android {
         buildConfig = true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
 }
 dependencies {
-    implementation(platform("androidx.compose:compose-bom:2024.09.00"))
+    implementation(platform("androidx.compose:compose-bom:2026.10.00"))
+    implementation("io.github.sceneview:sceneview:4.74.0")
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.animation:animation")
