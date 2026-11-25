@@ -1,5 +1,12 @@
 # RELIVE — KAL-SU
 
+## Espace virtuel animé — version 0.4.0
+- Portrait original animé uniquement par des mouvements de présentation doux (flottement, respiration visuelle et inclinaison légère), sans retouche de l'image source.
+- Interactions tactiles Saluer, Écouter et Danser : affichage d'un geste symbolique et synthèse vocale Android dans la langue sélectionnée.
+- Indicateur visuel pendant la lecture vocale et accès direct à la conversation et à la galerie.
+- Limite honnête : une photo 2D fixe ne permet pas d'animer réellement les yeux, la bouche, les bras ou le corps. Cette version ne prétend pas produire un avatar humain 3D ou une synchronisation labiale. Cela nécessiterait un modèle de personnage animé/riggé ou une technologie dédiée et des ressources supplémentaires.
+
+
 Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCHAMA KEFORA (Chama).
 
 ## Fonctions de la version 0.2.0
