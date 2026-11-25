@@ -11,7 +11,8 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Synthèse vocale Android et dictée vocale via le service de reconnaissance installé sur le téléphone.
 - Trois emplacements de galerie avec sélection de photos originales via le sélecteur de documents Android ; les URI et autorisations de lecture sont conservées.
 - Le portrait du premier emplacement est affiché sur l'écran d'accueil.
-- Préférences persistantes pour la langue de synthèse vocale et l'activation de la lecture.
+- Préférences persistantes pour le nom affiché, la langue de synthèse vocale et l'activation de la lecture.
+- Souvenirs personnels structurés : ajout, affichage et suppression locale (jusqu'à 500 entrées).
 - Rappels locaux programmés via WorkManager, avec annulation des rappels RELIVE en attente.
 - Workflow GitHub Actions pour compiler Android Debug et publier l'APK en artefact.
 
@@ -20,7 +21,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Les trois photos originales ne sont pas stockées dans le dépôt : il faut les choisir depuis le téléphone dans l'écran Photos. Aucun visage n'est retouché par RELIVE.
 - La dictée dépend d'un service de reconnaissance vocale installé sur Android et peut nécessiter une connexion.
 - La synthèse vocale créole dépend des voix installées sur le téléphone ; Android peut utiliser une voix de remplacement si elle n'existe pas.
-- Mémoire structurée de long terme, calendrier avancé, comptes, authentification, synchronisation cloud, sauvegarde, administration, confidentialité avancée et tests fonctionnels restent à développer.
+- Mémoire sémantique intégrée aux réponses de l'IA, calendrier avancé, comptes, authentification, synchronisation cloud, sauvegarde, administration, confidentialité avancée et tests fonctionnels restent à développer.
 - L'état de compilation doit être confirmé par un workflow GitHub Actions réussi sur le dernier commit.
 
 ## Compilation locale
