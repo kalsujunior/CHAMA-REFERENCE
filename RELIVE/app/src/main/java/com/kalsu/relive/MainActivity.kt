@@ -126,7 +126,7 @@ private fun ReliveApp() {
                             label = { Text(label) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = Gold, selectedTextColor = Gold,
-                                indicatorColor = Color(0xFFF4DDE1),
+                                indicatorColor = ChamaRose.copy(alpha = 0.28f),
                                 unselectedIconColor = Muted, unselectedTextColor = Muted
                             )
                         )
@@ -155,7 +155,7 @@ private fun BrandHeader() {
             Text("RELIVE", color = Gold, fontSize = 23.sp, fontWeight = FontWeight.Black, letterSpacing = 3.sp)
             Text("KAL-SU • COMPAGNE VIRTUELLE", color = Muted, fontSize = 9.sp, letterSpacing = 1.2.sp)
         }
-        Box(Modifier.size(42.dp).background(Color(0xFFE8B9C1), CircleShape), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(42.dp).background(ChamaRose, CircleShape), contentAlignment = Alignment.Center) {
             Text("KS", color = Gold, fontWeight = FontWeight.Bold)
         }
     }
@@ -284,7 +284,7 @@ private fun ChatScreen(modifier: Modifier) {
                         )
                         Spacer(Modifier.width(7.dp))
                     }
-                    Surface(color = if (fromChama) Panel else Color(0xFFF4DDE1), shape = RoundedCornerShape(16.dp)) {
+                    Surface(color = if (fromChama) Panel else ChamaRose, shape = RoundedCornerShape(16.dp)) {
                         Column(Modifier.widthIn(max = 300.dp).padding(12.dp)) {
                             Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             MarkdownMessageText(message.text, modifier = Modifier.padding(top = 4.dp))
@@ -376,7 +376,7 @@ private fun GalleryScreen(modifier: Modifier) {
                             modifier = Modifier.padding(top = 6.dp))
                     }
                 } else {
-                    Box(Modifier.fillMaxWidth().height(90.dp).background(Color(0xFFE8B9C1), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                    Box(Modifier.fillMaxWidth().height(90.dp).background(ChamaRose, RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
                         Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = Gold, modifier = Modifier.size(34.dp))
                     }
                 }
