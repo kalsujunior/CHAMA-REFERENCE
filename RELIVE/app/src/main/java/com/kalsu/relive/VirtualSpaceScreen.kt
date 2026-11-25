@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kalsu.relive.data.PhotoStore
 import com.kalsu.relive.data.PreferenceStore
+import com.kalsu.relive.avatar.ChamaViseme
 import com.kalsu.relive.voice.ChamaSpeech
 
 private val RoomGold = Color(0xFFD7B56D)
@@ -52,6 +53,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var gesture by remember { mutableStateOf("idle") }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
     var speaking by remember { mutableStateOf(false) }
+    var currentViseme by remember { mutableStateOf(ChamaViseme.REST) }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -85,10 +87,16 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         gesture = kind
         status = line
         speaking = true
-        speech.speak(line, preferences.languageTag) {
-            speaking = false
-            gesture = "idle"
-        }
+        speech.speak(
+            text = line,
+            languageTag = preferences.languageTag,
+            onDone = {
+                speaking = false
+                gesture = "idle"
+                currentViseme = ChamaViseme.REST
+            },
+            onViseme = { viseme -> currentViseme = viseme }
+        )
     }
 
     Column(
@@ -166,7 +174,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.VolumeUp, contentDescription = null, tint = RoomGold, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(7.dp))
-                                Text("Chama parle…", color = RoomCream, fontSize = 12.sp)
+                                Text("Chama parle • bouche ${currentViseme.label}", color = RoomCream, fontSize = 12.sp)
                             }
                         }
                     }
