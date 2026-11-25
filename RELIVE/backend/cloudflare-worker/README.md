@@ -46,6 +46,11 @@ Le mode vocal personnalisé est désactivé par défaut dans RELIVE et doit êtr
 
 Important : le client n'active actuellement la voix personnalisée que pour le français (`fr-FR`). Le créole haïtien utilise la synthèse Android jusqu'à ce qu'une prise en charge vocale de qualité soit testée et validée. La liste officielle des langues de Eleven v4 comprend le français mais ne cite pas le créole haïtien.
 
+Tests automatiques du Worker (Node.js 22 ou supérieur) :
+```bash
+npm test
+```
+
 Test manuel après configuration :
 ```bash
 curl -X POST "https://relive-chama-api.kalsujunior.workers.dev/speech" \
