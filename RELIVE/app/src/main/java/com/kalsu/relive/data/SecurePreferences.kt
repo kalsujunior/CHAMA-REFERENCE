@@ -13,7 +13,7 @@ internal object SecurePreferences {
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
         val encrypted = EncryptedSharedPreferences.create(
-            appContext, fileName, masterKey,
+            appContext, fileName + "_secure", masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )

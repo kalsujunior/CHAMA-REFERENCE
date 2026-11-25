@@ -161,7 +161,7 @@ private fun localReply(message: String, memories: List<String>): String {
         return if (memories.isEmpty()) {
             "Je n'ai pas encore de souvenir enregistré. Tu peux m'en confier dans Profil, rubrique Souvenirs à conserver."
         } else {
-            "Voici les souvenirs que tu m'as confiés :\\n" + memories.takeLast(20).mapIndexed { index, item -> (index + 1).toString() + ". " + item }.joinToString("\\n")
+            "Voici les souvenirs que tu m'as confiés :\n" + memories.takeLast(20).mapIndexed { index, item -> (index + 1).toString() + ". " + item }.joinToString("\n")
         }
     }
     if (listOf("souviens-toi", "souviens toi", "sonje sa", "sonje sa pou mwen").any { normalized.contains(it) }) {
