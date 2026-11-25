@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "character": "ESPÉRANCE RUCHAMA KEFORA",
+  "nickname": "Chama",
+  "target": "RELIVE – KAL-SU",
+  "sourcePhotoPolicy": {
+    "originalMustRemainUnmodified": true,
+    "avatarMustBeSeparateAsset": true
+  },
+  "assetStatus": "specification_only_layered_artwork_not_yet_available",
+  "canvas": {
+    "width": 2048,
+    "height": 2048,
+    "origin": "top-left",
+    "transparentBackground": true,
+    "allLayersSameDimensions": true
+  },
+  "layerOrderBackToFront": [
+    "torso_back",
+    "neck",
+    "body_front",
+    "head_base",
+    "ear_left",
+    "ear_right",
+    "hair_back",
+    "braid_left_back",
+    "braid_right_back",
+    "headband",
+    "brow_left",
+    "brow_right",
+    "eye_left_white",
+    "eye_right_white",
+    "iris_left",
+    "iris_right",
+    "pupil_left",
+    "pupil_right",
+    "eyelid_upper_left",
+    "eyelid_upper_right",
+    "eyelid_lower_left",
+    "eyelid_lower_right",
+    "nose",
+    "mouth_rest",
+    "mouth_A",
+    "mouth_E",
+    "mouth_I",
+    "mouth_O",
+    "mouth_U",
+    "mouth_MBP",
+    "mouth_FV",
+    "mouth_L",
+    "mouth_WQ",
+    "arm_left_upper",
+    "arm_left_forearm",
+    "hand_left",
+    "arm_right_upper",
+    "arm_right_forearm",
+    "hand_right",
+    "braid_left_front",
+    "braid_right_front"
+  ],
+  "joints": [
+    "root",
+    "torso",
+    "neck",
+    "head",
+    "eye_left",
+    "eye_right",
+    "brow_left",
+    "brow_right",
+    "jaw",
+    "mouth",
+    "shoulder_left",
+    "elbow_left",
+    "wrist_left",
+    "hand_left",
+    "shoulder_right",
+    "elbow_right",
+    "wrist_right",
+    "hand_right",
+    "braid_left",
+    "braid_right"
+  ],
+  "visemes": {
+    "REST": "mouth_rest",
+    "A": "mouth_A",
+    "E": "mouth_E",
+    "I": "mouth_I",
+    "O": "mouth_O",
+    "U": "mouth_U",
+    "MBP": "mouth_MBP",
+    "FV": "mouth_FV",
+    "L": "mouth_L",
+    "WQ": "mouth_WQ"
+  },
+  "animationClips": {
+    "idle": [
+      "breathing_subtle",
+      "head_micro_sway",
+      "independent_blinks",
+      "braid_secondary_motion"
+    ],
+    "listening": [
+      "gaze_center",
+      "occasional_blink",
+      "head_tilt_small"
+    ],
+    "talking": [
+      "tts_word_range_viseme_approximation",
+      "independent_blinks"
+    ],
+    "wave": [
+      "shoulder_left",
+      "elbow_left",
+      "wrist_left",
+      "hand_left"
+    ],
+    "dance": [
+      "torso",
+      "shoulders",
+      "elbows",
+      "braids"
+    ]
+  },
+  "alignment": {
+    "requireConsistentAnchors": true,
+    "includeHiddenOverlapUnderJoints": true,
+    "avoidGapsDuringRotation": true
+  },
+  "runtimeNotes": {
+    "ttsRangeEvents": "Android TextToSpeech onRangeStart supplies text ranges on supported engines/devices; mapping a whole word to a mouth pose is approximate, not phoneme-accurate.",
+    "exactLipSync": "Requires a speech provider that emits phoneme/viseme timestamps or an audio-alignment engine.",
+    "fallback": "Keep the untouched portrait and current presentation animation when layered avatar assets are absent."
+  }
+}
