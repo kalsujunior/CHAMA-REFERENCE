@@ -246,7 +246,7 @@ private fun ChatScreen(modifier: Modifier) {
                         )
                         Spacer(Modifier.width(7.dp))
                     }
-                    Surface(color = if (fromChama) Panel else Color(0xFF302719), shape = RoundedCornerShape(16.dp)) {
+                    Surface(color = if (fromChama) Panel else Color(0xFFF4DDE1), shape = RoundedCornerShape(16.dp)) {
                         Column(Modifier.widthIn(max = 300.dp).padding(12.dp)) {
                             Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             MarkdownMessageText(message.text, modifier = Modifier.padding(top = 4.dp))
@@ -338,7 +338,7 @@ private fun GalleryScreen(modifier: Modifier) {
                             modifier = Modifier.padding(top = 6.dp))
                     }
                 } else {
-                    Box(Modifier.fillMaxWidth().height(90.dp).background(Color(0xFF242424), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                    Box(Modifier.fillMaxWidth().height(90.dp).background(Color(0xFFE8B9C1), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
                         Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = Gold, modifier = Modifier.size(34.dp))
                     }
                 }
