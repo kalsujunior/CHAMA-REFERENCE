@@ -292,7 +292,9 @@ private fun ChatScreen(modifier: Modifier) {
                             if (preferences.languageTag == "ht-HT") "Mwen anrejistre sa nan memwa mwen sou telefòn sa a. M ap sonje l nan pwochen konvèsasyon nou yo."
                             else "Souvenir enregistré sur cet appareil. Je pourrai le retrouver dans nos prochaines conversations."
                         } else localReply(text, memories, preferences.languageTag)
-                        addMessage("Chama", answer ?: fallback)
+                        val finalReply = answer ?: fallback
+                        addMessage("Chama", finalReply)
+                        if (preferences.voiceEnabled) speech.speak(finalReply, preferences.languageTag)
                         sending = false
                     }
                 }
