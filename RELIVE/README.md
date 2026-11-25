@@ -35,7 +35,7 @@ Ces fichiers sont des spécifications de conception, pas un modèle 3D ni un mot
 - Migration des anciennes préférences et sauvegarde Android désactivée.
 - Synthèse vocale Android en français ou créole selon les voix installées.
 - Dictée vocale via le service de reconnaissance disponible sur Android.
-- Trois emplacements de galerie utilisant les photos originales choisies dans le sélecteur Android.
+- Portrait principal intégré et immuable ; deux emplacements secondaires de galerie utilisant les photos originales choisies dans le sélecteur Android.
 - Rappels locaux via WorkManager et ajout d'événement au calendrier.
 - Consentement explicite avant tout envoi au backend IA distant.
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
@@ -62,7 +62,7 @@ Voir `backend/cloudflare-worker/README.md` pour les détails de configuration.
 
 ## Photos
 
-Les photos originales supplémentaires sont sélectionnées dans l'écran Photos. RELIVE conserve les URI et ne retouche pas les images.
+Les deux photos secondaires sont sélectionnées dans l'écran Photos. L'emplacement principal reste verrouillé sur le portrait intégré ; le stockage refuse toute tentative de remplacement ou de suppression de cet emplacement. RELIVE conserve les URI des photos secondaires et ne retouche pas les images.
 
 ## Limites connues et travaux restants
 
