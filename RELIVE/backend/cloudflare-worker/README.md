@@ -18,8 +18,8 @@ Secrets :
 - `RELIVE_ACCESS_TOKEN` : code privé long choisi par le propriétaire.
 
 Variables texte :
-- `GROQ_MODEL` : identifiant exact d'un modèle disponible sur le compte Groq.
-- `GEMINI_MODEL` : identifiant exact d'un modèle disponible sur le compte Gemini (par exemple un modèle Flash éligible au niveau gratuit).
+- `GROQ_MODEL` (facultatif) : modèle par défaut `openai/gpt-oss-20b` ; peut être remplacé par un modèle disponible.
+- `GEMINI_MODEL` (facultatif) : modèle par défaut `gemini-3.8-flash` ; vérifier que ce modèle est proposé dans le quota gratuit du compte.
 - `GROQ_API_URL` (facultatif) : par défaut https://api.groq.com/openai/v1/chat/completions.
 
 Les clés des fournisseurs restent exclusivement dans les secrets Cloudflare. Ne jamais les placer dans Android, GitHub ou une conversation. Les quotas gratuits sont limités et peuvent changer selon le fournisseur, le modèle et la région.
