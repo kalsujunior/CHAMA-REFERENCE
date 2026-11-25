@@ -12,7 +12,7 @@ import java.net.URL
 
 /** Calls the authenticated RELIVE Worker. The ElevenLabs key never leaves Cloudflare. */
 object ChamaVoiceGateway {
-    suspend fun generate(text: String, accessToken: String): ByteArray? = withContext(Dispatchers.IO) {
+    suspend fun generate(text: String, accessToken: String, languageTag: String = "fr-FR"): ByteArray? = withContext(Dispatchers.IO) {
         val baseUrl = BuildConfig.RELIVE_API_BASE_URL.trim().trimEnd('/')
         if (!baseUrl.startsWith("https://", ignoreCase = true) ||
             accessToken.isBlank() || text.isBlank() || text.length > 3000
@@ -29,7 +29,7 @@ object ChamaVoiceGateway {
                 setRequestProperty("Accept", "audio/mpeg")
                 setRequestProperty("X-RELIVE-ACCESS", accessToken)
             }
-            val payload = JSONObject().put("text", text).toString()
+            val payload = JSONObject().put("text", text).put("language", languageTag).toString()
             connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
             if (connection.responseCode !in 200..299) return@withContext null
             if (!connection.contentType.orEmpty().contains("audio", ignoreCase = true)) return@withContext null
