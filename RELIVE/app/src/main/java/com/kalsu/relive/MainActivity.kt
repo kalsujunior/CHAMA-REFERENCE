@@ -34,6 +34,7 @@ import com.kalsu.relive.data.ChatMessage
 import com.kalsu.relive.data.ChatStore
 import com.kalsu.relive.data.PhotoStore
 import com.kalsu.relive.data.PreferenceStore
+import com.kalsu.relive.data.MemoryStore
 import com.kalsu.relive.voice.ChamaSpeech
 import com.kalsu.relive.notifications.ReminderScheduler
 
@@ -286,6 +287,9 @@ private fun GalleryScreen(modifier: Modifier) {
 private fun ProfileScreen(modifier: Modifier) {
     val context = LocalContext.current
     val preferences = remember { PreferenceStore(context) }
+    val memoryStore = remember { MemoryStore(context) }
+    var memories by remember { mutableStateOf(memoryStore.load()) }
+    var memoryDraft by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf(preferences.displayName) }
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
@@ -320,6 +324,36 @@ private fun ProfileScreen(modifier: Modifier) {
             Text("Enregistrer les préférences", color = Ink, fontWeight = FontWeight.Bold)
         }
         Text(savedMessage, color = Gold, modifier = Modifier.padding(20.dp))
+        Text("Souvenirs à conserver", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+        OutlinedTextField(value = memoryDraft, onValueChange = { memoryDraft = it },
+            label = { Text("Un détail important à mémoriser") },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), minLines = 2)
+        Button(onClick = {
+            if (memoryDraft.isNotBlank()) {
+                memoryStore.add(memoryDraft)
+                memories = memoryStore.load()
+                memoryDraft = ""
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
+            Text("Enregistrer ce souvenir", color = Ink)
+        }
+        if (memories.isEmpty()) {
+            Text("Aucun souvenir enregistré.", color = Muted, modifier = Modifier.padding(20.dp))
+        } else {
+            memories.forEach { memory ->
+                Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 5.dp)
+                    .background(Panel, RoundedCornerShape(12.dp)).padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text(memory.text, color = Cream, modifier = Modifier.weight(1f))
+                    IconButton(onClick = {
+                        memoryStore.delete(memory.id)
+                        memories = memoryStore.load()
+                    }) { Icon(Icons.Default.DeleteOutline, contentDescription = "Supprimer ce souvenir", tint = Muted) }
+                }
+            }
+        }
         listOf("Identité : ESPÉRANCE RUCHAMA KEFORA", "Conversation : sauvegardée localement",
             "Photos : stockage local des originaux", "IA distante : backend sécurisé à connecter").forEach {
             Text(it, color = Cream, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
