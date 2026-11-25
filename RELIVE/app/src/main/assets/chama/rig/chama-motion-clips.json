@@ -1,99 +1,24 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "units": {
     "time": "milliseconds",
     "rotation": "degrees",
-    "translation": "normalized_canvas_units"
+    "translation": "normalized_body_units"
   },
   "coordinateSystem": {
-    "origin": "joint_pivot",
-    "positiveRotation": "clockwise",
-    "gazeAxes": [
-      "x",
-      "y"
-    ]
+    "origin": "body_joint_pivot",
+    "positiveRotation": "clockwise"
+  },
+  "portraitSafety": {
+    "originalPortraitImmutable": true,
+    "noFaceOrHeadTracks": true,
+    "allMotionMustBeConfinedToSeparateBodyAndHairLayers": true
   },
   "clips": {
-    "blink": {
-      "loop": false,
-      "durationMs": 180,
-      "tracks": [
-        {
-          "joint": "eyelid_left",
-          "property": "aperture",
-          "keys": [
-            {
-              "t": 0,
-              "v": 1
-            },
-            {
-              "t": 70,
-              "v": 0.08
-            },
-            {
-              "t": 115,
-              "v": 0.08
-            },
-            {
-              "t": 180,
-              "v": 1
-            }
-          ]
-        },
-        {
-          "joint": "eyelid_right",
-          "property": "aperture",
-          "keys": [
-            {
-              "t": 0,
-              "v": 1
-            },
-            {
-              "t": 70,
-              "v": 0.08
-            },
-            {
-              "t": 115,
-              "v": 0.08
-            },
-            {
-              "t": 180,
-              "v": 1
-            }
-          ]
-        }
-      ]
-    },
-    "idle_head": {
+    "idle": {
       "loop": true,
       "durationMs": 3200,
       "tracks": [
-        {
-          "joint": "head",
-          "property": "rotation",
-          "keys": [
-            {
-              "t": 0,
-              "v": 0
-            },
-            {
-              "t": 800,
-              "v": -1.4
-            },
-            {
-              "t": 1600,
-              "v": 0.8
-            },
-            {
-              "t": 2400,
-              "v": 1.2
-            },
-            {
-              "t": 3200,
-              "v": 0
-            }
-          ]
-        },
         {
           "joint": "torso",
           "property": "translationY",
@@ -153,54 +78,6 @@
             {
               "t": 3200,
               "v": 0
-            }
-          ]
-        }
-      ]
-    },
-    "gaze_left": {
-      "loop": false,
-      "durationMs": 240,
-      "tracks": [
-        {
-          "joint": "eyes",
-          "property": "translationX",
-          "keys": [
-            {
-              "t": 0,
-              "v": 0
-            },
-            {
-              "t": 120,
-              "v": -0.025
-            },
-            {
-              "t": 240,
-              "v": -0.025
-            }
-          ]
-        }
-      ]
-    },
-    "gaze_right": {
-      "loop": false,
-      "durationMs": 240,
-      "tracks": [
-        {
-          "joint": "eyes",
-          "property": "translationX",
-          "keys": [
-            {
-              "t": 0,
-              "v": 0
-            },
-            {
-              "t": 120,
-              "v": 0.025
-            },
-            {
-              "t": 240,
-              "v": 0.025
             }
           ]
         }
@@ -278,12 +155,12 @@
         }
       ]
     },
-    "listening_head_tilt": {
+    "dance": {
       "loop": false,
-      "durationMs": 420,
+      "durationMs": 2400,
       "tracks": [
         {
-          "joint": "head",
+          "joint": "torso",
           "property": "rotation",
           "keys": [
             {
@@ -291,30 +168,72 @@
               "v": 0
             },
             {
-              "t": 210,
-              "v": 4
+              "t": 600,
+              "v": -3
             },
             {
-              "t": 420,
-              "v": 4
+              "t": 1200,
+              "v": 3
+            },
+            {
+              "t": 1800,
+              "v": -3
+            },
+            {
+              "t": 2400,
+              "v": 0
             }
           ]
         },
         {
-          "joint": "eyes",
-          "property": "translationY",
+          "joint": "shoulder_left",
+          "property": "rotation",
           "keys": [
             {
               "t": 0,
               "v": 0
             },
             {
-              "t": 210,
-              "v": 0.008
+              "t": 600,
+              "v": 12
             },
             {
-              "t": 420,
-              "v": 0.008
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": 12
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "shoulder_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -12
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": -12
+            },
+            {
+              "t": 2400,
+              "v": 0
             }
           ]
         }
@@ -323,9 +242,9 @@
   },
   "constraints": {
     "easing": "smoothstep_or_cubic",
-    "keepEyeBlinkIndependentFromSpeech": true,
-    "mouthVisemeTrackHasPriorityOverJawIdle": true,
+    "no_head_rotation": true,
+    "no_facial_motion": true,
     "doNotApplyTransformsToOriginalPhoto": true,
-    "jointAnglesAreStartingValuesAndMustBeTunedAgainstFinalLayeredArtwork": true
+    "bodyMotionMustNotAlterPortraitPixels": true
   }
 }
