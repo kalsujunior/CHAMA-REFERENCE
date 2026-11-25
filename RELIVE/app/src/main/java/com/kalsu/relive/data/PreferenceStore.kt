@@ -16,4 +16,8 @@ class PreferenceStore(context: Context) {
     var voiceEnabled: Boolean
         get() = prefs.getBoolean("voice_enabled", true)
         set(value) { prefs.edit().putBoolean("voice_enabled", value).apply() }
+
+    var remoteAiEnabled: Boolean
+        get() = prefs.getBoolean("remote_ai_enabled", false)
+        set(value) { prefs.edit().putBoolean("remote_ai_enabled", value).apply() }
 }
