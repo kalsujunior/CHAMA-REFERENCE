@@ -251,7 +251,8 @@ private fun ChatScreen(modifier: Modifier) {
                     scope.launch {
                         val memories = memoryStore.load().map { it.text }
                         online.value = NetworkStatus.isOnline(context)
-                        val answer = if (online.value) AiGateway.reply(text, preferences.languageTag, memories) else null
+                        val history = store.load().takeLast(20).map { it.author to it.text }
+                        val answer = if (online.value) AiGateway.reply(text, preferences.languageTag, memories, history) else null
                         addMessage("Chama", answer ?: localReply(text))
                         sending = false
                     }
