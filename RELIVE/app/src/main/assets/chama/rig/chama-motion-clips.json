@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 1,
+  "units": {
+    "time": "milliseconds",
+    "rotation": "degrees",
+    "translation": "normalized_canvas_units"
+  },
+  "coordinateSystem": {
+    "origin": "joint_pivot",
+    "positiveRotation": "clockwise",
+    "gazeAxes": [
+      "x",
+      "y"
+    ]
+  },
+  "clips": {
+    "blink": {
+      "loop": false,
+      "durationMs": 180,
+      "tracks": [
+        {
+          "joint": "eyelid_left",
+          "property": "aperture",
+          "keys": [
+            {
+              "t": 0,
+              "v": 1
+            },
+            {
+              "t": 70,
+              "v": 0.08
+            },
+            {
+              "t": 115,
+              "v": 0.08
+            },
+            {
+              "t": 180,
+              "v": 1
+            }
+          ]
+        },
+        {
+          "joint": "eyelid_right",
+          "property": "aperture",
+          "keys": [
+            {
+              "t": 0,
+              "v": 1
+            },
+            {
+              "t": 70,
+              "v": 0.08
+            },
+            {
+              "t": 115,
+              "v": 0.08
+            },
+            {
+              "t": 180,
+              "v": 1
+            }
+          ]
+        }
+      ]
+    },
+    "idle_head": {
+      "loop": true,
+      "durationMs": 3200,
+      "tracks": [
+        {
+          "joint": "head",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 800,
+              "v": -1.4
+            },
+            {
+              "t": 1600,
+              "v": 0.8
+            },
+            {
+              "t": 2400,
+              "v": 1.2
+            },
+            {
+              "t": 3200,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "torso",
+          "property": "translationY",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 1600,
+              "v": -0.006
+            },
+            {
+              "t": 3200,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "braid_left",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 900,
+              "v": 1.8
+            },
+            {
+              "t": 1900,
+              "v": -1.2
+            },
+            {
+              "t": 3200,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "braid_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 1100,
+              "v": -1.5
+            },
+            {
+              "t": 2100,
+              "v": 1.1
+            },
+            {
+              "t": 3200,
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "gaze_left": {
+      "loop": false,
+      "durationMs": 240,
+      "tracks": [
+        {
+          "joint": "eyes",
+          "property": "translationX",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 120,
+              "v": -0.025
+            },
+            {
+              "t": 240,
+              "v": -0.025
+            }
+          ]
+        }
+      ]
+    },
+    "gaze_right": {
+      "loop": false,
+      "durationMs": 240,
+      "tracks": [
+        {
+          "joint": "eyes",
+          "property": "translationX",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 120,
+              "v": 0.025
+            },
+            {
+              "t": 240,
+              "v": 0.025
+            }
+          ]
+        }
+      ]
+    },
+    "wave": {
+      "loop": false,
+      "durationMs": 1250,
+      "tracks": [
+        {
+          "joint": "shoulder_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 250,
+              "v": -14
+            },
+            {
+              "t": 1250,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "elbow_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 250,
+              "v": -78
+            },
+            {
+              "t": 1250,
+              "v": -78
+            }
+          ]
+        },
+        {
+          "joint": "wrist_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 350,
+              "v": -12
+            },
+            {
+              "t": 550,
+              "v": 12
+            },
+            {
+              "t": 750,
+              "v": -12
+            },
+            {
+              "t": 950,
+              "v": 12
+            },
+            {
+              "t": 1250,
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "listening_head_tilt": {
+      "loop": false,
+      "durationMs": 420,
+      "tracks": [
+        {
+          "joint": "head",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 210,
+              "v": 4
+            },
+            {
+              "t": 420,
+              "v": 4
+            }
+          ]
+        },
+        {
+          "joint": "eyes",
+          "property": "translationY",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 210,
+              "v": 0.008
+            },
+            {
+              "t": 420,
+              "v": 0.008
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "constraints": {
+    "easing": "smoothstep_or_cubic",
+    "keepEyeBlinkIndependentFromSpeech": true,
+    "mouthVisemeTrackHasPriorityOverJawIdle": true,
+    "doNotApplyTransformsToOriginalPhoto": true,
+    "jointAnglesAreStartingValuesAndMustBeTunedAgainstFinalLayeredArtwork": true
+  }
+}
