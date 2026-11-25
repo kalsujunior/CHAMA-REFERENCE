@@ -47,7 +47,7 @@ private val RoomCream = Color(0xFFF5EBDD)
 @Composable
 fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGallery: () -> Unit) {
     val context = LocalContext.current
-    val portrait = remember { PhotoStore(context).get(0) }
+    val portrait = remember { PhotoStore(context).get(0) ?: R.drawable.chama_portrait }
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
     var gesture by remember { mutableStateOf("idle") }
