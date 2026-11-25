@@ -216,7 +216,7 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
                 val b1 = 2 * PI * (j + 1) / lon
                 val p00 = point(a0, b0); val p10 = point(a1, b0)
                 val p01 = point(a0, b1); val p11 = point(a1, b1)
-                listOf(p00, p10, p01, p01, p10, p11).forEach { data.addAll(it) }
+                listOf(p00, p10, p01, p01, p10, p11).forEach { point -> point.forEach { value -> data.add(value) } }
             }
         }
         vertexCount = data.size / 3
