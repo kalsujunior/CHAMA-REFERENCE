@@ -14,7 +14,7 @@ import java.net.URL
  * Expected success response: {reply: "..."}.
  */
 object AiGateway {
-    suspend fun reply(message: String, languageTag: String, memories: List<String>): String? =
+    suspend fun reply(message: String, languageTag: String, memories: List<String>, history: List<Pair<String, String>>): String? =
         withContext(Dispatchers.IO) {
             val baseUrl = BuildConfig.RELIVE_API_BASE_URL.trim().trimEnd('/')
             if (baseUrl.isBlank()) return@withContext null
@@ -31,10 +31,15 @@ object AiGateway {
                 }
                 val memoryArray = JSONArray()
                 memories.takeLast(20).forEach { memoryArray.put(it) }
+                val historyArray = JSONArray()
+                history.takeLast(20).forEach { (author, text) ->
+                    historyArray.put(JSONObject().put("author", author).put("text", text))
+                }
                 val payload = JSONObject()
                     .put("message", message)
                     .put("language", languageTag)
                     .put("memories", memoryArray)
+                    .put("history", historyArray)
                 connection.outputStream.use { output ->
                     output.write(payload.toString().toByteArray(Charsets.UTF_8))
                 }
