@@ -1,14 +1,29 @@
 # RELIVE API — Cloudflare Worker
 
-The Worker is deployed at https://relive-chama-api.kalsujunior.workers.dev. These steps configure the deployed Worker; they do not create another Worker.
+Worker déployé : https://relive-chama-api.kalsujunior.workers.dev
 
-## Required configuration
-1. In Cloudflare, add the provider key as a secret named `AI_API_KEY`.
-2. Create a long random private access code and add it as a secret named `RELIVE_ACCESS_TOKEN`.
-3. Set `AI_MODEL` to a model enabled for your provider account.
-4. Optionally set `AI_API_URL` to an OpenAI-compatible Chat Completions endpoint.
-5. In RELIVE > Profil, enter the exact same private access code and save preferences.
-6. Keep the existing `RATE_LIMITER` binding (15 requests per IP per 60 seconds). Adjust only if needed.
-7. Test POST /chat over HTTPS before enabling remote AI in RELIVE.
+## Fournisseurs IA avec basculement automatique
 
-The Worker requires `AI_API_KEY`, `AI_MODEL`, `RELIVE_ACCESS_TOKEN` and `RATE_LIMITER`. The access code is checked before the Worker forwards any prompt to the AI provider. IP rate limiting is an additional abuse-control layer, not a replacement for user accounts. The provider key stays in Cloudflare secrets and must never be put in the Android app or Git repository.
+Le Worker utilise GroqCloud en priorité, puis Google Gemini si Groq échoue (quota atteint, erreur HTTP ou indisponibilité réseau). Si Groq n'est pas configuré, Gemini est utilisé seul. Si les deux échouent, l'application reçoit une erreur et peut conserver son mode local.
+
+Créer les clés :
+- GroqCloud : https://console.groq.com/keys
+- Google AI Studio : https://aistudio.google.com/apikey
+
+Dans Cloudflare > Worker `relive-chama-api` > Settings > Variables and Secrets, configurer :
+
+Secrets :
+- `GROQ_API_KEY` : clé secrète GroqCloud.
+- `GEMINI_API_KEY` : clé secrète Google AI Studio.
+- `RELIVE_ACCESS_TOKEN` : code privé long choisi par le propriétaire.
+
+Variables texte :
+- `GROQ_MODEL` : identifiant exact d'un modèle disponible sur le compte Groq.
+- `GEMINI_MODEL` : identifiant exact d'un modèle disponible sur le compte Gemini (par exemple un modèle Flash éligible au niveau gratuit).
+- `GROQ_API_URL` (facultatif) : par défaut https://api.groq.com/openai/v1/chat/completions.
+
+Les clés des fournisseurs restent exclusivement dans les secrets Cloudflare. Ne jamais les placer dans Android, GitHub ou une conversation. Les quotas gratuits sont limités et peuvent changer selon le fournisseur, le modèle et la région.
+
+Dans RELIVE > Profil, saisir exactement le même `RELIVE_ACCESS_TOKEN` et activer le consentement IA distant. La limite existante RATE_LIMITER (15 requêtes par IP et par 60 secondes) est conservée.
+
+Le Worker accepte une configuration partielle : un seul fournisseur suffit pour démarrer. Le basculement automatique est actif dès que les deux fournisseurs sont configurés.
