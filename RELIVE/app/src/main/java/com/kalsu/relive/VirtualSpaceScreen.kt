@@ -5,12 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -32,19 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kalsu.relive.data.PreferenceStore
-import com.kalsu.relive.avatar.ChamaViseme
 import com.kalsu.relive.voice.ChamaSpeech
 
-private val RoomGold = Color(0xFFD7B56D)
-private val RoomInk = Color(0xFF090909)
-private val RoomCream = Color(0xFFF5EBDD)
+private val RoomGold = Color(0xFFD4AF37)
+private val RoomInk = Color(0xFF171717)
+private val RoomCream = Color(0xFFF5F1EA)
+private val RoomRose = Color(0xFFE8B9C1)
 
 @Composable
 private fun RoomEnvironment(modifier: Modifier = Modifier) {
@@ -53,7 +46,7 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
         val h = size.height
         drawRect(
             brush = Brush.verticalGradient(
-                listOf(Color(0xFF40334A), Color(0xFF211D2B), Color(0xFF17151D)),
+                listOf(Color(0xFF6B343B), Color(0xFF302126), Color(0xFF171717)),
                 endY = h * 0.82f
             ),
             size = Size(w, h)
@@ -61,7 +54,7 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
         // Warm window and its golden frame.
         drawRoundRect(
             brush = Brush.linearGradient(
-                listOf(Color(0x77E5C27B), Color(0x223D3450)),
+                listOf(Color(0x99F5D8C8), Color(0x553F2027)),
                 start = Offset(w * 0.07f, h * 0.12f),
                 end = Offset(w * 0.37f, h * 0.43f)
             ),
@@ -82,11 +75,11 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
             moveTo(0f, h * 0.76f); lineTo(w, h * 0.76f)
             lineTo(w, h); lineTo(0f, h); close()
         }
-        drawPath(floor, Brush.verticalGradient(listOf(Color(0xFF302735), Color(0xFF100F14)), h * 0.76f, h))
+        drawPath(floor, Brush.verticalGradient(listOf(Color(0xFF5A3436), Color(0xFF171717)), h * 0.76f, h))
         drawLine(Color(0x77D7B56D), Offset(0f, h * 0.76f), Offset(w, h * 0.76f), 2f)
         // Sofa silhouette.
-        drawRoundRect(Color(0xDD302638), Offset(w * 0.04f, h * 0.62f), Size(w * 0.34f, h * 0.15f), androidx.compose.ui.geometry.CornerRadius(26f, 26f))
-        drawRoundRect(Color(0xFF49384A), Offset(w * 0.07f, h * 0.59f), Size(w * 0.28f, h * 0.12f), androidx.compose.ui.geometry.CornerRadius(22f, 22f))
+        drawRoundRect(Color(0xFFE8B9C1), Offset(w * 0.04f, h * 0.62f), Size(w * 0.34f, h * 0.15f), androidx.compose.ui.geometry.CornerRadius(26f, 26f))
+        drawRoundRect(Color(0xFFF5F1EA), Offset(w * 0.07f, h * 0.59f), Size(w * 0.28f, h * 0.12f), androidx.compose.ui.geometry.CornerRadius(22f, 22f))
         // Floor lamp with warm glow.
         drawLine(Color(0xFFD7B56D), Offset(w * 0.69f, h * 0.44f), Offset(w * 0.69f, h * 0.75f), 5f)
         drawRoundRect(Color(0xFFE0BD75), Offset(w * 0.64f, h * 0.40f), Size(w * 0.10f, h * 0.055f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
@@ -110,35 +103,10 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var gesture by remember { mutableStateOf("idle") }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
     var speaking by remember { mutableStateOf(false) }
-    var currentViseme by remember { mutableStateOf(ChamaViseme.REST) }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
     }
-
-    val movement = rememberInfiniteTransition(label = "chama-idle")
-    val breathing by movement.animateFloat(
-        initialValue = 0.985f,
-        targetValue = 1.015f,
-        animationSpec = infiniteRepeatable(tween(2100), RepeatMode.Reverse),
-        label = "chama-breathing"
-    )
-    val floating by movement.animateFloat(
-        initialValue = -5f,
-        targetValue = 5f,
-        animationSpec = infiniteRepeatable(tween(2600), RepeatMode.Reverse),
-        label = "chama-floating"
-    )
-    val gestureTilt by animateFloatAsState(
-        targetValue = when (gesture) {
-            "wave" -> -3.5f
-            "dance" -> 3.5f
-            "listen" -> 2f
-            else -> 0f
-        },
-        animationSpec = tween(350),
-        label = "chama-gesture-tilt"
-    )
 
     fun act(kind: String, line: String) {
         gesture = kind
@@ -150,15 +118,13 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             onDone = {
                 speaking = false
                 gesture = "idle"
-                currentViseme = ChamaViseme.REST
             },
-            onViseme = { viseme -> currentViseme = viseme }
         )
     }
 
     Column(
         modifier.fillMaxSize().background(
-            Brush.verticalGradient(listOf(Color(0xFF211B2B), Color(0xFF101014), RoomInk))
+            Brush.verticalGradient(listOf(Color(0xFF3A2429), Color(0xFF211719), RoomInk))
         )
     ) {
         Row(
@@ -170,7 +136,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 Text("L'ESPACE DE CHAMA", color = RoomGold, fontSize = 18.sp, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp)
                 Text("Un lieu calme pour vous retrouver", color = Color.LightGray, fontSize = 11.sp)
             }
-            Surface(color = Color(0xFF332A19), shape = CircleShape) {
+            Surface(color = Color(0xFF5A202B), shape = CircleShape) {
                 Text("KS", color = RoomGold, fontWeight = FontWeight.Bold, modifier = Modifier.padding(14.dp))
             }
         }
@@ -178,7 +144,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         Box(
             Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp)
                 .clip(RoundedCornerShape(30.dp))
-                .background(Brush.verticalGradient(listOf(Color(0xFF46354A), Color(0xFF201D2C), Color(0xFF111116))))
+                .background(Brush.verticalGradient(listOf(Color(0xFF68434A), Color(0xFF302126), Color(0xFF171717))))
         ) {
             RoomEnvironment(modifier = Modifier.fillMaxSize())
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -189,13 +155,13 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
                 Box(
                     Modifier.weight(1f).fillMaxWidth().padding(horizontal = 18.dp)
-                        .clip(RoundedCornerShape(26.dp)).background(Color(0xFF17151C)),
+                        .clip(RoundedCornerShape(26.dp)).background(Color(0xFF24191B)),
                     contentAlignment = Alignment.Center
                 ) {
                     Chama3DAvatar(
                         gesture = gesture,
                         speaking = speaking,
-                        viseme = currentViseme.name,
+                        viseme = "REST",
                         modifier = Modifier.fillMaxSize()
                     )
                     if (speaking) {
@@ -206,7 +172,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.VolumeUp, contentDescription = null, tint = RoomGold, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(7.dp))
-                                Text("Chama parle • bouche ${currentViseme.label}", color = RoomCream, fontSize = 12.sp)
+                                Text("Chama parle", color = RoomCream, fontSize = 12.sp)
                             }
                         }
                     }
@@ -264,8 +230,8 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Avatar 3D procédural animé : expressions et mouvements évolutifs. Le modèle sera progressivement affiné pour se rapprocher davantage de la référence de Chama.",
-            color = Color.LightGray, fontSize = 10.sp,
+            "Portrait original protégé — visage inchangé. Décor 2D de prévisualisation ; corps indépendant et véritable environnement 3D encore en développement.",
+            color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
     }
