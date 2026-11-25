@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.lightColorScheme
 import coil.compose.AsyncImage
 import androidx.compose.runtime.*
 import androidx.compose.foundation.rememberScrollState
@@ -46,11 +47,14 @@ import com.kalsu.relive.voice.ChamaSpeech
 import com.kalsu.relive.notifications.ReminderScheduler
 import kotlinx.coroutines.launch
 
-private val Ink = Color(0xFF090909)
-private val Panel = Color(0xFF171717)
-private val Gold = Color(0xFFD7B56D)
-private val Cream = Color(0xFFF5EBDD)
-private val Muted = Color(0xFFAAA29A)
+// Palette Chama : pull blanc à cœurs rouges, noir doux et accents rose/or.
+private val Ink = Color(0xFFF5F1EA)       // fond blanc crème
+private val Panel = Color(0xFFFFFFFF)    // surfaces blanches
+private val Gold = Color(0xFFC6283D)     // rouge cœur (accent principal)
+private val Cream = Color(0xFF24191B)    // texte brun-noir
+private val Muted = Color(0xFF817477)    // texte secondaire
+private val ChamaRose = Color(0xFFE8B9C1)
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,9 +66,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun ReliveApp() {
     var page by remember { mutableStateOf("home") }
-    MaterialTheme(colorScheme = darkColorScheme(
-        primary = Gold, background = Ink, surface = Panel,
-        onPrimary = Ink, onBackground = Cream, onSurface = Cream
+    MaterialTheme(colorScheme = lightColorScheme(
+        primary = Gold, secondary = ChamaRose, background = Ink, surface = Panel,
+        onPrimary = Color.White, onSecondary = Cream, onBackground = Cream, onSurface = Cream
     )) {
         Scaffold(
             containerColor = Ink,
