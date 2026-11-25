@@ -73,7 +73,7 @@ private fun ReliveApp() {
                         Triple("chat", "Parler", Icons.Default.Chat),
                         Triple("gallery", "Photos", Icons.Default.PhotoLibrary),
                         Triple("profile", "Profil", Icons.Default.Person),
-                        Triple("reminders", "Rappels", Icons.Default.Notifications)
+                        Triple("reminders", "Rappels", Icons.Default.Notifications), Triple("space", "Espace", Icons.Default.Star)
                     )
                     tabs.forEach { (key, label, icon) ->
                         NavigationBarItem(
@@ -96,7 +96,8 @@ private fun ReliveApp() {
                 "gallery" -> GalleryScreen(Modifier.padding(padding))
                 "profile" -> ProfileScreen(Modifier.padding(padding))
                 "reminders" -> RemindersScreen(Modifier.padding(padding))
-                else -> HomeScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" })
+                "space" -> VirtualSpaceScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" })
+                else -> HomeScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" }, { page = "space" })
             }
         }
     }
@@ -117,7 +118,7 @@ private fun BrandHeader() {
 }
 
 @Composable
-private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> Unit) {
+private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> Unit, onSpace: () -> Unit) {
     val context = LocalContext.current
     val mainPhoto = remember { PhotoStore(context).get(0) }
     val displayName = remember { PreferenceStore(context).displayName.ifBlank { "Chama" } }
@@ -152,6 +153,7 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
                 Text("Parler avec Chama", color = Ink, fontWeight = FontWeight.Bold)
             }
             TextButton(onClick = onGallery) { Text("Voir sa galerie", color = Gold) }
+            OutlinedButton(onClick = onSpace, modifier = Modifier.fillMaxWidth()) { Text("Entrer dans son espace virtuel", color = Gold) }
             Spacer(Modifier.height(8.dp))
         }
     }
