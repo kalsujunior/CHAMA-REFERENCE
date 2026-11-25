@@ -9,6 +9,14 @@
 
 Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCHAMA KEFORA (Chama).
 
+## Préparation de l'avatar 2D Chama
+- Manifeste des calques et articulations : `app/src/main/assets/chama/rig/chama-rig-manifest.json`.
+- Modèle Kotlin des articulations, expressions, regards, gestes et visèmes : `com.kalsu.relive.avatar.ChamaAvatarRig`.
+- Android TTS transmet maintenant des indices de visèmes à partir de `UtteranceProgressListener.onRangeStart` lorsque le moteur Android fournit ces événements.
+- Important : ces événements délimitent des segments de texte/mots et leur conversion en bouche est approximative. Ce n'est pas une synchronisation phonème par phonème.
+- Les véritables calques PNG transparents et le moteur de déformation/rigging restent à produire ; l'avatar illustré n'est pas encore affiché comme personnage articulé.
+- La photo originale reste affichée intacte et n'est jamais utilisée comme texture à déformer.
+
 ## Fonctions de la version 0.2.0
 - Navigation : Accueil, Conversation, Photos, Profil et Rappels.
 - Interface sombre noir et or.
