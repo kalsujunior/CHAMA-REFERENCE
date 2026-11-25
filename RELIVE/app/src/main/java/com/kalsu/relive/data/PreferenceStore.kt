@@ -9,6 +9,21 @@ class PreferenceStore(context: Context) {
         get() = prefs.getString("display_name", "Chama") ?: "Chama"
         set(value) { prefs.edit().putString("display_name", value.trim()).apply() }
 
+    /** "outfit" follows Chama's configured outfit palette; "manual" locks a chosen preset. */
+    var themeMode: String
+        get() = prefs.getString("theme_mode", "outfit") ?: "outfit"
+        set(value) { prefs.edit().putString("theme_mode", if (value == "manual") "manual" else "outfit").apply() }
+
+    /** Supported presets: chama, rose, midnight. */
+    var themePreset: String
+        get() = prefs.getString("theme_preset", "chama")?.takeIf {
+            it in setOf("chama", "rose", "midnight")
+        } ?: "chama"
+        set(value) {
+            val safeValue = value.takeIf { it in setOf("chama", "rose", "midnight") } ?: "chama"
+            prefs.edit().putString("theme_preset", safeValue).apply()
+        }
+
     var languageTag: String
         get() = prefs.getString("language_tag", "fr-FR") ?: "fr-FR"
         set(value) { prefs.edit().putString("language_tag", value).apply() }
