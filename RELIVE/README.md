@@ -19,21 +19,14 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 - Workflow GitHub Actions qui compile Android Debug et publie l'APK.
 
-## Backend IA
-Le Worker Cloudflare est déployé à l'adresse HTTPS suivante :
+## Backend IA à deux fournisseurs
 
+Le Worker Cloudflare est déployé à l'adresse :
 https://relive-chama-api.kalsujunior.workers.dev
 
-Le client Android est préconfiguré avec cette adresse. Le Worker applique une limite de 15 requêtes par adresse IP et exige un code d'accès privé avant de contacter le fournisseur IA.
+Le Worker essaie GroqCloud en premier et bascule automatiquement sur Google Gemini si Groq est indisponible ou atteint une limite. Un seul fournisseur configuré permet déjà de démarrer ; les deux sont nécessaires pour le secours automatique. Les deux clés API et le code privé sont conservés comme secrets Cloudflare, jamais dans l'APK ou le dépôt.
 
-**Le serveur est déployé, mais l'IA distante reste en attente de configuration des secrets.** Le propriétaire doit ajouter dans Cloudflare :
-- `AI_API_KEY` : clé API du fournisseur IA, stockée comme secret Cloudflare.
-- `AI_MODEL` : nom d'un modèle disponible sur le compte fournisseur.
-- `RELIVE_ACCESS_TOKEN` : long code privé choisi par le propriétaire.
-
-Le même `RELIVE_ACCESS_TOKEN` doit être saisi dans RELIVE > Profil > Code d'accès privé du serveur. L'application le stocke chiffré et ne l'envoie qu'au Worker HTTPS. Ne jamais mettre la clé fournisseur dans l'APK ou dans le dépôt.
-
-Le code source du Worker est dans `backend/cloudflare-worker`. Voir son README pour les étapes de configuration. Tant que les secrets ne sont pas configurés, RELIVE continue de fonctionner en mode local. L'IA distante est désactivée par défaut et nécessite un accord dans Profil.
+Voir `backend/cloudflare-worker/README.md` pour les étapes de configuration et les noms exacts des variables. Le même `RELIVE_ACCESS_TOKEN` doit être saisi dans RELIVE > Profil. Le consentement IA distant reste désactivé par défaut.
 
 ## Photos de Chama
 Les trois photos originales ne sont pas stockées dans le dépôt. Il faut les sélectionner dans l'écran Photos. RELIVE conserve les URI et ne retouche pas les visages.
