@@ -239,7 +239,7 @@ private fun ChatScreen(modifier: Modifier) {
         }
         speech.stop()
         scope.launch {
-            val audio = ChamaVoiceGateway.generate(text, preferences.remoteAccessToken)
+            val audio = ChamaVoiceGateway.generate(text, preferences.remoteAccessToken, preferences.languageTag)
             if (audio != null) voicePlayer.play(audio)
             else speech.speak(text, preferences.languageTag)
         }
