@@ -353,7 +353,7 @@ private fun ProfileScreen(modifier: Modifier) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Autoriser l'IA distante", color = Cream)
-                Text("Envoie les messages et souvenirs au serveur HTTPS configuré. Active cette option uniquement si tu fais confiance à ce serveur.", color = Muted, fontSize = 11.sp)
+                Text("Envoie ton message, les 20 derniers échanges et jusqu’à 20 souvenirs au serveur HTTPS configuré. Active uniquement si tu acceptes ce transfert.", color = Muted, fontSize = 11.sp)
             }
             Switch(checked = remoteAiEnabled, onCheckedChange = { remoteAiEnabled = it })
         }
