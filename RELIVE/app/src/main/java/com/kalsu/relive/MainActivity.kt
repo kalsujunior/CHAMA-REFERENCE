@@ -119,11 +119,12 @@ private fun BrandHeader() {
 private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> Unit) {
     val context = LocalContext.current
     val mainPhoto = remember { PhotoStore(context).get(0) }
+    val displayName = remember { PreferenceStore(context).displayName.ifBlank { "Chama" } }
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
         Column(Modifier.fillMaxSize().padding(horizontal = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Heureuse de te retrouver", color = Cream, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-            Text("Je suis Chama. Je suis là pour toi.", color = Muted, fontSize = 14.sp)
+            Text("Je suis $displayName. Je suis là pour toi.", color = Muted, fontSize = 14.sp)
             Spacer(Modifier.height(22.dp))
             Box(Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp).background(Panel, RoundedCornerShape(28.dp)),
                 contentAlignment = Alignment.Center) {
@@ -155,29 +156,37 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
     }
 }
 
-private fun localReply(message: String, memories: List<String>): String {
+private fun localReply(message: String, memories: List<String>, languageTag: String): String {
     val normalized = message.lowercase()
+    val creole = languageTag == "ht-HT"
     if (listOf("que sais-tu de moi", "que sais tu de moi", "que te rappelles-tu", "que te rappelles tu", "qu'est-ce que tu sais", "sa ou sonje", "kisa ou sonje").any { normalized.contains(it) }) {
         return if (memories.isEmpty()) {
-            "Je n'ai pas encore de souvenir enregistré. Tu peux m'en confier dans Profil, rubrique Souvenirs à conserver."
+            if (creole) "Mwen poko gen okenn souvni ou te anrejistre. Ou ka ajoute yo nan Profil, nan seksyon Souvenirs à conserver."
+            else "Je n'ai pas encore de souvenir enregistré. Tu peux m'en confier dans Profil, rubrique Souvenirs à conserver."
         } else {
-            "Voici les souvenirs que tu m'as confiés :\n" + memories.takeLast(20).mapIndexed { index, item -> (index + 1).toString() + ". " + item }.joinToString("\n")
+            val heading = if (creole) "Men souvni ou te konfye m yo :" else "Voici les souvenirs que tu m'as confiés :"
+            heading + "\n" + memories.takeLast(20).mapIndexed { index, item -> (index + 1).toString() + ". " + item }.joinToString("\n")
         }
     }
     if (listOf("souviens-toi", "souviens toi", "sonje sa", "sonje sa pou mwen").any { normalized.contains(it) }) {
-        return "Je peux conserver ce détail. Ajoute-le dans Profil, rubrique « Souvenirs à conserver », pour qu'il reste enregistré sur cet appareil."
+        return if (creole) "Mwen ka konsève detay sa a. Ajoute li nan Profil, seksyon « Souvenirs à conserver », pou l rete anrejistre sou telefòn sa a."
+        else "Je peux conserver ce détail. Ajoute-le dans Profil, rubrique « Souvenirs à conserver », pour qu'il reste enregistré sur cet appareil."
     }
     val value = message.lowercase()
     return when {
         listOf("bonjour", "salut", "coucou", "bonjou").any { value.contains(it) } ->
-            "Coucou ! Je suis contente de te lire. Comment te sens-tu aujourd'hui ?"
-        listOf("triste", "malheureux", "difficile", "fatigué", "fatigue").any { value.contains(it) } ->
-            "Je suis là pour t'écouter. Tu peux me raconter ce qui te pèse, à ton rythme."
+            if (creole) "Bonjou ! Mwen kontan ou ekri m. Kijan ou santi w jodi a ?"
+            else "Coucou ! Je suis contente de te lire. Comment te sens-tu aujourd'hui ?"
+        listOf("triste", "malheureux", "difficile", "fatigué", "fatigue", "tris").any { value.contains(it) } ->
+            if (creole) "Mwen la pou koute w. Ou ka rakonte m sa k ap boulvèse w, san prese."
+            else "Je suis là pour t'écouter. Tu peux me raconter ce qui te pèse, à ton rythme."
         listOf("merci", "mesi").any { value.contains(it) } ->
-            "Avec plaisir. Je suis heureuse de pouvoir échanger avec toi."
+            if (creole) "Se ak tout plezi mwen. Mwen kontan pale avè w."
+            else "Avec plaisir. Je suis heureuse de pouvoir échanger avec toi."
         listOf("créole", "kreyòl", "creole").any { value.contains(it) } ->
             "Mwen la avèk ou. M ap aprann adapte konvèsasyon nou an ak lang ou prefere."
-        else -> "J'ai bien reçu ton message. Le mode conversation local est actif ; la connexion au service d'intelligence artificielle distant reste à configurer."
+        else -> if (creole) "Mwen resevwa mesaj ou a. Mòd konvèsasyon lokal la aktif; sèvis entèlijans atifisyèl la poko konekte."
+            else "J'ai bien reçu ton message. Le mode conversation local est actif ; la connexion au service d'intelligence artificielle distant reste à configurer."
     }
 }
 
@@ -246,7 +255,7 @@ private fun ChatScreen(modifier: Modifier) {
             IconButton(onClick = {
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fr-FR")
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, preferences.languageTag)
                     putExtra(RecognizerIntent.EXTRA_PROMPT, "Parle à Chama")
                 }
                 try { speechInput.launch(intent) } catch (_: Exception) { }
@@ -264,7 +273,7 @@ private fun ChatScreen(modifier: Modifier) {
                         online.value = NetworkStatus.isOnline(context)
                         val history = store.load().takeLast(20).map { it.author to it.text }
                         val answer = if (online.value && preferences.remoteAiEnabled) AiGateway.reply(text, preferences.languageTag, memories, history) else null
-                        addMessage("Chama", answer ?: localReply(text, memories))
+                        addMessage("Chama", answer ?: localReply(text, memories, preferences.languageTag))
                         sending = false
                     }
                 }
