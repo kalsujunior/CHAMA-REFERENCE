@@ -168,6 +168,7 @@ private fun localReply(message: String): String {
 private fun ChatScreen(modifier: Modifier) {
     val context = LocalContext.current
     val store = remember { ChatStore(context) }
+    val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
     var draft by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(store.load()) }
@@ -209,8 +210,8 @@ private fun ChatScreen(modifier: Modifier) {
                         Column(Modifier.widthIn(max = 300.dp).padding(12.dp)) {
                             Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             Text(message.text, color = Cream, modifier = Modifier.padding(top = 4.dp))
-                            if (fromChama) {
-                                TextButton(onClick = { speech.speak(message.text) }, contentPadding = PaddingValues(0.dp)) {
+                            if (fromChama && preferences.voiceEnabled) {
+                                TextButton(onClick = { speech.speak(message.text, preferences.languageTag) }, contentPadding = PaddingValues(0.dp)) {
                                     Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Gold, modifier = Modifier.size(16.dp))
                                     Spacer(Modifier.width(5.dp))
                                     Text("Écouter", color = Gold, fontSize = 11.sp)
