@@ -28,6 +28,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -199,6 +201,7 @@ private fun ChatScreen(modifier: Modifier) {
     val store = remember { ChatStore(context) }
     val preferences = remember { PreferenceStore(context) }
     val memoryStore = remember { MemoryStore(context) }
+    val chamaAvatar = remember { PhotoStore(context).get(0) }
     val scope = rememberCoroutineScope()
     val speech = remember { ChamaSpeech(context) }
     var sending by remember { mutableStateOf(false) }
@@ -237,7 +240,12 @@ private fun ChatScreen(modifier: Modifier) {
         LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(messages, key = { it.id }) { message ->
                 val fromChama = message.author == "Chama"
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = if (fromChama) Arrangement.Start else Arrangement.End) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = if (fromChama) Arrangement.Start else Arrangement.End, verticalAlignment = Alignment.Bottom) {
+                    if (fromChama && chamaAvatar != null) {
+                        AsyncImage(model = chamaAvatar, contentDescription = "Avatar original de Chama",
+                            modifier = Modifier.size(38.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+                        Spacer(Modifier.width(7.dp))
+                    }
                     Surface(color = if (fromChama) Panel else Color(0xFF302719), shape = RoundedCornerShape(16.dp)) {
                         Column(Modifier.widthIn(max = 300.dp).padding(12.dp)) {
                             Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
