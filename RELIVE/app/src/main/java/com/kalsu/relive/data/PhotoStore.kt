@@ -5,7 +5,7 @@ import android.net.Uri
 
 /** Stores user-selected original photo URIs and their persisted read permissions. */
 class PhotoStore(context: Context) {
-    private val prefs = context.applicationContext.getSharedPreferences("relive_photos", Context.MODE_PRIVATE)
+    private val prefs = SecurePreferences.open(context, "relive_photos")
 
     fun get(slot: Int): Uri? = prefs.getString(key(slot), null)?.let(Uri::parse)
 

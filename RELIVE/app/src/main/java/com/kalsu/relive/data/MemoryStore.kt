@@ -7,7 +7,7 @@ import org.json.JSONObject
 data class ReliveMemory(val id: Long, val text: String, val createdAt: Long)
 
 class MemoryStore(context: Context) {
-    private val prefs = context.applicationContext.getSharedPreferences("relive_memories", Context.MODE_PRIVATE)
+    private val prefs = SecurePreferences.open(context, "relive_memories")
 
     @Synchronized
     fun load(): List<ReliveMemory> {

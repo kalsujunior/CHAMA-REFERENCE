@@ -13,7 +13,7 @@ data class ChatMessage(
 
 /** Persistent local conversation store. Messages remain available after app restarts. */
 class ChatStore(context: Context) {
-    private val prefs = context.applicationContext.getSharedPreferences("relive_chat", Context.MODE_PRIVATE)
+    private val prefs = SecurePreferences.open(context, "relive_chat")
 
     @Synchronized
     fun load(): List<ChatMessage> {

@@ -155,7 +155,18 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
     }
 }
 
-private fun localReply(message: String): String {
+private fun localReply(message: String, memories: List<String>): String {
+    val normalized = message.lowercase()
+    if (listOf("que sais-tu de moi", "que sais tu de moi", "que te rappelles-tu", "que te rappelles tu", "qu'est-ce que tu sais", "sa ou sonje", "kisa ou sonje").any { normalized.contains(it) }) {
+        return if (memories.isEmpty()) {
+            "Je n'ai pas encore de souvenir enregistré. Tu peux m'en confier dans Profil, rubrique Souvenirs à conserver."
+        } else {
+            "Voici les souvenirs que tu m'as confiés :\\n" + memories.takeLast(20).mapIndexed { index, item -> (index + 1).toString() + ". " + item }.joinToString("\\n")
+        }
+    }
+    if (listOf("souviens-toi", "souviens toi", "sonje sa", "sonje sa pou mwen").any { normalized.contains(it) }) {
+        return "Je peux conserver ce détail. Ajoute-le dans Profil, rubrique « Souvenirs à conserver », pour qu'il reste enregistré sur cet appareil."
+    }
     val value = message.lowercase()
     return when {
         listOf("bonjour", "salut", "coucou", "bonjou").any { value.contains(it) } ->
@@ -253,7 +264,7 @@ private fun ChatScreen(modifier: Modifier) {
                         online.value = NetworkStatus.isOnline(context)
                         val history = store.load().takeLast(20).map { it.author to it.text }
                         val answer = if (online.value && preferences.remoteAiEnabled) AiGateway.reply(text, preferences.languageTag, memories, history) else null
-                        addMessage("Chama", answer ?: localReply(text))
+                        addMessage("Chama", answer ?: localReply(text, memories))
                         sending = false
                     }
                 }
@@ -333,7 +344,7 @@ private fun ProfileScreen(modifier: Modifier) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Autoriser l'IA distante", color = Cream)
-                Text("Envoie les messages et souvenirs au serveur configuré.", color = Muted, fontSize = 11.sp)
+                Text("Envoie les messages et souvenirs au serveur HTTPS configuré. Active cette option uniquement si tu fais confiance à ce serveur.", color = Muted, fontSize = 11.sp)
             }
             Switch(checked = remoteAiEnabled, onCheckedChange = { remoteAiEnabled = it })
         }
@@ -352,7 +363,7 @@ private fun ProfileScreen(modifier: Modifier) {
             Text("Enregistrer les préférences", color = Ink, fontWeight = FontWeight.Bold)
         }
         Text(savedMessage, color = Gold, modifier = Modifier.padding(20.dp))
-        Text("Souvenirs à conserver", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold,
+        Text("Souvenirs à conserver (${memories.size}/500)", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
         OutlinedTextField(value = memoryDraft, onValueChange = { memoryDraft = it },
             label = { Text("Un détail important à mémoriser") },

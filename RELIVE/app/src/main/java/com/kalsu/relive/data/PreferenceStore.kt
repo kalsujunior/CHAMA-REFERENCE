@@ -3,7 +3,7 @@ package com.kalsu.relive.data
 import android.content.Context
 
 class PreferenceStore(context: Context) {
-    private val prefs = context.applicationContext.getSharedPreferences("relive_preferences", Context.MODE_PRIVATE)
+    private val prefs = SecurePreferences.open(context, "relive_preferences")
 
     var displayName: String
         get() = prefs.getString("display_name", "Chama") ?: "Chama"
