@@ -1,6 +1,9 @@
 package com.kalsu.relive
 
 import android.os.Bundle
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.net.Uri
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -17,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import coil.compose.AsyncImage
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.kalsu.relive.core.NetworkStatus
 import com.kalsu.relive.data.ChatMessage
 import com.kalsu.relive.data.ChatStore
+import com.kalsu.relive.data.PhotoStore
 import com.kalsu.relive.voice.ChamaSpeech
 import com.kalsu.relive.notifications.ReminderScheduler
 
@@ -159,6 +164,10 @@ private fun ChatScreen(modifier: Modifier) {
     var draft by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(store.load()) }
     val online = remember { mutableStateOf(NetworkStatus.isOnline(context)) }
+    val speechInput = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val recognized = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+        if (!recognized.isNullOrBlank()) draft = recognized
+    }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -205,6 +214,14 @@ private fun ChatScreen(modifier: Modifier) {
             }
         }
         Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fr-FR")
+                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Parle à Chama")
+                }
+                try { speechInput.launch(intent) } catch (_: Exception) { }
+            }) { Icon(Icons.Default.Mic, contentDescription = "Dicter un message", tint = Gold) }
             OutlinedTextField(value = draft, onValueChange = { draft = it }, modifier = Modifier.weight(1f),
                 placeholder = { Text("Écris à Chama…") }, singleLine = false, maxLines = 4)
             IconButton(onClick = {
@@ -221,19 +238,36 @@ private fun ChatScreen(modifier: Modifier) {
 
 @Composable
 private fun GalleryScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    val store = remember { PhotoStore(context) }
+    val slots = remember { mutableStateListOf<Uri?>(store.get(0), store.get(1), store.get(2)) }
+    var pendingSlot by remember { mutableIntStateOf(0) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            try { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: SecurityException) { }
+            store.set(pendingSlot, uri)
+            slots[pendingSlot] = uri
+        }
+    }
+    val labels = listOf("Portrait principal — pull blanc avec cœurs rouges", "Photo de galerie 2", "Photo de galerie 3")
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
         Text("Galerie de Chama", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
-        Text("Les trois fichiers photo originaux doivent être ajoutés aux ressources de l'application. Ils ne sont pas encore présents dans le dépôt.",
-            color = Muted, modifier = Modifier.padding(20.dp))
-        listOf("Photo principale — pull blanc avec cœurs rouges", "Photo 2 — galerie", "Photo 3 — galerie").forEachIndexed { index, title ->
-            Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 7.dp).background(Panel, RoundedCornerShape(14.dp)).padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(44.dp).background(Color(0xFF302719), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
-                    Text("${index + 1}", color = Gold, fontWeight = FontWeight.Bold)
+        Text("Sélectionne les photos originales depuis ton téléphone. RELIVE les conserve sans retoucher leur apparence.", color = Muted, modifier = Modifier.padding(20.dp))
+        slots.forEachIndexed { index, uri ->
+            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 7.dp).background(Panel, RoundedCornerShape(14.dp)).padding(12.dp)) {
+                if (uri != null) {
+                    AsyncImage(model = uri, contentDescription = labels[index], modifier = Modifier.fillMaxWidth().height(190.dp))
+                } else {
+                    Box(Modifier.fillMaxWidth().height(90.dp).background(Color(0xFF242424), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = Gold, modifier = Modifier.size(34.dp))
+                    }
                 }
-                Spacer(Modifier.width(12.dp))
-                Text(title, color = Cream, fontSize = 13.sp)
+                Text(labels[index], color = Cream, modifier = Modifier.padding(top = 10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = { pendingSlot = index; picker.launch(arrayOf("image/*")) }) { Text(if (uri == null) "Choisir une photo" else "Remplacer", color = Gold) }
+                    if (uri != null) TextButton(onClick = { store.clear(index); slots[index] = null }) { Text("Retirer", color = Muted) }
+                }
             }
         }
     }
