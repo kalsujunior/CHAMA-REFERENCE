@@ -38,8 +38,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import com.kalsu.relive.data.PhotoStore
 import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.avatar.ChamaViseme
 import com.kalsu.relive.voice.ChamaSpeech
@@ -107,7 +105,6 @@ private fun RoomEnvironment(modifier: Modifier = Modifier) {
 @Composable
 fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGallery: () -> Unit) {
     val context = LocalContext.current
-    val portrait = remember { PhotoStore(context).get(0) ?: R.drawable.chama_portrait }
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
     var gesture by remember { mutableStateOf("idle") }
@@ -195,38 +192,12 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         .clip(RoundedCornerShape(26.dp)).background(Color(0xFF17151C)),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (portrait != null) {
-                        AsyncImage(
-                            model = portrait,
-                            contentDescription = "Photo originale de Chama, conservée sans retouche",
-                            modifier = Modifier.fillMaxSize().graphicsLayer {
-                                scaleX = breathing
-                                scaleY = breathing
-                                translationY = floating
-                                rotationZ = gestureTilt
-                            },
-                            contentScale = ContentScale.Fit
-                        )
-                        if (gesture == "wave" || gesture == "dance" || gesture == "listen") {
-                            Surface(
-                                modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
-                                color = Color(0xDD211B2B),
-                                shape = CircleShape
-                            ) {
-                                Text(
-                                    text = when (gesture) { "wave" -> "👋"; "dance" -> "♪"; else -> "♡" },
-                                    fontSize = 30.sp,
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
-                                )
-                            }
-                        }
-                    } else {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
-                            Text("♡", color = RoomGold, fontSize = 64.sp)
-                            Text("Ajoute la photo principale de Chama", color = RoomCream, fontWeight = FontWeight.SemiBold)
-                            Text("Photos → Portrait principal", color = Color.LightGray, fontSize = 12.sp)
-                        }
-                    }
+                    Chama3DAvatar(
+                        gesture = gesture,
+                        speaking = speaking,
+                        viseme = currentViseme.name,
+                        modifier = Modifier.fillMaxSize()
+                    )
                     if (speaking) {
                         Surface(
                             modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
@@ -293,7 +264,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "La photo reste originale : les mouvements sont des animations de présentation, pas une animation réelle du visage ou du corps.",
+            "Avatar 3D procédural animé : expressions et mouvements évolutifs. Le modèle sera progressivement affiné pour se rapprocher davantage de la référence de Chama.",
             color = Color.LightGray, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
