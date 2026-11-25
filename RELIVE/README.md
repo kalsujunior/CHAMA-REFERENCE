@@ -22,6 +22,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - URL du backend configurable à la compilation avec la propriété Gradle reliveApiBaseUrl. La connexion distante exige HTTPS et un consentement explicite dans Profil. La clé du fournisseur IA doit rester côté serveur, jamais dans l'APK.
 - Les trois photos originales ne sont pas stockées dans le dépôt : il faut les choisir depuis le téléphone dans l'écran Photos. Aucun visage n'est retouché par RELIVE.
 - La dictée dépend d'un service de reconnaissance vocale installé sur Android et peut nécessiter une connexion.
+- Les conversations, souvenirs et préférences sont actuellement stockés localement sans chiffrement applicatif dédié. Le chiffrement, les contrôles d'export et la politique de conservation doivent être finalisés avant un usage avec des informations sensibles.
 - La synthèse vocale créole dépend des voix installées sur le téléphone ; Android peut utiliser une voix de remplacement si elle n'existe pas.
 - Mémoire sémantique intégrée aux réponses de l'IA, calendrier avancé avec gestion interne des événements récurrents, comptes, authentification, synchronisation cloud, sauvegarde, administration, confidentialité avancée et tests fonctionnels restent à développer.
 - L'état de compilation doit être confirmé par un workflow GitHub Actions réussi sur le dernier commit.
