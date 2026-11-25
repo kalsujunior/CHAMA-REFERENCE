@@ -14,7 +14,7 @@ import java.net.URL
  * Expected success response: {reply: "..."}.
  */
 object AiGateway {
-    suspend fun reply(message: String, languageTag: String, memories: List<String>, history: List<Pair<String, String>>): String? =
+    suspend fun reply(message: String, languageTag: String, memories: List<String>, history: List<Pair<String, String>>, accessToken: String): String? =
         withContext(Dispatchers.IO) {
             val baseUrl = BuildConfig.RELIVE_API_BASE_URL.trim().trimEnd('/')
             if (!baseUrl.startsWith("https://", ignoreCase = true)) return@withContext null
@@ -28,6 +28,7 @@ object AiGateway {
                     doOutput = true
                     setRequestProperty("Content-Type", "application/json; charset=utf-8")
                     setRequestProperty("Accept", "application/json")
+                    setRequestProperty("X-RELIVE-ACCESS", accessToken)
                 }
                 val memoryArray = JSONArray()
                 memories.takeLast(20).forEach { memoryArray.put(it) }

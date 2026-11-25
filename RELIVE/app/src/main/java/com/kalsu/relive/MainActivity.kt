@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kalsu.relive.core.NetworkStatus
@@ -272,7 +273,7 @@ private fun ChatScreen(modifier: Modifier) {
                         val memories = memoryStore.load().map { it.text }
                         online.value = NetworkStatus.isOnline(context)
                         val history = store.load().takeLast(20).map { it.author to it.text }
-                        val answer = if (online.value && preferences.remoteAiEnabled) AiGateway.reply(text, preferences.languageTag, memories, history) else null
+                        val answer = if (online.value && preferences.remoteAiEnabled && preferences.remoteAccessToken.isNotBlank()) AiGateway.reply(text, preferences.languageTag, memories, history, preferences.remoteAccessToken) else null
                         addMessage("Chama", answer ?: localReply(text, memories, preferences.languageTag))
                         sending = false
                     }
@@ -333,6 +334,7 @@ private fun ProfileScreen(modifier: Modifier) {
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
     var remoteAiEnabled by remember { mutableStateOf(preferences.remoteAiEnabled) }
+    var remoteAccessToken by remember { mutableStateOf(preferences.remoteAccessToken) }
     var savedMessage by remember { mutableStateOf("") }
     Column(modifier.fillMaxSize().background(Ink).verticalScroll(rememberScrollState())) {
         BrandHeader()
@@ -357,6 +359,15 @@ private fun ProfileScreen(modifier: Modifier) {
             }
             Switch(checked = remoteAiEnabled, onCheckedChange = { remoteAiEnabled = it })
         }
+        OutlinedTextField(
+            value = remoteAccessToken,
+            onValueChange = { remoteAccessToken = it },
+            label = { Text("Code d'accès privé du serveur") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            singleLine = true
+        )
+        Text("Ce code doit aussi être enregistré dans Cloudflare sous le secret RELIVE_ACCESS_TOKEN.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
         Button(onClick = {
             if (displayName.isBlank()) {
                 savedMessage = "Le nom ne peut pas être vide."
@@ -365,6 +376,7 @@ private fun ProfileScreen(modifier: Modifier) {
                 preferences.languageTag = language
                 preferences.voiceEnabled = voiceEnabled
                 preferences.remoteAiEnabled = remoteAiEnabled
+                preferences.remoteAccessToken = remoteAccessToken.trim()
                 savedMessage = "Préférences enregistrées sur cet appareil."
             }
         }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),

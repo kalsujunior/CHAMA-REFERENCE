@@ -20,8 +20,11 @@ export default {
       });
     }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, cors);
-    if (!env.AI_API_KEY || !env.AI_MODEL || !env.RATE_LIMITER) {
+    if (!env.AI_API_KEY || !env.AI_MODEL || !env.RELIVE_ACCESS_TOKEN || !env.RATE_LIMITER) {
       return json({ error: "Backend is not fully configured" }, 503, cors);
+    }
+    if (request.headers.get("X-RELIVE-ACCESS") !== env.RELIVE_ACCESS_TOKEN) {
+      return json({ error: "Unauthorized" }, 401, cors);
     }
 
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";

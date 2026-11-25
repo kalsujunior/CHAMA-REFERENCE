@@ -20,4 +20,8 @@ class PreferenceStore(context: Context) {
     var remoteAiEnabled: Boolean
         get() = prefs.getBoolean("remote_ai_enabled", false)
         set(value) { prefs.edit().putBoolean("remote_ai_enabled", value).apply() }
+
+    var remoteAccessToken: String
+        get() = prefs.getString("remote_access_token", "") ?: ""
+        set(value) { prefs.edit().putString("remote_access_token", value.trim()).apply() }
 }
