@@ -11,6 +11,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -43,6 +47,62 @@ import com.kalsu.relive.voice.ChamaSpeech
 private val RoomGold = Color(0xFFD7B56D)
 private val RoomInk = Color(0xFF090909)
 private val RoomCream = Color(0xFFF5EBDD)
+
+@Composable
+private fun RoomEnvironment(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        drawRect(
+            brush = Brush.verticalGradient(
+                listOf(Color(0xFF40334A), Color(0xFF211D2B), Color(0xFF17151D)),
+                endY = h * 0.82f
+            ),
+            size = Size(w, h)
+        )
+        // Warm window and its golden frame.
+        drawRoundRect(
+            brush = Brush.linearGradient(
+                listOf(Color(0x77E5C27B), Color(0x223D3450)),
+                start = Offset(w * 0.07f, h * 0.12f),
+                end = Offset(w * 0.37f, h * 0.43f)
+            ),
+            topLeft = Offset(w * 0.07f, h * 0.12f),
+            size = Size(w * 0.30f, h * 0.31f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(18f, 18f)
+        )
+        drawLine(Color(0x99D9B979), Offset(w * 0.22f, h * 0.12f), Offset(w * 0.22f, h * 0.43f), 3f)
+        drawLine(Color(0x99D9B979), Offset(w * 0.07f, h * 0.275f), Offset(w * 0.37f, h * 0.275f), 3f)
+        // Bookcase on the right.
+        drawRoundRect(Color(0xAA17131C), Offset(w * 0.78f, h * 0.20f), Size(w * 0.15f, h * 0.42f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
+        for (i in 1..3) {
+            val y = h * (0.20f + i * 0.105f)
+            drawLine(Color(0x99C49D59), Offset(w * 0.80f, y), Offset(w * 0.91f, y), 3f)
+        }
+        // Perspective floor.
+        val floor = Path().apply {
+            moveTo(0f, h * 0.76f); lineTo(w, h * 0.76f)
+            lineTo(w, h); lineTo(0f, h); close()
+        }
+        drawPath(floor, Brush.verticalGradient(listOf(Color(0xFF302735), Color(0xFF100F14)), h * 0.76f, h))
+        drawLine(Color(0x77D7B56D), Offset(0f, h * 0.76f), Offset(w, h * 0.76f), 2f)
+        // Sofa silhouette.
+        drawRoundRect(Color(0xDD302638), Offset(w * 0.04f, h * 0.62f), Size(w * 0.34f, h * 0.15f), androidx.compose.ui.geometry.CornerRadius(26f, 26f))
+        drawRoundRect(Color(0xFF49384A), Offset(w * 0.07f, h * 0.59f), Size(w * 0.28f, h * 0.12f), androidx.compose.ui.geometry.CornerRadius(22f, 22f))
+        // Floor lamp with warm glow.
+        drawLine(Color(0xFFD7B56D), Offset(w * 0.69f, h * 0.44f), Offset(w * 0.69f, h * 0.75f), 5f)
+        drawRoundRect(Color(0xFFE0BD75), Offset(w * 0.64f, h * 0.40f), Size(w * 0.10f, h * 0.055f), androidx.compose.ui.geometry.CornerRadius(12f, 12f))
+        drawCircle(Color(0x22E8C77F), radius = w * 0.18f, center = Offset(w * 0.69f, h * 0.49f))
+        // Decorative indoor plant.
+        drawRoundRect(Color(0xFF8A6847), Offset(w * 0.88f, h * 0.70f), Size(w * 0.07f, h * 0.09f), androidx.compose.ui.geometry.CornerRadius(8f, 8f))
+        for (i in 0..4) {
+            val x = w * (0.915f + (i - 2) * 0.018f)
+            val y = h * (0.58f + kotlin.math.abs(i - 2) * 0.018f)
+            drawLine(Color(0xFF78906B), Offset(w * 0.915f, h * 0.72f), Offset(x, y), 5f)
+            drawCircle(Color(0xFF78906B), radius = 7f, center = Offset(x, y))
+        }
+    }
+}
 
 @Composable
 fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGallery: () -> Unit) {
@@ -123,6 +183,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 .clip(RoundedCornerShape(30.dp))
                 .background(Brush.verticalGradient(listOf(Color(0xFF46354A), Color(0xFF201D2C), Color(0xFF111116))))
         ) {
+            RoomEnvironment(modifier = Modifier.fillMaxSize())
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(16.dp))
                 Text("Bienvenue dans mon univers", color = RoomCream, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
