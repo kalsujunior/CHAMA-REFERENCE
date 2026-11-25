@@ -52,6 +52,14 @@ Le consentement IA distante reste désactivé par défaut. Les messages, une par
 
 Voir `backend/cloudflare-worker/README.md` pour les détails de configuration.
 
+## Thèmes et apparence
+
+- Le mode « Suivre la tenue » utilise actuellement la palette de la tenue principale (crème, rouge cœur et rose).
+- Le mode « Thème fixe » permet de verrouiller une palette : crème/rouge, rose tendre ou noir/or.
+- Le mode et la palette sont conservés dans les préférences chiffrées de l'application.
+- Le choix est appliqué à l'interface principale et à l'espace virtuel.
+- La détection automatique des couleurs d'une nouvelle tenue n'est pas encore implémentée ; le mode « Suivre la tenue » utilise pour le moment la palette configurée de la tenue principale.
+
 ## Photos
 
 Les photos originales supplémentaires sont sélectionnées dans l'écran Photos. RELIVE conserve les URI et ne retouche pas les images.
