@@ -381,9 +381,13 @@ private fun GalleryScreen(modifier: Modifier) {
                     }
                 }
                 Text(labels[index], color = Cream, modifier = Modifier.padding(top = 10.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { pendingSlot = index; picker.launch(arrayOf("image/*")) }) { Text(if (uri == null) "Choisir une photo" else "Remplacer", color = Gold) }
-                    if (uri != null) TextButton(onClick = { store.clear(index); slots[index] = null }) { Text("Retirer", color = Muted) }
+                if (index == 0) {
+                    Text("Portrait principal protégé : cette image intégrée ne peut pas être remplacée.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp))
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { pendingSlot = index; picker.launch(arrayOf("image/*")) }) { Text(if (uri == null) "Choisir une photo" else "Remplacer", color = Gold) }
+                        if (uri != null) TextButton(onClick = { store.clear(index); slots[index] = null }) { Text("Retirer", color = Muted) }
+                    }
                 }
             }
         }
