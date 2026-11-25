@@ -121,7 +121,8 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
         val breath = sin(t * 2.0).toFloat() * 0.025f
         val wave = if (gesture == "wave") sin(t * 5.5).toFloat() * 28f else 0f
         val dance = if (gesture == "dance") sin(t * 4.0).toFloat() * 9f else 0f
-        val listen = if (gesture == "listen") -7f else 0f
+        val blink = if (sin(t * 0.73) > 0.985) 0.008f else 0.035f
+        val mouthOpen = if (!speaking) 0.012f else when (viseme) { "A" -> 0.075f; "O" -> 0.060f; "I", "E" -> 0.028f; "U", "WQ" -> 0.045f; "MBP", "FV" -> 0.008f; else -> 0.025f + (sin(t * 15.0).toFloat().coerceAtLeast(0f) * 0.025f) }
 
         // Full-body stylized 3D companion: white heart sweater, long braids and warm skin.
         draw(0f, -1.05f, 0f, 0.58f, 0.68f, 0.34f, 0.10f, 0.08f, 0.06f) // skirt
@@ -137,13 +138,14 @@ private class ChamaRenderer : GLSurfaceView.Renderer {
             draw(x + offset * 1.2f, -0.34f, 0.12f, 0.052f, 0.72f, 0.055f, 0.20f, 0.10f, 0.055f, -i * 3f)
         }
         // Face details: eyes, nose and animated mouth.
-        draw(-0.22f, 1.62f, 0.405f, 0.075f, 0.035f, 0.025f, 0.045f, 0.025f, 0.018f)
-        draw(0.18f, 1.62f, 0.405f, 0.075f, 0.035f, 0.025f, 0.045f, 0.025f, 0.018f)
+        draw(-0.22f, 1.62f, 0.405f, 0.075f, blink, 0.025f, 0.045f, 0.025f, 0.018f)
+        draw(0.18f, 1.62f, 0.405f, 0.075f, blink, 0.025f, 0.045f, 0.025f, 0.018f)
         draw(-0.22f, 1.62f, 0.431f, 0.022f, 0.025f, 0.015f, 0.02f, 0.012f, 0.008f)
         draw(0.18f, 1.62f, 0.431f, 0.022f, 0.025f, 0.015f, 0.02f, 0.012f, 0.008f)
         draw(-0.02f, 1.43f, 0.455f, 0.045f, 0.09f, 0.045f, 0.34f, 0.17f, 0.13f)
-        val mouthOpen = if (speaking && viseme != "REST") 0.045f else 0.012f
         draw(-0.02f, 1.28f, 0.45f, 0.105f, mouthOpen, 0.025f, 0.22f, 0.045f, 0.055f)
+        draw(-0.22f, 1.72f, 0.405f, 0.095f, 0.018f, 0.025f, 0.16f, 0.075f, 0.055f, -5f)
+        draw(0.18f, 1.72f, 0.405f, 0.095f, 0.018f, 0.025f, 0.16f, 0.075f, 0.055f, 5f)
         // Arms: raised and waving when greeted.
         draw(-0.70f, 0.05f, 0f, 0.20f, 0.58f, 0.20f, 0.94f, 0.91f, 0.88f, -18f + dance)
         draw(0.68f, 0.02f, 0f, 0.20f, 0.58f, 0.20f, 0.94f, 0.91f, 0.88f, 18f - dance)
