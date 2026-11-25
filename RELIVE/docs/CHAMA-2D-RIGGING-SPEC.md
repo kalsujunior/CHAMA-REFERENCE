@@ -67,3 +67,27 @@ Les formes de bouche doivent partager le même contour facial et le même point 
 
 ## État actuel
 La version 0.4.0 possède une animation de présentation (flottement, respiration visuelle et inclinaison) et la synthèse vocale Android. Le rigging facial, les calques séparés, les visèmes et la synchronisation labiale réelle ne sont pas encore implémentés. Les planches de conception sont des références visuelles, pas des fichiers de rigging prêts à l'emploi.
+
+
+## VERROU ABSOLU — IDENTITÉ DU VISAGE DE CHAMA
+
+Cette règle est prioritaire sur toute autre consigne artistique ou technique.
+
+1. La photographie originale fournie par l'utilisateur est l'unique référence autorisée pour le visage. Elle doit être conservée telle quelle, sans retouche, filtre, restauration générative, embellissement, remplacement ni reconstruction par IA.
+2. La planche de conception du personnage générée ultérieurement est une référence pour la silhouette, les vêtements, les cheveux, les accessoires et les gestes uniquement. Elle n'est jamais une référence faciale et ne doit pas servir à redessiner les traits.
+3. Interdiction de modifier la forme du visage, les proportions, les yeux, les sourcils, le nez, les lèvres, la bouche, la mâchoire, la couleur ou la texture de peau, l'expression de référence ou tout autre trait identitaire.
+4. Aucun morph target, blend shape, déformation de maillage, génération d'expression, lip-sync graphique ou animation procédurale ne doit altérer le visage original.
+5. Pour respecter littéralement cette contrainte, le visage reste une image source immuable. Les mouvements autorisés portent sur le corps, les bras, les mains, la posture, les vêtements et les cheveux, sans toucher aux pixels du visage. Toute animation qui nécessiterait de déformer ou de recréer le visage doit être désactivée.
+6. La tête ne doit pas être tournée en 3D si cela impose de reconstruire, compléter, déformer ou inventer des parties du visage. En cas de doute, conserver le portrait frontal original et animer le corps autour de lui.
+7. Si le rendu 3D réaliste ne peut pas être obtenu sans altérer le visage, il faut privilégier un avatar hybride avec le portrait original intact plutôt qu'un visage 3D approximatif.
+8. Toute ressource candidate doit être comparée à la photo source avant intégration. En cas de différence faciale, la ressource est rejetée.
+
+### Test d'acceptation obligatoire — visage inchangé
+
+- La photo source reste accessible et inchangée dans l'application.
+- Aucun outil de génération ou de retouche n'est appliqué à cette photo.
+- Aucun mouvement ne déforme ni ne remplace la région faciale.
+- Le mode de secours affiche la photo originale, jamais un visage synthétique.
+- Si l'une de ces conditions n'est pas vérifiable, la fonctionnalité faciale reste désactivée.
+
+**Décision produit : visage verrouillé, animation corporelle autorisée. Aucune exception sans autorisation explicite ultérieure de l'utilisateur.**
