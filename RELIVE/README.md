@@ -1,38 +1,31 @@
 # RELIVE — KAL-SU
 
-Application Android native en Kotlin et Jetpack Compose, centrée sur ESPÉRANCE RUCHAMA KEFORA (Chama).
+Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCHAMA KEFORA (Chama).
 
-## État du dépôt
-
-Cette branche contient une base fonctionnelle en cours de développement. Elle n'est pas encore une livraison complète et aucune compilation Android n'a été exécutée dans cet environnement.
-
-### Déjà implémenté
-- Navigation Compose : Accueil, Conversation, Galerie, Profil et Rappels.
-- Identité visuelle noir et or.
-- Persistance locale de l'historique (jusqu'à 1 000 messages) via SharedPreferences.
-- Réponses locales de secours simples, distinctes d'une véritable IA.
+## Fonctions présentes dans la branche relive-app
+- Navigation : Accueil, Conversation, Photos, Profil et Rappels.
+- Interface sombre noir et or.
+- Historique local des conversations (SharedPreferences, limite de 1 000 messages).
+- Réponses locales de secours clairement identifiées comme non-IA.
 - Vérification de la connectivité réseau.
-- Synthèse vocale Android locale (TextToSpeech).
-- Rappels locaux planifiés avec WorkManager et notifications Android.
-- Écran de programmation et d'annulation des rappels, avec demande de permission sur Android 13+.
-- Permissions INTERNET et ACCESS_NETWORK_STATE.
+- Synthèse vocale Android et dictée vocale via le service de reconnaissance installé sur le téléphone.
+- Trois emplacements de galerie avec sélection de photos originales via le sélecteur de documents Android ; les URI et autorisations de lecture sont conservées.
+- Le portrait du premier emplacement est affiché sur l'écran d'accueil.
+- Préférences persistantes pour la langue de synthèse vocale et l'activation de la lecture.
+- Rappels locaux programmés via WorkManager, avec annulation des rappels RELIVE en attente.
+- Workflow GitHub Actions pour compiler Android Debug et publier l'APK en artefact.
 
-### Pas encore implémenté / dépendances nécessaires
-- IA distante : nécessite un backend HTTPS et une configuration serveur sécurisée. Aucun secret d'API ne doit être placé dans l'application.
-- Reconnaissance vocale et gestion du consentement.
-- Mémoire structurée de long terme, préférences et export/suppression des données.
-- Intégration des trois photos originales. Le portrait principal est la photo au pull blanc avec cœurs rouges ; les deux autres vont dans la galerie. Les images doivent être copiées sans retouche dans les ressources Android.
-- Calendrier intégré au système, avec création d'événements après confirmation.
-- Comptes, authentification, synchronisation et sauvegarde cloud.
-- Paramètres complets, confidentialité, tests automatisés et accessibilité.
-- Vérification de compilation avec JDK, Gradle et SDK Android compatibles.
+## Limites et éléments encore nécessaires
+- Le modèle IA distant n'est pas branché. Il faut un backend HTTPS et une clé conservée côté serveur ; aucune clé secrète ne doit être intégrée à l'APK.
+- Les trois photos originales ne sont pas stockées dans le dépôt : il faut les choisir depuis le téléphone dans l'écran Photos. Aucun visage n'est retouché par RELIVE.
+- La dictée dépend d'un service de reconnaissance vocale installé sur Android et peut nécessiter une connexion.
+- La synthèse vocale créole dépend des voix installées sur le téléphone ; Android peut utiliser une voix de remplacement si elle n'existe pas.
+- Mémoire structurée de long terme, calendrier avancé, comptes, authentification, synchronisation cloud, sauvegarde, administration, confidentialité avancée et tests fonctionnels restent à développer.
+- L'état de compilation doit être confirmé par un workflow GitHub Actions réussi sur le dernier commit.
 
-## Photos de Chama
-Ne pas régénérer, retoucher ou modifier le visage, les cheveux, les vêtements ou les proportions des photos de référence. Les fichiers originaux doivent être fournis dans les ressources du module app.
-
-## Compilation
-Depuis le dossier RELIVE, avec JDK 17 et SDK Android configuré :
+## Compilation locale
+Depuis ce dossier, avec JDK 17, Gradle 8.9 et Android SDK Platform 35 installés :
 
     gradle assembleDebug
 
-La compilation ne doit être déclarée validée qu'après exécution réussie de cette commande dans un environnement Android correctement configuré.
+Le fichier attendu est app/build/outputs/apk/debug/app-debug.apk.
