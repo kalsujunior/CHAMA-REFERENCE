@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.sp
 import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.voice.ChamaSpeech
 
-private val RoomGold = Color(0xFFD4AF37)
-private val RoomInk = Color(0xFF171717)
-private val RoomCream = Color(0xFFF5F1EA)
-private val RoomRose = Color(0xFFE8B9C1)
+private val RoomGold: Color @Composable get() = LocalRelivePalette.current.primary
+private val RoomInk: Color @Composable get() = LocalRelivePalette.current.background
+private val RoomCream: Color @Composable get() = LocalRelivePalette.current.text
+private val RoomRose: Color @Composable get() = LocalRelivePalette.current.secondary
 
 @Composable
 private fun RoomEnvironment(modifier: Modifier = Modifier) {
