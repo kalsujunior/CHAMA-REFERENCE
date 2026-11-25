@@ -52,7 +52,7 @@ private val Ink = Color(0xFFF5F1EA)       // fond blanc crème
 private val Panel = Color(0xFFFFFFFF)    // surfaces blanches
 private val Gold = Color(0xFFC6283D)     // rouge cœur (accent principal)
 private val Cream = Color(0xFF24191B)    // texte brun-noir
-private val Muted = Color(0xFF817477)    // texte secondaire
+private val Muted = Color(0xFF777777)    // texte secondaire
 private val ChamaRose = Color(0xFFE8B9C1)
 
 
@@ -89,7 +89,7 @@ private fun ReliveApp() {
                             label = { Text(label) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = Gold, selectedTextColor = Gold,
-                                indicatorColor = Color(0xFF332A19),
+                                indicatorColor = Color(0xFFF4DDE1),
                                 unselectedIconColor = Muted, unselectedTextColor = Muted
                             )
                         )
@@ -117,7 +117,7 @@ private fun BrandHeader() {
             Text("RELIVE", color = Gold, fontSize = 23.sp, fontWeight = FontWeight.Black, letterSpacing = 3.sp)
             Text("KAL-SU • COMPAGNE VIRTUELLE", color = Muted, fontSize = 9.sp, letterSpacing = 1.2.sp)
         }
-        Box(Modifier.size(42.dp).background(Color(0xFF302719), CircleShape), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(42.dp).background(Color(0xFFE8B9C1), CircleShape), contentAlignment = Alignment.Center) {
             Text("KS", color = Gold, fontWeight = FontWeight.Bold)
         }
     }
