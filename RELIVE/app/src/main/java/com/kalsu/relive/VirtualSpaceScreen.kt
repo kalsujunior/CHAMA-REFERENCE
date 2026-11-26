@@ -1,6 +1,7 @@
 package com.kalsu.relive
 
 import android.os.SystemClock
+import android.os.PowerManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -45,6 +46,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
     val autonomyRuntime = remember { ChamaAutonomyRuntime() }
+    val powerManager = remember(context) { context.getSystemService(PowerManager::class.java) }
     var autonomyEnabled by remember { mutableStateOf(false) }
     var autonomyFrame by remember { mutableStateOf(autonomyRuntime.stop()) }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
@@ -58,6 +60,9 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
+    }
+    DisposableEffect(autonomyRuntime) {
+        onDispose { autonomyRuntime.stop() }
     }
 
     fun pauseAutonomyForUser() {
@@ -76,7 +81,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     enabled = true,
                     virtualSpaceVisible = !lightMode,
                     userInteracting = false,
-                    lowPowerMode = lightMode,
+                    lowPowerMode = lightMode || powerManager?.isPowerSaveMode == true,
                     energy = 0.82f,
                     curiosity = 0.88f,
                     nowElapsedRealtimeMs = SystemClock.elapsedRealtime()
@@ -139,7 +144,8 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     bouquetHighlighted = bouquetHighlighted,
                     bodyGesture = if (autonomyEnabled) autonomyFrame.bodyGesture else bodyGesture,
                     bodyPosition = autonomyFrame.locomotion.position,
-                    bodyHeadingDegrees = autonomyFrame.locomotion.headingDegrees
+                    bodyHeadingDegrees = autonomyFrame.locomotion.headingDegrees,
+                    onSceneInteraction = { pauseAutonomyForUser() }
                 )
             } else {
                 Box(
