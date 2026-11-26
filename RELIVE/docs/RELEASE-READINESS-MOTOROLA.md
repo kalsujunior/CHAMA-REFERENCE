@@ -36,7 +36,7 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 - Accueil, conversation locale, galerie, profil, rappels et espace 3D.
 - Conversation distante facultative, désactivée par défaut, via le Worker RELIVE.
 - Synthèse vocale Android disponible.
-- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse, transition animée vers le coussin du canapé et posture assise simplifiée et geste de bras tendu vers les fleurs. Elle reste désactivée par défaut et s'arrête lors d'une interaction, en mode économie d'énergie ou lorsque l'écran quitte l'état actif.
+- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse, transition animée vers le coussin du canapé, posture assise simplifiée avec semelles au sol et dégagement de la table basse et geste de bras tendu vers les fleurs. Elle reste désactivée par défaut et s'arrête lors d'une interaction, en mode économie d'énergie ou lorsque l'écran quitte l'état actif.
 - Portrait principal intégré séparément, sans modification.
 
 ## État du serveur RELIVE
