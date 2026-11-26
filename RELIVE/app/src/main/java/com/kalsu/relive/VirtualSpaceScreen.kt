@@ -42,6 +42,8 @@ import com.kalsu.relive.avatar.ChamaRoomWaypoint
 import com.kalsu.relive.avatar.ChamaLocomotionStatus
 import com.kalsu.relive.avatar.ChamaRoomNavigation
 import com.kalsu.relive.avatar.ChamaSeatTransitionMath
+import com.kalsu.relive.avatar.ChamaFlowerLocation
+import com.kalsu.relive.avatar.ChamaFlowerInteraction
 import com.kalsu.relive.voice.ChamaSpeech
 
 private val RoomGold: Color @Composable get() = LocalRelivePalette.current.primary
@@ -72,6 +74,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var eveningAmbience by remember { mutableStateOf(false) }
     var sofaWelcoming by remember { mutableStateOf(false) }
     var bouquetHighlighted by remember { mutableStateOf(false) }
+    var flowerLocation by remember { mutableStateOf(ChamaFlowerLocation.VASE) }
     var lightMode by remember { mutableStateOf(false) }
     val seatRequested = autonomyEnabled && !lightMode &&
         autonomyFrame.currentWaypoint == ChamaRoomWaypoint.SOFA_SEAT &&
@@ -94,6 +97,17 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         autonomyFrame.locomotion.position
     }
     val renderedBodyRootHeight = if (seatProgress > 0.001f) seatPose.rootHeight else 0f
+    val bouquetPose = remember(
+        flowerLocation,
+        renderedBodyPosition,
+        autonomyFrame.locomotion.headingDegrees
+    ) {
+        ChamaFlowerInteraction.poseAt(
+            location = flowerLocation,
+            bodyPosition = renderedBodyPosition,
+            headingDegrees = autonomyFrame.locomotion.headingDegrees
+        )
+    }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -117,6 +131,9 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     fun pauseAutonomyForUser() {
         val wasEnabled = autonomyEnabled
         autonomyEnabled = false
+        if (flowerLocation == ChamaFlowerLocation.IN_HAND) {
+            flowerLocation = ChamaFlowerLocation.COFFEE_TABLE
+        }
         autonomyFrame = autonomyRuntime.stop()
         if (wasEnabled) {
             status = "Je m'arrête pour être attentive à toi."
@@ -167,6 +184,38 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             autonomyFrame = nextFrame
             status = nextFrame.routeError ?: nextFrame.decision.statusFr
             delay(50L)
+        }
+    }
+
+    // When Chama reaches the vase autonomously, she briefly picks up a rose
+    // and places the bouquet on the coffee table. The object remains inside
+    // the salon and returns to a safe surface if the user interrupts.
+    LaunchedEffect(
+        autonomyEnabled,
+        autonomyFrame.currentWaypoint,
+        autonomyFrame.locomotion.status,
+        autonomyFrame.decision.activity
+    ) {
+        if (!autonomyEnabled ||
+            autonomyFrame.currentWaypoint != ChamaRoomWaypoint.FLOWERS_STOP ||
+            autonomyFrame.locomotion.status != ChamaLocomotionStatus.ARRIVED ||
+            autonomyFrame.decision.activity != com.kalsu.relive.avatar.ChamaAutonomyActivity.WALK_TO_FLOWERS ||
+            flowerLocation != ChamaFlowerLocation.VASE
+        ) return@LaunchedEffect
+
+        delay(700L)
+        if (autonomyEnabled &&
+            autonomyFrame.currentWaypoint == ChamaRoomWaypoint.FLOWERS_STOP &&
+            autonomyFrame.locomotion.status == ChamaLocomotionStatus.ARRIVED &&
+            flowerLocation == ChamaFlowerLocation.VASE
+        ) {
+            flowerLocation = ChamaFlowerLocation.IN_HAND
+            status = "J'ai choisi une rose pour la regarder de plus près. 🌹"
+            delay(1_200L)
+            if (autonomyEnabled && flowerLocation == ChamaFlowerLocation.IN_HAND) {
+                flowerLocation = ChamaFlowerLocation.COFFEE_TABLE
+                status = "J'ai déposé le bouquet sur la table basse."
+            }
         }
     }
 
@@ -235,6 +284,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     bodyHeadingDegrees = autonomyFrame.locomotion.headingDegrees,
                     bodyGaitPhase = autonomyFrame.locomotion.gaitPhase,
                     bodyRootHeight = renderedBodyRootHeight,
+                    bouquetPose = bouquetPose,
                     onSceneInteraction = { pauseAutonomyForUser() }
                 )
             } else {
@@ -297,6 +347,19 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
                     ) { Text(if (sofaWelcoming) "Ranger le canapé" else "Préparer le canapé", fontSize = 10.sp) }
+
+                    if (flowerLocation == ChamaFlowerLocation.COFFEE_TABLE) {
+                        OutlinedButton(
+                            onClick = {
+                                pauseAutonomyForUser()
+                                flowerLocation = ChamaFlowerLocation.VASE
+                                status = "J'ai remis le bouquet dans son vase. 🌹"
+                                bodyGesture = ChamaBodyGesture.LISTEN
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
+                        ) { Text("Remettre le bouquet", fontSize = 10.sp) }
+                    }
 
                     OutlinedButton(
                         onClick = {
