@@ -129,6 +129,23 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun failedCollisionGuardCanRestoreLastSafePose() {
+        val safePosition = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER)
+        val controller = ChamaLocomotionController()
+        val route = ChamaRoomNavigation.findRoute(
+            ChamaRoomWaypoint.ROOM_CENTER,
+            ChamaAutonomyTarget.WINDOW
+        )!!
+        controller.begin(route, safePosition, 0f, 0L)
+        controller.update(500L, enabled = true, userInteracting = false, lowPowerMode = false)
+
+        val held = controller.holdAt(safePosition, 0f)
+        assertEquals(safePosition, held.position)
+        assertEquals(0f, held.speedMetersPerSecond, 0.0001f)
+        assertEquals(ChamaLocomotionStatus.IDLE, held.status)
+    }
+
+    @Test
     fun arrivedCharacterCanFaceTheSemanticDestination() {
         val point = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
         val flowerHeading = ChamaRoomNavigation.facingDegreesAt(
