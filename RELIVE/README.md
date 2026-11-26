@@ -13,12 +13,18 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Un quatrième contrôle met en valeur le bouquet en éclaircissant visuellement les roses ; l'action peut être annulée pour retrouver leur teinte initiale.
 - Un mode léger désactive le rendu 3D de la pièce pour réduire la charge graphique sur les appareils modestes ; le bloc corporel et le portrait restent affichés.
 - Un médaillon mural 3D RELIVE-KAL-SU a été ajouté au mur : panneau sombre, cœur rouge en relief, bordures dorées et accents floraux. Il s'agit d'une composition géométrique indépendante inspirée de l'illustration de référence, et non de l'image raster directement plaquée sur le mur.
-- Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse, oscillation des deux tresses géométriques et pas alternés pendant la danse.
+- Le corps possède désormais une articulation géométrique à deux segments pour chaque bras (épaule → coude → poignet) et chaque jambe (hanche → genou → cheville) ; les positions des segments sont recalculées à partir des angles articulaires pour limiter les ruptures aux jointures. Les gestes WAVE, LISTEN et DANCE utilisent des poses distinctes.
 - Le mode léger désactive aussi les animations corporelles procédurales, en plus du décor de pièce, pour réduire le travail de rendu.
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
 - Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
 - Les deux SceneView (pièce et corps) sont actuellement séparées. Leur coût mémoire/GPU doit être mesuré sur le téléphone cible avant validation.
 - Les tresses actuelles sont des volumes géométriques provisoires ; leur maillage détaillé, les vêtements finalisés, les animations avancées, l'intégration visuelle du portrait avec le corps et les interactions complètes de la pièce restent à réaliser.
+
+## Références corporelles vidéo de Chama
+
+Les cinq vidéos validées par l'utilisateur servent de références qualitatives pour la posture et le mouvement : gestes des mains devant le buste, rotations du torse, changements d'appui, vues de dos et de trois-quarts, inclinaisons latérales, bras levés et mouvements de danse. Elles ne permettent pas de déduire des mensurations exactes, car les vêtements, le cadrage, la perspective et les angles de caméra varient. Les dimensions du blocage 3D restent donc des paramètres provisoires à ajuster visuellement, et non des mesures biométriques.
+
+La géométrie actuelle reste un blocage procédural de développement : elle n'est pas un maillage anatomique final, un système de skinning de production ni un solveur d'IK complet. Les articulations sont simulées par le recalcul des centres et orientations des segments.
 
 ## Protection obligatoire du portrait
 
