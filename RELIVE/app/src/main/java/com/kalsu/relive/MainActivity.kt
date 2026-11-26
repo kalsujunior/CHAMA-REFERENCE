@@ -541,8 +541,20 @@ private fun RemindersScreen(modifier: Modifier) {
     var message by remember { mutableStateOf("Prends un moment pour toi.") }
     var minutes by remember { mutableStateOf("30") }
     var status by remember { mutableStateOf("Programme un rappel local sur cet appareil.") }
+    var pendingReminder by remember { mutableStateOf<Triple<String, String, Long>?>(null) }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        status = if (granted) "Autorisation accordée." else "Notifications refusées : le rappel ne pourra pas afficher d'alerte."
+        val pending = pendingReminder
+        pendingReminder = null
+        if (granted && pending != null) {
+            try {
+                ReminderScheduler.schedule(context, pending.first, pending.second, pending.third)
+                status = "Autorisation accordée. Rappel programmé dans ${pending.third} minute(s)."
+            } catch (error: Exception) {
+                status = "Erreur de programmation : " + (error.localizedMessage ?: "inconnue")
+            }
+        } else {
+            status = "Notifications refusées : aucun rappel n'a été programmé. Autorise-les dans les paramètres Android pour réessayer."
+        }
     }
     Column(modifier.fillMaxSize().background(Ink)) {
         BrandHeader()
@@ -560,13 +572,15 @@ private fun RemindersScreen(modifier: Modifier) {
                 status = "Vérifie les champs et indique un délai supérieur à zéro."
             } else {
                 if (Build.VERSION.SDK_INT >= 33 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    pendingReminder = Triple(title.trim(), message.trim(), delay)
                     permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-                try {
-                    ReminderScheduler.schedule(context, title.trim(), message.trim(), delay)
-                    status = "Rappel programmé dans " + delay + " minute(s)."
-                } catch (error: Exception) {
-                    status = "Erreur de programmation : " + (error.localizedMessage ?: "inconnue")
+                } else {
+                    try {
+                        ReminderScheduler.schedule(context, title.trim(), message.trim(), delay)
+                        status = "Rappel programmé dans " + delay + " minute(s)."
+                    } catch (error: Exception) {
+                        status = "Erreur de programmation : " + (error.localizedMessage ?: "inconnue")
+                    }
                 }
             }
         }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(52.dp), colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
