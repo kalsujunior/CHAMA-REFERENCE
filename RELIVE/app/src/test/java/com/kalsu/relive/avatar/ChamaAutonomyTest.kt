@@ -433,12 +433,14 @@ class ChamaAutonomyTest {
     fun lampReachHandApproachesTheVirtualBulbWithoutLoweringTheShoulder() {
         val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
         val heading = ChamaRoomNavigation.facingDegreesAt(ChamaAutonomyTarget.LAMP, approach)
+        val shoulder = ChamaLimbPoint3D(0.31f, 1.70f, 0f)
         val pose = ChamaBodyPoseMath.reachingArm(
-            shoulder = ChamaLimbPoint3D(0.31f, 1.70f, 0f),
+            shoulder = shoulder,
             lateralAngleDegrees = -35f,
             upperForwardTiltDegrees = 55f,
             forearmForwardTiltDegrees = 60f
         )
+        assertEquals(1.70f, shoulder.y, 0.0001f)
         val radians = Math.toRadians(heading.toDouble())
         val worldX = approach.x +
             pose.hand.x * kotlin.math.cos(radians).toFloat() +
@@ -451,7 +453,6 @@ class ChamaAutonomyTest {
         val dz = -0.78f - worldZ
         val handToBulbDistance = kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
         assertTrue("The raised hand should reach the lamp's outer sphere", handToBulbDistance < 0.31f)
-        assertEquals(1.70f, 1.70f, 0.0001f)
     }
 
     @Test
