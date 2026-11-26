@@ -414,6 +414,42 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun lampUsesTheValidatedConsoleApproachAndFacesTheLamp() {
+        val route = ChamaRoomNavigation.findRoute(
+            ChamaRoomWaypoint.ROOM_CENTER,
+            ChamaAutonomyTarget.LAMP
+        )
+        assertNotNull(route)
+        assertEquals(ChamaRoomWaypoint.FLOWERS_STOP, route!!.waypoints.last())
+        assertTrue(ChamaRoomCollisionMap.validateRoute(route))
+        val heading = ChamaRoomNavigation.facingDegreesAt(
+            ChamaAutonomyTarget.LAMP,
+            ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
+        )
+        assertTrue("Chama should face the console lamp", heading in 90f..180f)
+    }
+
+    @Test
+    fun plannerCanChooseTheLampAsALocalAutonomousActivity() {
+        val planner = ChamaAutonomyPlanner()
+        fun input(now: Long) = ChamaAutonomyInput(
+            enabled = true,
+            virtualSpaceVisible = true,
+            userInteracting = false,
+            lowPowerMode = false,
+            energy = 0.75f,
+            curiosity = 0.90f,
+            nowElapsedRealtimeMs = now
+        )
+        assertEquals(ChamaAutonomyActivity.WALK_TO_WINDOW, planner.decide(input(0L)).activity)
+        planner.decide(input(18_000L))
+        planner.decide(input(36_000L))
+        assertEquals(ChamaAutonomyActivity.DANCE_IN_PLACE, planner.decide(input(54_000L)).activity)
+        assertEquals(ChamaAutonomyActivity.WALK_TO_LAMP, planner.decide(input(72_000L)).activity)
+        assertEquals(ChamaAutonomyTarget.LAMP, planner.decide(input(72_001L)).target)
+    }
+
+    @Test
     fun energyDecreasesDuringWalkingAndRecoversDuringRest() {
         val needs = ChamaAutonomyNeeds()
         needs.advance(0L, null, ChamaLocomotionStatus.IDLE)
