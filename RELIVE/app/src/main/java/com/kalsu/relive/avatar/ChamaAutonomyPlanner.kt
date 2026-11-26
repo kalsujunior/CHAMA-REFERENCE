@@ -7,8 +7,8 @@ package com.kalsu.relive.avatar
  * It may choose an intention, but it never moves the avatar, speaks, accesses the
  * microphone, sends data, or performs actions outside the virtual room.
  *
- * The renderer must translate [ChamaAutonomyTarget] into a validated in-room path.
- * Until that adapter exists, these decisions are plans only, not visible locomotion.
+ * ChamaAutonomyRuntime translates [ChamaAutonomyTarget] into a validated in-room
+ * route and the shared SceneView applies the resulting locomotion frames.
  */
 enum class ChamaAutonomyActivity {
     WALK_TO_WINDOW,
