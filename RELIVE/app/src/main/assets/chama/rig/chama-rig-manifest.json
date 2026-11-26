@@ -94,7 +94,7 @@
     "avoidGapsDuringBodyMotion": true
   },
   "runtimeNotes": {
-    "currentImplementation": "procedural SceneView headless body blockout with calculated shoulder-elbow-wrist and hip-knee-ankle chains; limb segment axes are aligned to their pivot-to-pivot vectors; the original portrait remains a static independent overlay; production-grade mesh, inverse-kinematics solver and imported GLB asset are not available",
+    "currentImplementation": "procedural SceneView headless body blockout with calculated shoulder-elbow-wrist and hip-knee-ankle chains; limb segment axes are aligned to their pivot-to-pivot vectors; dance includes a subtle lateral torso-flex approximation through coordinated upper-torso and waist offsets, not a true skeletal rotation; the original portrait remains a static independent overlay; production-grade mesh, inverse-kinematics solver and imported GLB asset are not available",
     "futureBodyRenderer": "refine the geometric body-only blockout with detailed separate body geometry and production skinning while keeping the original portrait overlay byte-for-byte unchanged; no head, neck, face or hair geometry belongs to this body reference",
     "speech": "Android TTS is audio-only and must never drive facial animation"
   }
