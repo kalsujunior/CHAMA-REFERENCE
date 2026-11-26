@@ -1,0 +1,136 @@
+package com.kalsu.relive
+
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import io.github.sceneview.SceneView
+import io.github.sceneview.math.Position
+import io.github.sceneview.math.Rotation
+import io.github.sceneview.math.Size
+import io.github.sceneview.rememberCameraManipulator
+import io.github.sceneview.rememberEngine
+import io.github.sceneview.rememberMaterialLoader
+
+/**
+ * Body-only procedural character blockout.
+ *
+ * The head and face are intentionally omitted. The immutable source portrait
+ * remains a separate Compose image and is never used as a texture or mesh.
+ */
+@Composable
+internal fun ChamaBody3D(modifier: Modifier = Modifier) {
+    val engine = rememberEngine()
+    val materialLoader = rememberMaterialLoader(engine)
+    val sweater = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFF7F1E8), roughness = 0.88f)
+    }
+    val heartRed = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFC6283D), roughness = 0.72f)
+    }
+    val skin = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFF9B654E), roughness = 0.9f)
+    }
+    val trousers = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFF332C32), roughness = 0.9f)
+    }
+    val shoe = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFF4A3433), roughness = 0.8f)
+    }
+
+    val motion = rememberInfiniteTransition(label = "chama_body_motion")
+    val wave by motion.animateFloat(
+        initialValue = -8f,
+        targetValue = 34f,
+        animationSpec = infiniteRepeatable(tween(1050), RepeatMode.Reverse),
+        label = "right_arm_wave"
+    )
+    val breathe by motion.animateFloat(
+        initialValue = 0.0f,
+        targetValue = 0.018f,
+        animationSpec = infiniteRepeatable(tween(2200), RepeatMode.Reverse),
+        label = "body_breathing"
+    )
+
+    SceneView(
+        modifier = modifier,
+        engine = engine,
+        materialLoader = materialLoader,
+        cameraManipulator = rememberCameraManipulator(
+            orbitHomePosition = Position(0f, 1.15f, 3.9f),
+            targetPosition = Position(0f, 1.0f, 0f)
+        )
+    ) {
+        // Torso and hips: the head/face are deliberately not modelled.
+        CapsuleNode(
+            radius = 0.29f, height = 0.88f,
+            materialInstance = sweater,
+            position = Position(0f, 1.42f + breathe, 0f)
+        )
+        CapsuleNode(
+            radius = 0.27f, height = 0.30f,
+            materialInstance = trousers,
+            position = Position(0f, 0.88f, 0f)
+        )
+
+        // Small red heart-like sweater details are geometric decorations,
+        // not a texture of the protected portrait.
+        SphereNode(radius = 0.055f, materialInstance = heartRed,
+            position = Position(-0.12f, 1.58f + breathe, 0.255f))
+        SphereNode(radius = 0.055f, materialInstance = heartRed,
+            position = Position(-0.055f, 1.58f + breathe, 0.255f))
+        SphereNode(radius = 0.055f, materialInstance = heartRed,
+            position = Position(0.08f, 1.42f + breathe, 0.255f))
+        SphereNode(radius = 0.055f, materialInstance = heartRed,
+            position = Position(0.145f, 1.42f + breathe, 0.255f))
+
+        // Shoulder joints and arms. The upper arm rotates independently.
+        SphereNode(radius = 0.13f, materialInstance = sweater,
+            position = Position(-0.31f, 1.70f + breathe, 0f))
+        SphereNode(radius = 0.13f, materialInstance = sweater,
+            position = Position(0.31f, 1.70f + breathe, 0f))
+        CapsuleNode(
+            radius = 0.105f, height = 0.48f,
+            materialInstance = sweater,
+            position = Position(-0.43f, 1.40f + breathe, 0f),
+            rotation = Rotation(z = -17f)
+        )
+        CapsuleNode(
+            radius = 0.105f, height = 0.48f,
+            materialInstance = sweater,
+            position = Position(0.43f, 1.40f + breathe, 0f),
+            rotation = Rotation(z = wave)
+        )
+        CapsuleNode(
+            radius = 0.085f, height = 0.42f,
+            materialInstance = sweater,
+            position = Position(-0.49f, 1.04f, 0f),
+            rotation = Rotation(z = -8f)
+        )
+        CapsuleNode(
+            radius = 0.085f, height = 0.42f,
+            materialInstance = sweater,
+            position = Position(0.49f, 1.05f, 0f),
+            rotation = Rotation(z = wave * 0.72f)
+        )
+        SphereNode(radius = 0.105f, materialInstance = skin,
+            position = Position(-0.53f, 0.79f, 0f))
+        SphereNode(radius = 0.105f, materialInstance = skin,
+            position = Position(0.54f, 0.80f, 0f))
+
+        // Legs and shoes complete the independent body silhouette.
+        CapsuleNode(radius = 0.13f, height = 0.68f, materialInstance = trousers,
+            position = Position(-0.16f, 0.36f, 0f))
+        CapsuleNode(radius = 0.13f, height = 0.68f, materialInstance = trousers,
+            position = Position(0.16f, 0.36f, 0f))
+        CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
+            position = Position(-0.16f, 0.025f, 0.09f))
+        CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
+            position = Position(0.16f, 0.025f, 0.09f))
+    }
+}
