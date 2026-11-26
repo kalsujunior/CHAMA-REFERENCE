@@ -102,6 +102,30 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun bouquetStateMachineRequiresPickupBeforePlacement() {
+        val flowers = ChamaFlowerInteractionController()
+        assertEquals(ChamaFlowerLocation.VASE, flowers.location)
+        assertFalse(flowers.placeOnTable())
+        assertTrue(flowers.pickUp())
+        assertEquals(ChamaFlowerLocation.IN_HAND, flowers.location)
+        assertFalse(flowers.pickUp())
+        assertTrue(flowers.placeOnTable())
+        assertEquals(ChamaFlowerLocation.COFFEE_TABLE, flowers.location)
+        assertFalse(flowers.placeOnTable())
+        assertTrue(flowers.returnToVase())
+        assertEquals(ChamaFlowerLocation.VASE, flowers.location)
+    }
+
+    @Test
+    fun interruptedFlowerPickupDropsBouquetSafelyOnCoffeeTable() {
+        val flowers = ChamaFlowerInteractionController()
+        assertTrue(flowers.pickUp())
+        assertTrue(flowers.dropOnTableIfHeld())
+        assertEquals(ChamaFlowerLocation.COFFEE_TABLE, flowers.location)
+        assertFalse(flowers.dropOnTableIfHeld())
+    }
+
+    @Test
     fun flowerPickupPosePlacesBouquetAtTheLoweredReachingHand() {
         val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
         val heading = ChamaRoomNavigation.facingDegreesAt(ChamaAutonomyTarget.FLOWERS, approach)
