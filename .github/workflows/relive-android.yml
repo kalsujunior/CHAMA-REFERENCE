@@ -8,7 +8,7 @@ on:
       - "RELIVE/**"
       - ".github/workflows/relive-android.yml"
   pull_request:
-    branches: [relive-app]
+    branches: [main, relive-app]
     paths:
       - "RELIVE/**"
       - ".github/workflows/relive-android.yml"
