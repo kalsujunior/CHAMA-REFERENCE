@@ -59,7 +59,7 @@ internal fun SceneScope.ChamaBodyNodes(
         initialValue = -8f,
         targetValue = if (!motionEnabled) -8f else when (gesture) {
             ChamaBodyGesture.IDLE -> 6f
-            ChamaBodyGesture.WALK -> 18f
+            ChamaBodyGesture.WALK -> 12f
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
             ChamaBodyGesture.DANCE -> 48f
@@ -71,7 +71,7 @@ internal fun SceneScope.ChamaBodyNodes(
         initialValue = 7f,
         targetValue = if (!motionEnabled) 7f else when (gesture) {
             ChamaBodyGesture.IDLE -> -6f
-            ChamaBodyGesture.WALK -> -18f
+            ChamaBodyGesture.WALK -> -12f
             ChamaBodyGesture.WAVE -> -10f
             ChamaBodyGesture.LISTEN -> -8f
             ChamaBodyGesture.DANCE -> -42f
@@ -155,7 +155,7 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.DANCE -> -28f
         ChamaBodyGesture.LISTEN -> 8f
         ChamaBodyGesture.IDLE -> 5f
-        ChamaBodyGesture.WALK -> 6f
+        ChamaBodyGesture.WALK -> 4f
     }
     val leftElbowBend = when (gesture) {
         ChamaBodyGesture.WAVE -> 8f
