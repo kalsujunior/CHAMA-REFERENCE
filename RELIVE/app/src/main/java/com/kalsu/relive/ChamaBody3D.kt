@@ -196,11 +196,11 @@ internal fun ChamaBody3D(
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, 0f),
-            rotation = Rotation(z = leftShoulderAngle - 90f))
+            rotation = Rotation(z = leftShoulderAngle + 180f))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, 0f),
-            rotation = Rotation(z = rightShoulderAngle - 90f))
+            rotation = Rotation(z = rightShoulderAngle + 180f))
         SphereNode(radius = 0.092f, materialInstance = sweater,
             position = Position(leftElbowX, leftElbowY, 0f))
         SphereNode(radius = 0.092f, materialInstance = sweater,
@@ -208,11 +208,11 @@ internal fun ChamaBody3D(
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
             position = Position((leftElbowX + leftWristX) / 2f, (leftElbowY + leftWristY) / 2f, 0f),
-            rotation = Rotation(z = leftForearmAngle - 90f))
+            rotation = Rotation(z = leftForearmAngle + 180f))
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
             position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, 0f),
-            rotation = Rotation(z = rightForearmAngle - 90f))
+            rotation = Rotation(z = rightForearmAngle + 180f))
         SphereNode(radius = 0.075f, materialInstance = cuff,
             position = Position(leftWristX, leftWristY, 0f))
         SphereNode(radius = 0.075f, materialInstance = cuff,
@@ -257,20 +257,20 @@ internal fun ChamaBody3D(
             position = Position(0.15f, hipY, 0f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
             position = Position((-0.15f + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, 0f),
-            rotation = Rotation(z = leftThighAngle - 90f))
+            rotation = Rotation(z = leftThighAngle + 180f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
             position = Position((0.15f + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, 0f),
-            rotation = Rotation(z = rightThighAngle - 90f))
+            rotation = Rotation(z = rightThighAngle + 180f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(leftKneeX, leftKneeY, 0f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(rightKneeX, rightKneeY, 0f))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
             position = Position((leftKneeX + leftAnkleX) / 2f, (leftKneeY + leftAnkleY) / 2f, 0f),
-            rotation = Rotation(z = leftCalfAngle - 90f))
+            rotation = Rotation(z = leftCalfAngle + 180f))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
             position = Position((rightKneeX + rightAnkleX) / 2f, (rightKneeY + rightAnkleY) / 2f, 0f),
-            rotation = Rotation(z = rightCalfAngle - 90f))
+            rotation = Rotation(z = rightCalfAngle + 180f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(leftAnkleX, leftAnkleY, 0f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
