@@ -39,14 +39,17 @@ Ces fichiers restent des spécifications et ne doivent pas être présentés com
 - Navigation : Accueil, Conversation, Photos, Profil, Rappels et Espace virtuel.
 - Historique local des conversations (jusqu'à 1 000 messages).
 - Réponses locales de secours ; elles ne constituent pas un modèle d'IA local.
-- Jusqu'à 500 souvenirs, avec ajout, affichage et suppression.
+- Jusqu'à 500 souvenirs, avec ajout, affichage et suppression. Les demandes explicites « Souviens-toi… », « N'oublie pas… », « Mémorise… » et quelques formulations créoles sont détectées et enregistrées localement ; les autres messages ne sont pas mémorisés automatiquement.
 - Stockage chiffré des préférences, conversations, souvenirs et URI de photos via Android Keystore.
 - Migration des anciennes préférences et sauvegarde Android désactivée.
 - Synthèse vocale Android en français ou créole selon les voix installées.
 - Dictée vocale via le service de reconnaissance disponible sur Android.
 - Portrait principal intégré et immuable ; deux emplacements secondaires de galerie utilisant les photos originales choisies dans le sélecteur Android.
 - Rappels locaux via WorkManager et ajout d'événement au calendrier.
-- Consentement explicite avant tout envoi au backend IA distant.
+- Consentement explicite avant tout envoi au backend IA distant ; l'enregistrement du profil refuse l'activation distante si le code d'accès est vide.
+- L'historique transmis au backend exclut le message courant du contexte précédent afin d'éviter de le répéter deux fois dans la requête.
+- Identifiants de messages et de souvenirs rendus uniques même lorsque plusieurs éléments sont enregistrés dans la même milliseconde.
+- Commandes de mobilier et d'ambiance regroupées sur une rangée défilante pour limiter la hauteur occupée sur les petits écrans.
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 
 ## Backend IA
