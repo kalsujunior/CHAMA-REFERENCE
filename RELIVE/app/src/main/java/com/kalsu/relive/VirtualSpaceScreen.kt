@@ -190,6 +190,21 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         }
     }
 
+    LaunchedEffect(
+        autonomyEnabled,
+        screenResumed,
+        lightMode,
+        autonomyFrame.decision.pauseReason,
+        flowerLocation
+    ) {
+        val shouldDropHeldBouquet = flowerLocation == ChamaFlowerLocation.IN_HAND &&
+            (!autonomyEnabled || !screenResumed || lightMode ||
+                autonomyFrame.decision.pauseReason != null)
+        if (shouldDropHeldBouquet && flowerInteraction.dropOnTableIfHeld()) {
+            flowerLocation = flowerInteraction.location
+        }
+    }
+
     LaunchedEffect(interactionStatus) {
         if (interactionStatus != null) {
             delay(3_500L)
