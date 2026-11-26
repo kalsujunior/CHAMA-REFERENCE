@@ -2,28 +2,32 @@
 
 Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCHAMA KEFORA (Chama).
 
-## État réel de l'espace virtuel
+## État actuel de l'espace virtuel
 
-- Le portrait d'origine est affiché comme une image 2D statique et indépendante.
-- Le portrait original ne doit jamais être retouché, recadré, recoloré, déformé, reconstruit ou animé.
-- Le composant UI s'appelle `ChamaPortrait`. Il ne s'agit pas d'un avatar 3D.
-- Le décor actuellement affiché est une prévisualisation 2D dessinée avec Compose Canvas, pas une pièce 3D.
-- Le corps articulé indépendant, le modèle 3D, les mouvements du corps et la pièce 3D ne sont pas encore implémentés.
-- Les interactions de l'espace virtuel déclenchent des phrases vocales Android. Elles ne produisent pas encore de gestes corporels.
-- La synthèse vocale ne pilote aucune animation du visage ou des lèvres.
+- Une première pièce 3D procédurale SceneView/Filament est intégrée : sol, murs, fenêtre, canapé, coussins, table, lampe et plante.
+- Un premier blocage géométrique 3D du corps indépendant est intégré : torse, bassin, bras, avant-bras, mains simplifiées, jambes, chaussures et détails géométriques du pull.
+- Les interactions Bonjour, Écouter et Partager sélectionnent respectivement les gestes corporels WAVE, LISTEN et DANCE.
+- Le corps possède des animations procédurales simples : mouvement des bras, respiration et balancement du torse.
+- Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
+- Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
+- Les deux SceneView (pièce et corps) sont actuellement séparées. Leur coût mémoire/GPU doit être mesuré sur le téléphone cible avant validation.
+- Les tresses détaillées, les vêtements finalisés, les animations avancées, l'intégration visuelle du portrait avec le corps et les interactions complètes de la pièce restent à réaliser.
 
 ## Protection obligatoire du portrait
 
 Le fichier de référence intégré est `app/src/main/res/drawable-nodpi/chama_portrait.png`.
 
-Toute future représentation animée devra garder cette image dans une couche indépendante et immuable. Les mouvements seront limités au corps, aux vêtements et aux cheveux séparés. Aucun rig facial, mouvement de tête, clignement, mouvement des yeux, de la bouche ou de la mâchoire n'est autorisé.
+Son SHA-256 de référence est :
+`ad9091b7ea61919de0bab0dd0921b7a164982f92`.
 
-La spécification du rig est désormais limitée au corps :
+Toute future représentation animée devra garder cette image dans une couche indépendante et immuable. Aucun recadrage, recoloration, déformation, reconstruction, mouvement de tête, clignement, mouvement des yeux, de la bouche ou de la mâchoire n'est autorisé. Les animations concernent exclusivement le corps et les éléments séparés qui ne modifient pas la photographie.
+
+La spécification du rig corporel est limitée aux articulations du corps :
 - `app/src/main/assets/chama/rig/chama-rig-manifest.json`
 - `app/src/main/assets/chama/rig/chama-motion-clips.json`
 - `com.kalsu.relive.avatar.ChamaAvatarRig`
 
-Ces fichiers sont des spécifications de conception, pas un modèle 3D ni un moteur d'animation déjà fonctionnel.
+Ces fichiers restent des spécifications et ne doivent pas être présentés comme un modèle 3D livré.
 
 ## Fonctions Android présentes
 
@@ -58,18 +62,16 @@ Voir `backend/cloudflare-worker/README.md` pour les détails de configuration.
 - Le mode « Thème fixe » permet de verrouiller une palette : crème/rouge, rose tendre ou noir/or.
 - Le mode et la palette sont conservés dans les préférences chiffrées de l'application.
 - Le choix est appliqué à l'interface principale et à l'espace virtuel.
-- La détection automatique des couleurs d'une nouvelle tenue n'est pas encore implémentée ; le mode « Suivre la tenue » utilise pour le moment la palette configurée de la tenue principale.
+- La détection automatique des couleurs d'une nouvelle tenue n'est pas encore implémentée.
 
-## Photos
+## Limites et prochaines intégrations
 
-Les deux photos secondaires sont sélectionnées dans l'écran Photos. L'emplacement principal reste verrouillé sur le portrait intégré ; le stockage refuse toute tentative de remplacement ou de suppression de cet emplacement. RELIVE conserve les URI des photos secondaires et ne retouche pas les images.
-
-## Limites connues et travaux restants
-
-- Aucun avatar humain 3D ou corps articulé n'est encore livré.
-- Aucun véritable environnement 3D n'est encore livré ; le décor actuel est une prévisualisation 2D.
+- Remplacer progressivement le blocage géométrique par un corps 3D détaillé et réellement articulé, sans toucher au portrait.
+- Ajouter les tresses et les vêtements comme éléments séparés, puis leurs mouvements corporels.
+- Fusionner ou optimiser les deux scènes 3D si les mesures de mémoire/GPU le nécessitent.
+- Améliorer les interactions avec le mobilier et les déplacements dans la pièce.
+- Évaluer les performances et la stabilité sur le Motorola Moto G Stylus 5G avant de considérer l'espace 3D comme validé.
 - Aucun clonage vocal n'est implémenté. Android TTS utilise les voix installées sur le téléphone.
-- Les réponses locales sont des règles de secours, pas un grand modèle d'IA.
 - Pas encore de compte utilisateur, de synchronisation multi-appareils ni de sauvegarde cloud.
 - Le code d'accès du Worker est un secret partagé pour cette installation, pas un système complet de comptes individuels.
 
@@ -80,11 +82,11 @@ Configuration du projet :
 - Kotlin intégré à AGP 9.x ; plugin Compose Kotlin 2.4.20
 - SceneView 4.74.0 / Filament
 - compileSdk 37
-- minSdk 24 (SceneView 4.x l'exige)
+- minSdk 24
 - Java / Kotlin JVM target 21
 - Gradle 9.6.0 ou supérieur compatible avec AGP 9.4
 
-Prérequis recommandés : JDK 21, Gradle 9.6.0 ou supérieur et Android SDK Platform 37 avec Build Tools 36.0.0.
+Prérequis recommandés : JDK 21, Android SDK Platform 37 et Build Tools 36.0.0.
 
 Depuis le dossier `RELIVE` :
 
@@ -94,4 +96,4 @@ gradle assembleDebug
 
 APK : `app/build/outputs/apk/debug/app-debug.apk`.
 
-SceneView 4.x est ajouté au projet ; la scène 3D et ses modèles restent à intégrer. La compilation de la migration doit être vérifiée ; les commits GitHub ne constituent pas une preuve de compilation réussie.
+Les modifications présentes sur GitHub ne prouvent pas à elles seules que la compilation ou le fonctionnement sur le téléphone ont été vérifiés. La prochaine validation doit couvrir la compilation, l'ouverture de l'espace virtuel, les interactions, la stabilité et la consommation de ressources.
