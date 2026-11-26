@@ -31,6 +31,12 @@
   "bodyJoints": [
     "root",
     "torso",
+    "hip_left",
+    "knee_left",
+    "ankle_left",
+    "hip_right",
+    "knee_right",
+    "ankle_right",
     "shoulder_left",
     "elbow_left",
     "wrist_left",
@@ -69,8 +75,16 @@
     ],
     "dance": [
       "torso",
-      "shoulders",
-      "elbows",
+      "hip_left",
+      "knee_left",
+      "ankle_left",
+      "hip_right",
+      "knee_right",
+      "ankle_right",
+      "shoulder_left",
+      "elbow_left",
+      "shoulder_right",
+      "elbow_right",
       "braids"
     ]
   },
@@ -89,8 +103,8 @@
     "avoidGapsDuringBodyMotion": true
   },
   "runtimeNotes": {
-    "currentImplementation": "procedural SceneView room geometry and a separate animated geometric body blockout are implemented; the original portrait remains a static independent overlay; no production-grade articulated character rig or imported GLB asset is available yet",
-    "futureBodyRenderer": "replace or refine the geometric body blockout with separate articulated body geometry/assets while keeping the original portrait overlay byte-for-byte unchanged",
+    "currentImplementation": "procedural SceneView body blockout with two-link arm positioning from shoulder-elbow-wrist pivots and two-link leg positioning from hip-knee-ankle pivots; the original portrait remains a static independent overlay; production-grade mesh, inverse-kinematics solver and imported GLB asset are not available",
+    "futureBodyRenderer": "replace or refine the geometric blockout with detailed separate body geometry and production skinning while keeping the original portrait overlay byte-for-byte unchanged",
     "speech": "Android TTS is audio-only and must never drive facial animation"
   }
 }
