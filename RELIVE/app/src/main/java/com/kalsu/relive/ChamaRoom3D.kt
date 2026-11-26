@@ -18,7 +18,7 @@ import io.github.sceneview.math.Size
  * Chama's protected portrait is not loaded, mapped, or modified here.
  */
 @Composable
-internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true) {
+internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
 
@@ -40,8 +40,11 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
     val gold = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFFD4AF37), metallic = 0.72f, roughness = 0.28f)
     }
-    val glass = remember(materialLoader) {
-        materialLoader.createColorInstance(Color(0xFF6F8995), roughness = 0.18f)
+    val glass = remember(materialLoader, evening) {
+        materialLoader.createColorInstance(
+            if (evening) Color(0xFF263B62) else Color(0xFF8FB9C9),
+            roughness = 0.18f
+        )
     }
     val leaf = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFF466B4D))
