@@ -189,7 +189,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Salon 3D manipulable, éclairage interactif et corps animé. Le portrait original reste indépendant, intact et non animé.",
+            "Salon 3D manipulable, lampe et ambiance jour/soir réglables, corps animé. Le portrait original reste indépendant, intact et non animé.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
