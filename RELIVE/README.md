@@ -50,6 +50,8 @@ Ces fichiers restent des spécifications et ne doivent pas être présentés com
 - L'historique transmis au backend exclut le message courant du contexte précédent afin d'éviter de le répéter deux fois dans la requête.
 - Identifiants de messages et de souvenirs rendus uniques même lorsque plusieurs éléments sont enregistrés dans la même milliseconde.
 - Commandes de mobilier et d'ambiance regroupées sur une rangée défilante pour limiter la hauteur occupée sur les petits écrans.
+- Sur Android 13 et versions ultérieures, un rappel n'est désormais planifié qu'après accord à la permission de notification ; en cas de refus, aucun rappel silencieusement inutilisable n'est créé.
+- Les autorisations persistantes de lecture des anciennes photos de galerie sont libérées lorsqu'une photo est remplacée ou retirée.
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 
 ## Backend IA
