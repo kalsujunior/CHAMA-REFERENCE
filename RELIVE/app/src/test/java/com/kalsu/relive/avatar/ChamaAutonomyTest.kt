@@ -129,6 +129,31 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun arrivedCharacterCanFaceTheSemanticDestination() {
+        val point = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
+        val flowerHeading = ChamaRoomNavigation.facingDegreesAt(
+            ChamaAutonomyTarget.FLOWERS,
+            point
+        )
+        assertTrue("Chama should face toward the flower vase", flowerHeading in 90f..180f)
+
+        val route = ChamaRoomNavigation.findRoute(
+            ChamaRoomWaypoint.ROOM_CENTER,
+            ChamaAutonomyTarget.ROOM_CENTER
+        )!!
+        val controller = ChamaLocomotionController()
+        controller.begin(
+            route,
+            ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER),
+            0f,
+            0L
+        )
+        val oriented = controller.orientAtArrival(90f)
+        assertEquals(90f, oriented.headingDegrees, 0.001f)
+        assertEquals(ChamaLocomotionStatus.ARRIVED, oriented.status)
+    }
+
+    @Test
     fun energyDecreasesDuringWalkingAndRecoversDuringRest() {
         val needs = ChamaAutonomyNeeds()
         needs.advance(0L, null, ChamaLocomotionStatus.IDLE)
