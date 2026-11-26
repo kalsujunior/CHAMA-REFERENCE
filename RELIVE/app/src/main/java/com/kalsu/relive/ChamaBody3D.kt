@@ -48,7 +48,10 @@ internal fun ChamaBody3D(
         materialLoader.createColorInstance(Color(0xFF9B654E), roughness = 0.9f)
     }
     val trousers = remember(materialLoader) {
-        materialLoader.createColorInstance(Color(0xFF332C32), roughness = 0.9f)
+        materialLoader.createColorInstance(Color(0xFF426A91), roughness = 0.9f)
+    }
+    val denimSeam = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFF294A6B), roughness = 0.92f)
     }
     val shoe = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFF4A3433), roughness = 0.8f)
@@ -121,8 +124,9 @@ internal fun ChamaBody3D(
     val rightForearmAngle = rightShoulderAngle + rightElbowBend
     val leftForearmAngle = leftShoulderAngle + leftElbowBend
 
-    val rightShoulderX = 0.31f
-    val leftShoulderX = -0.31f
+    val bodyCenterX = sway
+    val rightShoulderX = bodyCenterX + 0.31f
+    val leftShoulderX = bodyCenterX - 0.31f
     val rightElbowX = rightShoulderX + chamaSinDeg(rightShoulderAngle) * upperArmLength
     val rightElbowY = shoulderY - chamaCosDeg(rightShoulderAngle) * upperArmLength
     val leftElbowX = leftShoulderX + chamaSinDeg(leftShoulderAngle) * upperArmLength
@@ -145,9 +149,11 @@ internal fun ChamaBody3D(
     val rightThighAngle = if (gesture == ChamaBodyGesture.DANCE) -step * 95f else 0f
     val leftKneeBend = if (gesture == ChamaBodyGesture.DANCE) -8f else 0f
     val rightKneeBend = if (gesture == ChamaBodyGesture.DANCE) 8f else 0f
-    val leftKneeX = -0.15f + chamaSinDeg(leftThighAngle) * thighLength
+    val leftHipX = bodyCenterX - 0.15f
+    val rightHipX = bodyCenterX + 0.15f
+    val leftKneeX = leftHipX + chamaSinDeg(leftThighAngle) * thighLength
     val leftKneeY = hipY - chamaCosDeg(leftThighAngle) * thighLength
-    val rightKneeX = 0.15f + chamaSinDeg(rightThighAngle) * thighLength
+    val rightKneeX = rightHipX + chamaSinDeg(rightThighAngle) * thighLength
     val rightKneeY = hipY - chamaCosDeg(rightThighAngle) * thighLength
     val leftCalfAngle = leftThighAngle + leftKneeBend
     val rightCalfAngle = rightThighAngle + rightKneeBend
@@ -165,28 +171,38 @@ internal fun ChamaBody3D(
             targetPosition = Position(0f, 1.0f, 0f)
         )
     ) {
-        // Torso and hips: the head/face are deliberately not modelled.
-        CapsuleNode(
-            radius = 0.29f, height = 0.88f,
+        // Layered torso silhouette: upper chest, tapered waist and pelvis
+        // are separate volumes so the waist does not keep the chest width.
+        // The body starts below the absent neck; no head or neck is generated.
+        CapsuleNode(radius = 0.255f, height = 0.48f,
             materialInstance = sweater,
-            position = Position(sway, 1.42f + breathe, 0f)
-        )
-        CapsuleNode(
-            radius = 0.27f, height = 0.30f,
+            position = Position(bodyCenterX, 1.57f + breathe, 0f))
+        CapsuleNode(radius = 0.205f, height = 0.43f,
+            materialInstance = sweater,
+            position = Position(bodyCenterX, 1.25f + breathe, 0f))
+        CapsuleNode(radius = 0.135f, height = 0.56f,
+            materialInstance = sweater,
+            position = Position(bodyCenterX - 0.245f, 1.56f + breathe, 0f),
+            rotation = Rotation(z = 90f))
+        CapsuleNode(radius = 0.135f, height = 0.56f,
+            materialInstance = sweater,
+            position = Position(bodyCenterX + 0.245f, 1.56f + breathe, 0f),
+            rotation = Rotation(z = 90f))
+        // Pelvis volume bridges the fitted top and both trouser legs.
+        CapsuleNode(radius = 0.255f, height = 0.34f,
             materialInstance = trousers,
-            position = Position(sway, 0.88f, 0f)
-        )
+            position = Position(bodyCenterX, 0.88f, 0f))
 
         // Small red heart-like sweater details are geometric decorations,
         // not a texture of the protected portrait.
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(-0.12f, 1.58f + breathe, 0.255f))
+            position = Position(bodyCenterX - 0.12f, 1.58f + breathe, 0.255f))
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(-0.055f, 1.58f + breathe, 0.255f))
+            position = Position(bodyCenterX - 0.055f, 1.58f + breathe, 0.255f))
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(0.08f, 1.42f + breathe, 0.255f))
+            position = Position(bodyCenterX + 0.08f, 1.42f + breathe, 0.255f))
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(0.145f, 1.42f + breathe, 0.255f))
+            position = Position(bodyCenterX + 0.145f, 1.42f + breathe, 0.255f))
 
         // Shoulder, elbow and wrist joints are placed from a two-link chain.
         SphereNode(radius = 0.13f, materialInstance = sweater,
@@ -242,24 +258,24 @@ internal fun ChamaBody3D(
 
         // Sweater hem and subtle seams are separate geometry, not portrait pixels.
         CubeNode(size = Size(0.48f, 0.045f, 0.43f), materialInstance = cuff,
-            position = Position(0f, 1.02f + breathe, 0f))
+            position = Position(bodyCenterX, 1.02f + breathe, 0f))
         CubeNode(size = Size(0.34f, 0.025f, 0.018f), materialInstance = heartRed,
-            position = Position(0f, 1.50f + breathe, 0.286f))
+            position = Position(bodyCenterX, 1.50f + breathe, 0.286f))
         CubeNode(size = Size(0.40f, 0.022f, 0.018f), materialInstance = cuff,
-            position = Position(0f, 1.30f + breathe, 0.285f))
+            position = Position(bodyCenterX, 1.30f + breathe, 0.285f))
         CubeNode(size = Size(0.42f, 0.035f, 0.035f), materialInstance = cuff,
-            position = Position(0f, 0.99f + breathe, 0.22f))
+            position = Position(bodyCenterX, 0.99f + breathe, 0.22f))
 
         // Hip pivots and leg segments follow the calculated hip-knee-ankle chain.
         SphereNode(radius = 0.14f, materialInstance = trousers,
-            position = Position(-0.15f, hipY, 0f))
+            position = Position(leftHipX, hipY, 0f))
         SphereNode(radius = 0.14f, materialInstance = trousers,
-            position = Position(0.15f, hipY, 0f))
+            position = Position(rightHipX, hipY, 0f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
-            position = Position((-0.15f + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, 0f),
+            position = Position((leftHipX + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, 0f),
             rotation = Rotation(z = leftThighAngle + 180f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
-            position = Position((0.15f + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, 0f),
+            position = Position((rightHipX + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, 0f),
             rotation = Rotation(z = rightThighAngle + 180f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(leftKneeX, leftKneeY, 0f))
@@ -275,6 +291,13 @@ internal fun ChamaBody3D(
             position = Position(leftAnkleX, leftAnkleY, 0f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(rightAnkleX, rightAnkleY, 0f))
+        // Denim waistband and outer seams clarify the pelvis and leg silhouette.
+        CubeNode(size = Size(0.48f, 0.055f, 0.34f), materialInstance = denimSeam,
+            position = Position(bodyCenterX, 1.055f, 0.015f))
+        CapsuleNode(radius = 0.018f, height = 0.62f, materialInstance = denimSeam,
+            position = Position(leftHipX - 0.105f, 0.49f, 0.13f))
+        CapsuleNode(radius = 0.018f, height = 0.62f, materialInstance = denimSeam,
+            position = Position(rightHipX + 0.105f, 0.49f, 0.13f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
             position = Position(leftAnkleX, leftAnkleY - 0.055f, 0.09f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
