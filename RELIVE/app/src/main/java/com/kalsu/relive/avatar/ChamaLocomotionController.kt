@@ -152,7 +152,10 @@ class ChamaLocomotionController(
                 val turn = angleDelta.coerceIn(-maxTurn, maxTurn)
                 heading = normalizeAngle(heading + turn)
                 status = ChamaLocomotionStatus.TURNING
-                if (kotlin.math.abs(angleDelta) > maxTurn + 1.5f) break
+                if (kotlin.math.abs(angleDelta) > maxTurn + 1.5f) {
+                    speed = 0f
+                    break
+                }
             }
 
             val stoppingSpeed = sqrt((2f * accelerationMetersPerSecondSquared * distance).coerceAtLeast(0f))
