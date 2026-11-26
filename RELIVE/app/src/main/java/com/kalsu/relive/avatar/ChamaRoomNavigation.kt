@@ -39,7 +39,7 @@ object ChamaRoomNavigation {
         ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomPoint(0.0f, 0.85f),
         // Keep a body-width margin from the sofa's left arm and the left wall.
         ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomPoint(-1.75f, 0.85f),
-        ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.75f, -1.72f),
+        ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.75f, -1.60f),
         ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.65f, -0.20f),
         // The right aisle stays in front of the coffee table and away from the console.
         ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.55f, 0.85f),
