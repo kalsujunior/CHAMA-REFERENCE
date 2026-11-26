@@ -60,6 +60,12 @@ Ces fichiers restent des spécifications et ne doivent pas être présentés com
 - La commande d'envoi de conversation libère toujours son état de chargement même si une opération locale échoue et affiche un message de reprise ; l'effacement de l'historique est désactivé pendant l'envoi.
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 
+## Mémoire personnelle classée
+
+Les souvenirs restent stockés localement dans les préférences chiffrées de l'application. Chaque nouvel élément peut être classé en cinq catégories : Identité, Préférences, Projets, Événements importants ou Général. Les anciens souvenirs JSON sans champ de catégorie sont lus comme « Général » et restent accessibles. La suppression d'un souvenir conserve les catégories des autres éléments.
+
+Lorsqu'il autorise l'IA distante, l'utilisateur transmet les souvenirs pertinents avec leur catégorie afin d'améliorer le contexte conversationnel. Le transfert reste soumis au consentement IA distant existant ; aucun souvenir n'est synchronisé automatiquement vers un compte distant.
+
 ## Personnalité conversationnelle de Chama
 
 Le Worker IA fournit désormais un cadre de personnalité cohérent pour Espérance Ruchama Kefora (Chama) : ton chaleureux, attentif, calme et naturel ; réponses adaptées au contexte et à la langue française ou créole haïtien ; honnêteté explicite sur les limites de l'IA ; absence de souvenirs ou de faits inventés ; respect de l'autonomie de l'utilisateur et absence de pression affective. Les souvenirs transmis restent du contexte utilisateur et ne remplacent jamais les règles de sécurité ni la demande actuelle.
