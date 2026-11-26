@@ -40,6 +40,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
     var speaking by remember { mutableStateOf(false) }
     var bodyGesture by remember { mutableStateOf(ChamaBodyGesture.IDLE) }
+    var lampOn by remember { mutableStateOf(true) }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -84,7 +85,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 .clip(RoundedCornerShape(30.dp))
                 .background(Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.36f), palette.surface, palette.background)))
         ) {
-            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette)
+            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn)
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(16.dp))
                 Text("Bienvenue dans mon univers", color = RoomCream, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
@@ -122,6 +123,13 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 Spacer(Modifier.height(12.dp))
                 Text(status, color = RoomCream, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
                 Text("Choisis une interaction", color = palette.muted, fontSize = 11.sp, modifier = Modifier.padding(top = 5.dp, bottom = 8.dp))
+                OutlinedButton(
+                    onClick = { lampOn = !lampOn },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
+                ) {
+                    Text(if (lampOn) "Éteindre la lampe" else "Allumer la lampe", fontSize = 11.sp)
+                }
 
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = 12.dp),
