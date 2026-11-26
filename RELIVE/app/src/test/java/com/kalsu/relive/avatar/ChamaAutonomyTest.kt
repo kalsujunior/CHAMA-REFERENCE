@@ -153,8 +153,8 @@ class ChamaAutonomyTest {
 
     @Test
     fun sweptCollisionRejectsObstacleEvenWhenSamplingWouldSkipIt() {
-        val start = ChamaRoomPoint(-2.0f, -0.8f)
-        val end = ChamaRoomPoint(2.0f, -0.8f)
+        val start = ChamaRoomPoint(-2.0f, -0.1f)
+        val end = ChamaRoomPoint(2.0f, -0.1f)
         assertTrue(ChamaRoomCollisionMap.isPointWalkable(start))
         assertTrue(ChamaRoomCollisionMap.isPointWalkable(end))
         // A 10 m sampling interval would previously test no interior point.
