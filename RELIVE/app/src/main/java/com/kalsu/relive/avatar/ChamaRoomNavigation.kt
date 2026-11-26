@@ -6,9 +6,10 @@ import kotlin.math.sqrt
  * Walkable waypoint graph for the current RELIVE salon blockout.
  *
  * Coordinates use the room's X/Z floor plane in metres. The graph deliberately
- * routes around the sofa and coffee table rather than drawing straight lines
- * through furniture. A locomotion controller must still validate each segment
- * against the live scene before moving the avatar.
+ * routes around the sofa, coffee table and side console rather than drawing
+ * straight lines through furniture. Waypoints include a conservative horizontal
+ * clearance for the current blockout; a live renderer must still validate
+ * avatar radius, swept movement and dynamic furniture before applying motion.
  */
 enum class ChamaRoomWaypoint {
     ROOM_CENTER,
@@ -36,11 +37,13 @@ data class ChamaRoomRoute(
 object ChamaRoomNavigation {
     private val positions = mapOf(
         ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomPoint(0.0f, 0.85f),
-        ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomPoint(-1.35f, 0.85f),
-        ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.35f, -1.82f),
-        ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.30f, -0.90f),
-        ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.35f, 0.85f),
-        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.25f, -0.75f)
+        // Keep a body-width margin from the sofa's left arm and the left wall.
+        ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomPoint(-1.75f, 0.85f),
+        ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.75f, -1.72f),
+        ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.65f, -0.20f),
+        // The right aisle stays in front of the coffee table and away from the console.
+        ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.55f, 0.85f),
+        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.25f, -0.10f)
     )
 
     private val edges = listOf(
