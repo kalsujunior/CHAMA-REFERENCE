@@ -398,12 +398,18 @@ class ChamaAutonomyTest {
             standingAnkle = ChamaLimbPoint3D(0.15f, 0.08f, 0f),
             blend = 1f
         )
-        assertEquals(0.30f, left.knee.z, 0.001f)
-        assertEquals(0.54f, left.ankle.z, 0.001f)
-        assertEquals(0.54f, right.ankle.z, 0.001f)
-        // The rig root lowers by 0.31 m during the seated pose.
-        assertEquals(0.023f, left.ankle.y - 0.31f, 0.015f)
-        assertEquals(0.023f, right.ankle.y - 0.31f, 0.015f)
+        assertEquals(0f, left.knee.z, 0.001f)
+        assertEquals(0.3194f, left.ankle.z, 0.002f)
+        assertEquals(0.3194f, right.ankle.z, 0.002f)
+        // The rig root lowers by 0.31 m; the ankle remains at floor level.
+        assertEquals(-0.006f, left.ankle.y - 0.31f, 0.015f)
+        assertEquals(-0.006f, right.ankle.y - 0.31f, 0.015f)
+        // Shoe front edge remains at least 5 cm before the coffee table.
+        val shoeFrontZ = ChamaSeatTransitionMath.SOFA_CUSHION_CENTER.z +
+            left.ankle.z + 0.09f + 0.21f
+        assertTrue("Seated shoe must clear the coffee table", shoeFrontZ <= -0.285f)
+        // Seated shoe bottom is flush with the floor after the root drop.
+        assertEquals(0f, 0.37f - 0.31f - 0.06f, 0.001f)
     }
 
     @Test
