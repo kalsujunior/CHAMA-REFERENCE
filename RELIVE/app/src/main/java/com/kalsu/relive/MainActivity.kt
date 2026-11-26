@@ -195,6 +195,21 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
     }
 }
 
+/**
+ * Detects an explicit request to remember a detail. Returns only the detail,
+ * never the instruction itself. Ordinary conversation is not stored implicitly.
+ */
+private fun extractExplicitMemory(message: String): String? {
+    val patterns = listOf(
+        Regex("""(?i)^\\s*(?:s'il te plaît[, ]*)?(?:souviens[- ]toi(?: bien)?|n'oublie pas|mémorise|enregistre)(?:\\s+(?:que|ceci|cela|ça))?\\s*[:,-]?\\s+(.+?)\\s*$"""),
+        Regex("""(?i)^\\s*(?:sonje sa|sonje sa pou mwen|pa bliye)\\s*[:,-]?\\s+(.+?)\\s*$""")
+    )
+    val detail = patterns.firstNotNullOfOrNull { it.find(message)?.groupValues?.getOrNull(1) }
+        ?.trim()?.trim('"', '“', '”', '«', '»', ' ', '.', '!')
+        ?: return null
+    return detail.takeIf { it.length >= 3 && it.length <= 500 }
+}
+
 private fun localReply(message: String, memories: List<String>, languageTag: String): String {
     val normalized = message.lowercase()
     val creole = languageTag == "ht-HT"
