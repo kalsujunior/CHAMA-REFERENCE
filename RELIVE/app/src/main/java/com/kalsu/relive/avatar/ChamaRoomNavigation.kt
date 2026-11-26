@@ -149,7 +149,7 @@ object ChamaRoomNavigation {
             ChamaAutonomyTarget.WINDOW -> ChamaRoomPoint(-1.15f, -2.29f)
             ChamaAutonomyTarget.FLOWERS -> ChamaRoomPoint(1.72f, -0.78f)
             ChamaAutonomyTarget.SOFA -> ChamaRoomPoint(0.05f, -0.92f)
-            ChamaAutonomyTarget.ROOM_CENTER -> ChamaRoomPoint(0f, 0f)
+            ChamaAutonomyTarget.ROOM_CENTER -> ChamaRoomPoint(0f, 1.10f)
         }
         val dx = focus.x - from.x
         val dz = focus.z - from.z
