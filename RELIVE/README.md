@@ -5,7 +5,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 ## État actuel de l'espace virtuel
 
 - Une pièce 3D procédurale SceneView/Filament est intégrée : sol, murs, fenêtre panoramique, rideaux, canapé, coussins, tapis, table, lampe, suspension, étagère, livres, cadre mural, vase de roses et plante.
-- Un premier blocage géométrique 3D du corps indépendant est intégré : torse, bassin, bras, avant-bras, mains simplifiées, jambes, chaussures et détails géométriques du pull.
+- Un premier blocage géométrique 3D du corps indépendant est intégré : torse, bassin, épaules, coudes, avant-bras, poignets, paumes, doigts géométriques, jambes, chaussures et détails géométriques du pull.
 - Les interactions Bonjour, Écouter et Partager sélectionnent respectivement les gestes corporels WAVE, LISTEN et DANCE.
 - Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse et oscillation des deux tresses géométriques.
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
