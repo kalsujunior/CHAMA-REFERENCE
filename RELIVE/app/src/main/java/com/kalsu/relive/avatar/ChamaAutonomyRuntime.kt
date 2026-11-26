@@ -110,13 +110,24 @@ class ChamaAutonomyRuntime(
             currentDecision = decision
         }
 
-        lastFrame = locomotion.update(
+        val lastSafePose = lastFrame
+        val candidateFrame = locomotion.update(
             nowElapsedRealtimeMs = input.nowElapsedRealtimeMs,
             enabled = input.enabled,
             virtualSpaceVisible = input.virtualSpaceVisible,
             userInteracting = input.userInteracting,
             lowPowerMode = input.lowPowerMode
         )
+        if (!ChamaRoomCollisionMap.isSegmentWalkable(lastSafePose.position, candidateFrame.position)) {
+            lastFrame = locomotion.holdAt(lastSafePose.position, lastSafePose.headingDegrees)
+            destinationWaypoint = null
+            ChamaRoomNavigation.nearestReachableWaypoint(lastSafePose.position)?.let {
+                currentWaypoint = it
+            }
+            routeError = "Déplacement interrompu : la vérification de sécurité a refusé le segment."
+        } else {
+            lastFrame = candidateFrame
+        }
         if (lastFrame.status == ChamaLocomotionStatus.ARRIVED) {
             destinationWaypoint?.let { currentWaypoint = it }
             destinationWaypoint = null
