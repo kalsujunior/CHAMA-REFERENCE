@@ -24,6 +24,7 @@ enum class ChamaBodyGesture {
     WAVE,
     LISTEN,
     REACH,
+    ADMIRE,
     SIT,
     DANCE
 }
