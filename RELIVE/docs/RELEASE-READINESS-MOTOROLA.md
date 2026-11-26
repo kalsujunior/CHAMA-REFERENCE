@@ -13,6 +13,19 @@ Dernière vérification : 26 novembre 2026.
 
 Référence officielle : https://developer.android.com/build/releases/agp-9-4-0-release-notes
 
+### Préparer une compilation locale
+
+Le dépôt ne contient pas encore le Wrapper. Depuis le dossier `RELIVE`, avec un JDK 21, Android SDK Platform 37, Build Tools 36.0.0 et une installation Gradle disponible :
+
+```bash
+cd RELIVE
+gradle wrapper --gradle-version 9.6.0
+./gradlew --version
+./gradlew :app:testDebugUnitTest :app:assembleDebug
+```
+
+La commande de test et la compilation doivent toutes deux réussir avant de récupérer l'APK dans `app/build/outputs/apk/debug/app-debug.apk`. Si la commande `gradle wrapper` échoue parce que Gradle ou le JDK installé est trop ancien, mettre d'abord l'environnement de compilation à niveau ; ne pas modifier les versions Android du projet au hasard.
+
 ## Fonctions présentes dans l'application
 
 - Accueil, conversation locale, galerie, profil, rappels et espace 3D.
