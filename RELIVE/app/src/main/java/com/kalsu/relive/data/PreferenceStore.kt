@@ -7,7 +7,7 @@ class PreferenceStore(context: Context) {
 
     var displayName: String
         get() = prefs.getString("display_name", "Chama") ?: "Chama"
-        set(value) { prefs.edit().putString("display_name", value.trim()).apply() }
+        set(value) { prefs.edit().putString("display_name", value.trim().take(40)).apply() }
 
     /** "outfit" follows Chama's configured outfit palette; "manual" locks a chosen preset. */
     var themeMode: String
@@ -26,7 +26,7 @@ class PreferenceStore(context: Context) {
 
     var languageTag: String
         get() = prefs.getString("language_tag", "fr-FR") ?: "fr-FR"
-        set(value) { prefs.edit().putString("language_tag", value).apply() }
+        set(value) { prefs.edit().putString("language_tag", value.takeIf { it == "fr-FR" || it == "ht-HT" } ?: "fr-FR").apply() }
 
     var voiceEnabled: Boolean
         get() = prefs.getBoolean("voice_enabled", true)
@@ -38,5 +38,5 @@ class PreferenceStore(context: Context) {
 
     var remoteAccessToken: String
         get() = prefs.getString("remote_access_token", "") ?: ""
-        set(value) { prefs.edit().putString("remote_access_token", value.trim()).apply() }
+        set(value) { prefs.edit().putString("remote_access_token", value.trim().take(512)).apply() }
 }
