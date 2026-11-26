@@ -2,6 +2,7 @@ package com.kalsu.relive
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.sceneview.SceneView
@@ -20,9 +21,10 @@ import com.kalsu.relive.avatar.ChamaRoomPoint
  * Chama's protected portrait is not loaded, mapped, or modified here.
  */
 @Composable
-internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false, bodyGesture: ChamaBodyGesture = ChamaBodyGesture.IDLE, bodyPosition: ChamaRoomPoint = ChamaRoomPoint(0f, 1.10f), bodyHeadingDegrees: Float = 0f) {
+internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false, bodyGesture: ChamaBodyGesture = ChamaBodyGesture.IDLE, bodyPosition: ChamaRoomPoint = ChamaRoomPoint(0f, 1.10f), bodyHeadingDegrees: Float = 0f, onSceneInteraction: () -> Unit = {}) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
+    val latestSceneInteraction = rememberUpdatedState(onSceneInteraction)
 
     val wall = remember(materialLoader, palette.background) {
         materialLoader.createColorInstance(palette.background)
@@ -98,7 +100,11 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
         cameraManipulator = rememberCameraManipulator(
             orbitHomePosition = Position(0f, 1.35f, 5.6f),
             targetPosition = Position(0f, 0.75f, 0f)
-        )
+        ),
+        onTouchEvent = { _, _ ->
+            latestSceneInteraction.value()
+            false
+        }
     ) {
         // Sol et murs de la pièce.
         PlaneNode(
