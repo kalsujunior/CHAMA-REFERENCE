@@ -69,3 +69,42 @@ object ChamaFlowerInteraction {
         )
     }
 }
+
+/**
+ * Small state machine that prevents impossible object actions:
+ * a bouquet must be picked up before it can be placed on the table.
+ */
+class ChamaFlowerInteractionController(
+    initialLocation: ChamaFlowerLocation = ChamaFlowerLocation.VASE
+) {
+    @Volatile
+    private var currentLocation = initialLocation
+
+    val location: ChamaFlowerLocation
+        @Synchronized get() = currentLocation
+
+    @Synchronized
+    fun pickUp(): Boolean {
+        if (currentLocation != ChamaFlowerLocation.VASE) return false
+        currentLocation = ChamaFlowerLocation.IN_HAND
+        return true
+    }
+
+    @Synchronized
+    fun placeOnTable(): Boolean {
+        if (currentLocation != ChamaFlowerLocation.IN_HAND) return false
+        currentLocation = ChamaFlowerLocation.COFFEE_TABLE
+        return true
+    }
+
+    @Synchronized
+    fun dropOnTableIfHeld(): Boolean = placeOnTable()
+
+    @Synchronized
+    fun returnToVase(): Boolean {
+        if (currentLocation == ChamaFlowerLocation.IN_HAND) return false
+        if (currentLocation == ChamaFlowerLocation.VASE) return false
+        currentLocation = ChamaFlowerLocation.VASE
+        return true
+    }
+}
