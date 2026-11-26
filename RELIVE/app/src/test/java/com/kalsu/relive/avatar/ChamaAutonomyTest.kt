@@ -128,6 +128,33 @@ class ChamaAutonomyTest {
         )
     }
 
+    @Test
+    fun energyDecreasesDuringWalkingAndRecoversDuringRest() {
+        val needs = ChamaAutonomyNeeds()
+        needs.advance(0L, null, ChamaLocomotionStatus.IDLE)
+        val initial = needs.snapshot()
+
+        for (tick in 1L..20L) {
+            needs.advance(
+                tick * 50L,
+                ChamaAutonomyActivity.WALK_TO_WINDOW,
+                ChamaLocomotionStatus.WALKING
+            )
+        }
+        val afterWalking = needs.snapshot()
+        assertTrue(afterWalking.energy < initial.energy)
+        assertTrue(afterWalking.curiosity > initial.curiosity)
+
+        for (tick in 21L..40L) {
+            needs.advance(
+                tick * 50L,
+                ChamaAutonomyActivity.REST,
+                ChamaLocomotionStatus.ARRIVED
+            )
+        }
+        assertTrue(needs.snapshot().energy > afterWalking.energy)
+    }
+
     private fun input(
         now: Long,
         userInteracting: Boolean = false
