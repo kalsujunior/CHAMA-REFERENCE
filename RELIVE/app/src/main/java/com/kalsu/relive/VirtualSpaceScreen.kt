@@ -193,10 +193,8 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     evening = eveningAmbience,
                     sofaWelcoming = sofaWelcoming || (
                         autonomyEnabled &&
-                            autonomyFrame.currentWaypoint in setOf(
-                                ChamaRoomWaypoint.SOFA_STOP,
-                                ChamaRoomWaypoint.SOFA_SEAT
-                            ) &&
+                            (autonomyFrame.currentWaypoint == ChamaRoomWaypoint.SOFA_STOP ||
+                                autonomyFrame.currentWaypoint == ChamaRoomWaypoint.SOFA_SEAT) &&
                             autonomyFrame.locomotion.status == ChamaLocomotionStatus.ARRIVED
                     ),
                     bouquetHighlighted = bouquetHighlighted || (
