@@ -43,7 +43,7 @@ object ChamaRoomNavigation {
         ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.65f, -0.20f),
         // The right aisle stays in front of the coffee table and away from the console.
         ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.55f, 0.85f),
-        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.25f, -0.10f)
+        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.20f, 0.15f)
     )
 
     private val edges = listOf(
@@ -67,9 +67,13 @@ object ChamaRoomNavigation {
         target: ChamaAutonomyTarget
     ): ChamaRoomRoute? {
         val destination = targetWaypoints[target] ?: return null
+        val startPoint = positions.getValue(start)
+        val destinationPoint = positions.getValue(destination)
+        if (!ChamaRoomCollisionMap.isPointWalkable(startPoint) ||
+            !ChamaRoomCollisionMap.isPointWalkable(destinationPoint)
+        ) return null
         if (start == destination) {
-            val point = positions.getValue(start)
-            return ChamaRoomRoute(listOf(start), listOf(point), 0f)
+            return ChamaRoomRoute(listOf(start), listOf(startPoint), 0f)
         }
 
         val distances = ChamaRoomWaypoint.values().associateWith { Float.POSITIVE_INFINITY }.toMutableMap()
@@ -91,9 +95,12 @@ object ChamaRoomNavigation {
                     else -> null
                 } ?: return@forEach
                 if (neighbour !in unvisited) return@forEach
-                val candidate = currentDistance + distance(
-                    positions.getValue(current), positions.getValue(neighbour)
-                )
+                val currentPoint = positions.getValue(current)
+                val neighbourPoint = positions.getValue(neighbour)
+                if (!ChamaRoomCollisionMap.isSegmentWalkable(currentPoint, neighbourPoint)) {
+                    return@forEach
+                }
+                val candidate = currentDistance + distance(currentPoint, neighbourPoint)
                 if (candidate < distances.getValue(neighbour)) {
                     distances[neighbour] = candidate
                     previous[neighbour] = current
