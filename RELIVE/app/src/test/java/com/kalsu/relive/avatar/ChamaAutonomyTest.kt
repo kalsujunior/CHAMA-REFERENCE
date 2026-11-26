@@ -337,6 +337,48 @@ class ChamaAutonomyTest {
         assertTrue(needs.snapshot().energy > afterWalking.energy)
     }
 
+    @Test
+    fun flowerReachKeepsBothArmSegmentsAtTheirDesignedLengths() {
+        val pose = ChamaBodyPoseMath.reachingArm(
+            shoulder = ChamaLimbPoint3D(0f, 1.70f, 0f)
+        )
+        fun distance(a: ChamaLimbPoint3D, b: ChamaLimbPoint3D): Float {
+            val dx = b.x - a.x
+            val dy = b.y - a.y
+            val dz = b.z - a.z
+            return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+        }
+        val shoulder = ChamaLimbPoint3D(0f, 1.70f, 0f)
+        assertEquals(0.42f, distance(shoulder, pose.elbow), 0.001f)
+        assertEquals(0.36f, distance(pose.elbow, pose.wrist), 0.001f)
+        assertEquals(0.09f, distance(pose.wrist, pose.hand), 0.001f)
+        assertTrue("The reaching hand must extend forward", pose.hand.z > 0.40f)
+    }
+
+    @Test
+    fun seatedLegsProjectForwardAndKeepFeetNearFloor() {
+        val left = ChamaBodyPoseMath.blendLegToSeat(
+            hipX = -0.15f,
+            hipY = 0.78f,
+            standingKnee = ChamaLimbPoint3D(-0.15f, 0.42f, 0f),
+            standingAnkle = ChamaLimbPoint3D(-0.15f, 0.08f, 0f),
+            blend = 1f
+        )
+        val right = ChamaBodyPoseMath.blendLegToSeat(
+            hipX = 0.15f,
+            hipY = 0.78f,
+            standingKnee = ChamaLimbPoint3D(0.15f, 0.42f, 0f),
+            standingAnkle = ChamaLimbPoint3D(0.15f, 0.08f, 0f),
+            blend = 1f
+        )
+        assertEquals(0.30f, left.knee.z, 0.001f)
+        assertEquals(0.54f, left.ankle.z, 0.001f)
+        assertEquals(0.54f, right.ankle.z, 0.001f)
+        // The rig root lowers by 0.31 m during the seated pose.
+        assertEquals(0.023f, left.ankle.y - 0.31f, 0.015f)
+        assertEquals(0.023f, right.ankle.y - 0.31f, 0.015f)
+    }
+
     private fun input(
         now: Long,
         userInteracting: Boolean = false
