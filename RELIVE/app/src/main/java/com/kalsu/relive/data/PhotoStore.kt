@@ -8,8 +8,9 @@ import android.content.Intent
  * Stores only the two optional gallery photos.
  * Slot 0 is reserved for the bundled, immutable Chama portrait.
  */
-class PhotoStore(private val context: Context) {
-    private val prefs = SecurePreferences.open(context, "relive_photos")
+class PhotoStore(context: Context) {
+    private val appContext = context.applicationContext
+    private val prefs = SecurePreferences.open(appContext, "relive_photos")
 
     fun get(slot: Int): Uri? {
         require(slot in 0..2) { "Emplacement photo invalide." }
@@ -32,7 +33,7 @@ class PhotoStore(private val context: Context) {
 
     private fun releaseReadPermission(uri: Uri) {
         try {
-            context.contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            appContext.contentResolver.releasePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         } catch (_: SecurityException) {
             // The provider may already have revoked the grant.
         } catch (_: IllegalArgumentException) {
