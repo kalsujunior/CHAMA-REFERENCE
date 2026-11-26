@@ -62,11 +62,28 @@ internal fun ChamaBody3D(
         animationSpec = infiniteRepeatable(tween(1050), RepeatMode.Reverse),
         label = "right_arm_wave"
     )
+    val leftWave by motion.animateFloat(
+        initialValue = 7f,
+        targetValue = when (gesture) {
+            ChamaBodyGesture.IDLE -> 3f
+            ChamaBodyGesture.WAVE -> -8f
+            ChamaBodyGesture.LISTEN -> 14f
+            ChamaBodyGesture.DANCE -> -30f
+        },
+        animationSpec = infiniteRepeatable(tween(1250), RepeatMode.Reverse),
+        label = "left_arm_motion"
+    )
     val breathe by motion.animateFloat(
         initialValue = 0.0f,
         targetValue = if (gesture == ChamaBodyGesture.DANCE) 0.032f else 0.018f,
         animationSpec = infiniteRepeatable(tween(2200), RepeatMode.Reverse),
         label = "body_breathing"
+    )
+    val sway by motion.animateFloat(
+        initialValue = -0.012f,
+        targetValue = if (gesture == ChamaBodyGesture.DANCE) 0.045f else 0.012f,
+        animationSpec = infiniteRepeatable(tween(1450), RepeatMode.Reverse),
+        label = "body_sway"
     )
 
     SceneView(
@@ -82,12 +99,12 @@ internal fun ChamaBody3D(
         CapsuleNode(
             radius = 0.29f, height = 0.88f,
             materialInstance = sweater,
-            position = Position(0f, 1.42f + breathe, 0f)
+            position = Position(sway, 1.42f + breathe, 0f)
         )
         CapsuleNode(
             radius = 0.27f, height = 0.30f,
             materialInstance = trousers,
-            position = Position(0f, 0.88f, 0f)
+            position = Position(sway, 0.88f, 0f)
         )
 
         // Small red heart-like sweater details are geometric decorations,
@@ -110,7 +127,7 @@ internal fun ChamaBody3D(
             radius = 0.105f, height = 0.48f,
             materialInstance = sweater,
             position = Position(-0.43f, 1.40f + breathe, 0f),
-            rotation = Rotation(z = -17f)
+            rotation = Rotation(z = leftWave)
         )
         CapsuleNode(
             radius = 0.105f, height = 0.48f,
@@ -121,13 +138,13 @@ internal fun ChamaBody3D(
         CapsuleNode(
             radius = 0.085f, height = 0.42f,
             materialInstance = sweater,
-            position = Position(-0.49f, 1.04f, 0f),
-            rotation = Rotation(z = -8f)
+            position = Position(-0.49f + sway, 1.04f, 0f),
+            rotation = Rotation(z = leftWave * 0.55f)
         )
         CapsuleNode(
             radius = 0.085f, height = 0.42f,
             materialInstance = sweater,
-            position = Position(0.49f, 1.05f, 0f),
+            position = Position(0.49f + sway, 1.05f, 0f),
             rotation = Rotation(z = wave * 0.72f)
         )
         SphereNode(radius = 0.105f, materialInstance = skin,
