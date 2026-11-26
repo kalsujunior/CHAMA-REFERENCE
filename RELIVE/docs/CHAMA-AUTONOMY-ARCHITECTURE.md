@@ -38,6 +38,8 @@ Les points ont été recalés à partir des dimensions et positions visibles dan
 - plafonne le temps simulé par mise à jour pour éviter les téléportations après un ralentissement de l'interface ;
 - annule immédiatement le trajet lorsque l'autonomie est désactivée, qu'une interaction utilisateur commence ou que l'économie d'énergie est activée.
 
+`avatar/ChamaAutonomyRuntime.kt` relie maintenant le planificateur, le graphe de navigation et le contrôleur : une décision devient un itinéraire, l'arrivée met à jour le dernier point de passage connu, et une interruption annule le trajet. Le geste du corps reste neutre pendant la marche et ne reprend le geste demandé qu'à l'arrêt.
+
 **Limite importante :** le contrôleur calcule des trames de position et d'orientation ; il n'applique pas encore ces trames aux nœuds SceneView. Le salon et le corps sont toujours deux SceneView distinctes dans `VirtualSpaceScreen.kt`. Le mouvement visible exige donc encore un repère commun, un adaptateur de rendu et une validation des collisions sur l'appareil.
 
 ## Étapes techniques suivantes
@@ -62,4 +64,4 @@ Les points ont été recalés à partir des dimensions et positions visibles dan
 
 ## Validation
 
-Le planificateur, le graphe et le contrôleur de locomotion sont écrits en Kotlin pur et n'ajoutent aucune dépendance Android ou réseau. Ils n'ont pas encore été compilés dans l'application ni validés sur appareil. La compilation Android finale reste réservée à la fin de l'intégration des fonctionnalités.
+Le planificateur, le graphe, le contrôleur de locomotion et le coordinateur sont écrits en Kotlin pur et n'ajoutent aucune dépendance Android ou réseau. Ils n'ont pas encore été compilés dans l'application ni validés sur appareil. La compilation Android finale reste réservée à la fin de l'intégration des fonctionnalités.
