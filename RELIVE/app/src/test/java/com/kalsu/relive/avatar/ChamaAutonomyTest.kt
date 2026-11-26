@@ -10,7 +10,7 @@ import org.junit.Test
 class ChamaAutonomyTest {
 
     @Test
-    fun everySemanticTargetHasACollisionValidatedRouteFromRoomCenter() {
+    fun everyWaypointCanReachEverySemanticTarget() {
         ChamaRoomWaypoint.values().forEach { start ->
             ChamaAutonomyTarget.values().forEach { target ->
                 val route = ChamaRoomNavigation.findRoute(start, target)
