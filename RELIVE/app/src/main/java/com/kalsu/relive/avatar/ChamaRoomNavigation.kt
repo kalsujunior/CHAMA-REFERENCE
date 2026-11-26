@@ -66,7 +66,9 @@ object ChamaRoomNavigation {
         ChamaAutonomyTarget.ROOM_CENTER to ChamaRoomWaypoint.ROOM_CENTER,
         ChamaAutonomyTarget.WINDOW to ChamaRoomWaypoint.WINDOW_STOP,
         ChamaAutonomyTarget.SOFA to ChamaRoomWaypoint.SOFA_SEAT,
-        ChamaAutonomyTarget.FLOWERS to ChamaRoomWaypoint.FLOWERS_STOP
+        ChamaAutonomyTarget.FLOWERS to ChamaRoomWaypoint.FLOWERS_STOP,
+        // The lamp shares the safe console approach; no extra waypoint is needed.
+        ChamaAutonomyTarget.LAMP to ChamaRoomWaypoint.FLOWERS_STOP
     )
 
     /** Returns a shortest waypoint route, or null if a target is not mapped. */
@@ -158,6 +160,7 @@ object ChamaRoomNavigation {
         val focus = when (target) {
             ChamaAutonomyTarget.WINDOW -> ChamaRoomPoint(-1.15f, -2.29f)
             ChamaAutonomyTarget.FLOWERS -> ChamaRoomPoint(1.72f, -0.78f)
+            ChamaAutonomyTarget.LAMP -> ChamaRoomPoint(1.72f, -0.78f)
             ChamaAutonomyTarget.SOFA -> ChamaRoomPoint(0.05f, -0.92f)
             ChamaAutonomyTarget.ROOM_CENTER -> ChamaRoomPoint(0f, 1.10f)
         }
