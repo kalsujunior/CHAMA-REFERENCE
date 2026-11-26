@@ -30,6 +30,16 @@ Le Worker accepte une configuration partielle : un seul fournisseur suffit pour 
 
 
 
+## Tests locaux du Worker
+
+Le dépôt inclut maintenant des tests natifs Node.js, sans dépendance externe. Depuis ce dossier :
+
+```bash
+npm test
+```
+
+Ils vérifient l'authentification, le refus des langues non prises en charge, l'absence de configuration vocale, le relais MP3 et la continuité de la route de conversation. Ces tests ne compilent pas l'application Android.
+
 ## Voix personnalisée de Chama (optionnelle)
 
 Le Worker expose aussi `POST /speech`. Cette route est protégée par le même secret `RELIVE_ACCESS_TOKEN` et le limiteur `RATE_LIMITER`. Elle accepte uniquement le français (`fr-FR`) et renvoie de l'audio MP3. Les secrets suivants sont requis pour activer le fournisseur vocal :
