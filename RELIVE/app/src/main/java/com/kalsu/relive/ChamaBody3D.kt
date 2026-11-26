@@ -2,6 +2,7 @@ package com.kalsu.relive
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -56,6 +57,11 @@ internal fun SceneScope.ChamaBodyNodes(
         materialLoader.createColorInstance(Color(0xFFE8D9D0), roughness = 0.9f)
     }
     val motion = rememberInfiniteTransition(label = "chama_body_motion")
+    val postureDrop by animateFloatAsState(
+        targetValue = if (gesture == ChamaBodyGesture.SIT) -0.34f else 0f,
+        animationSpec = tween(700),
+        label = "sit_stand_transition"
+    )
     val wave by motion.animateFloat(
         initialValue = -8f,
         targetValue = if (!motionEnabled) -8f else when (gesture) {
@@ -63,6 +69,8 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WALK -> 5f
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
+            ChamaBodyGesture.REACH -> 42f
+            ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> 48f
         },
         animationSpec = infiniteRepeatable(tween(1050), RepeatMode.Reverse),
@@ -75,6 +83,8 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WALK -> -5f
             ChamaBodyGesture.WAVE -> -10f
             ChamaBodyGesture.LISTEN -> -8f
+            ChamaBodyGesture.REACH -> -6f
+            ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> -42f
         },
         animationSpec = infiniteRepeatable(tween(1250), RepeatMode.Reverse),
@@ -122,6 +132,8 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WALK -> 2f
             ChamaBodyGesture.WAVE -> 24f
             ChamaBodyGesture.LISTEN -> 7f
+            ChamaBodyGesture.REACH -> 8f
+            ChamaBodyGesture.SIT -> 0f
             ChamaBodyGesture.DANCE -> 18f
         },
         animationSpec = infiniteRepeatable(tween(680), RepeatMode.Reverse),
@@ -134,6 +146,8 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WALK -> -4f
             ChamaBodyGesture.WAVE -> -5f
             ChamaBodyGesture.LISTEN -> -9f
+            ChamaBodyGesture.REACH -> -2f
+            ChamaBodyGesture.SIT -> -2f
             ChamaBodyGesture.DANCE -> -16f
         },
         animationSpec = infiniteRepeatable(tween(820), RepeatMode.Reverse),
@@ -152,6 +166,8 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.WAVE -> -112f
         ChamaBodyGesture.DANCE -> -28f
         ChamaBodyGesture.LISTEN -> 8f
+        ChamaBodyGesture.REACH -> -24f
+        ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
         ChamaBodyGesture.WALK -> 4f
     }
@@ -159,6 +175,8 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.WAVE -> 8f
         ChamaBodyGesture.DANCE -> 30f
         ChamaBodyGesture.LISTEN -> -5f
+        ChamaBodyGesture.REACH -> 5f
+        ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
         ChamaBodyGesture.WALK -> 6f
     }
@@ -192,10 +210,28 @@ internal fun SceneScope.ChamaBodyNodes(
     val calfLength = 0.34f
     // During walking, leg phase follows the distance-driven locomotion clock.
     val walkStep = chamaSinDeg(gaitPhase.coerceIn(0f, 1f) * 360f) * 0.12f
-    val leftThighAngle = if (gesture == ChamaBodyGesture.DANCE) step * 95f else if (gesture == ChamaBodyGesture.WALK) walkStep * 75f else 0f
-    val rightThighAngle = if (gesture == ChamaBodyGesture.DANCE) -step * 95f else if (gesture == ChamaBodyGesture.WALK) -walkStep * 75f else 0f
-    val leftKneeBend = if (gesture == ChamaBodyGesture.DANCE || gesture == ChamaBodyGesture.WALK) -8f else 0f
-    val rightKneeBend = if (gesture == ChamaBodyGesture.DANCE || gesture == ChamaBodyGesture.WALK) 8f else 0f
+    val leftThighAngle = when (gesture) {
+        ChamaBodyGesture.DANCE -> step * 95f
+        ChamaBodyGesture.WALK -> walkStep * 75f
+        ChamaBodyGesture.SIT -> 62f
+        else -> 0f
+    }
+    val rightThighAngle = when (gesture) {
+        ChamaBodyGesture.DANCE -> -step * 95f
+        ChamaBodyGesture.WALK -> -walkStep * 75f
+        ChamaBodyGesture.SIT -> -62f
+        else -> 0f
+    }
+    val leftKneeBend = when (gesture) {
+        ChamaBodyGesture.DANCE, ChamaBodyGesture.WALK -> -8f
+        ChamaBodyGesture.SIT -> -62f
+        else -> 0f
+    }
+    val rightKneeBend = when (gesture) {
+        ChamaBodyGesture.DANCE, ChamaBodyGesture.WALK -> 8f
+        ChamaBodyGesture.SIT -> 62f
+        else -> 0f
+    }
     val leftHipX = bodyCenterX - 0.15f
     val rightHipX = bodyCenterX + 0.15f
     val leftKneeX = leftHipX + chamaSinDeg(leftThighAngle) * thighLength
@@ -214,6 +250,7 @@ internal fun SceneScope.ChamaBodyNodes(
         position = Position(rootPosition.x, 0f, rootPosition.z),
         rotation = Rotation(y = headingDegrees + if (gesture == ChamaBodyGesture.LISTEN) glance else 0f)
     ) {
+        Node(position = Position(0f, postureDrop, 0f)) {
     // Layered torso silhouette: upper chest, tapered waist and pelvis
         // are separate volumes so the waist does not keep the chest width.
         // The body starts below the absent neck; no head or neck is generated.
@@ -366,5 +403,6 @@ internal fun SceneScope.ChamaBodyNodes(
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
             position = Position(rightAnkleX, rightAnkleY - 0.055f, 0.09f))
 
+        }
     }
 }
