@@ -278,7 +278,7 @@ private fun ChatScreen(modifier: Modifier) {
             Text("Conversation", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             Text(if (online.value) "Réseau disponible" else "Mode hors ligne",
                 color = if (online.value) Gold else Muted, fontSize = 11.sp)
-            IconButton(onClick = { showClearHistoryDialog = true }) {
+            IconButton(enabled = !sending, onClick = { showClearHistoryDialog = true }) {
                 Icon(Icons.Default.DeleteOutline, contentDescription = "Effacer l'historique", tint = Muted)
             }
         }
@@ -333,22 +333,27 @@ private fun ChatScreen(modifier: Modifier) {
                     draft = ""
                     sending = true
                     scope.launch {
-                        val requestedMemory = extractExplicitMemory(text)
-                        if (requestedMemory != null && memoryStore.load().none { it.text.equals(requestedMemory, ignoreCase = true) }) {
-                            memoryStore.add(requestedMemory)
+                        try {
+                            val requestedMemory = extractExplicitMemory(text)
+                            if (requestedMemory != null && memoryStore.load().none { it.text.equals(requestedMemory, ignoreCase = true) }) {
+                                memoryStore.add(requestedMemory)
+                            }
+                            val memories = memoryStore.load().map { it.text }
+                            online.value = NetworkStatus.isOnline(context)
+                            val history = store.load().dropLast(1).takeLast(20).map { it.author to it.text }
+                            val answer = if (online.value && preferences.remoteAiEnabled && preferences.remoteAccessToken.isNotBlank()) {
+                                AiGateway.reply(text, preferences.languageTag, memories, history, preferences.remoteAccessToken)
+                            } else null
+                            val fallback = if (requestedMemory != null) {
+                                if (preferences.languageTag == "ht-HT") "Mwen anrejistre sa nan memwa mwen sou telefòn sa a. M ap sonje l nan pwochen konvèsasyon nou yo."
+                                else "Souvenir enregistré sur cet appareil. Je pourrai le retrouver dans nos prochaines conversations."
+                            } else localReply(text, memories, preferences.languageTag)
+                            val finalReply = answer ?: fallback
+                            addMessage("Chama", finalReply)
+                            if (preferences.voiceEnabled) speech.speak(finalReply, preferences.languageTag)
+                        } finally {
+                            sending = false
                         }
-                        val memories = memoryStore.load().map { it.text }
-                        online.value = NetworkStatus.isOnline(context)
-                        val history = store.load().dropLast(1).takeLast(20).map { it.author to it.text }
-                        val answer = if (online.value && preferences.remoteAiEnabled && preferences.remoteAccessToken.isNotBlank()) AiGateway.reply(text, preferences.languageTag, memories, history, preferences.remoteAccessToken) else null
-                        val fallback = if (requestedMemory != null) {
-                            if (preferences.languageTag == "ht-HT") "Mwen anrejistre sa nan memwa mwen sou telefòn sa a. M ap sonje l nan pwochen konvèsasyon nou yo."
-                            else "Souvenir enregistré sur cet appareil. Je pourrai le retrouver dans nos prochaines conversations."
-                        } else localReply(text, memories, preferences.languageTag)
-                        val finalReply = answer ?: fallback
-                        addMessage("Chama", finalReply)
-                        if (preferences.voiceEnabled) speech.speak(finalReply, preferences.languageTag)
-                        sending = false
                     }
                 }
             }) {
