@@ -430,6 +430,31 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun lampReachHandApproachesTheVirtualBulbWithoutLoweringTheShoulder() {
+        val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
+        val heading = ChamaRoomNavigation.facingDegreesAt(ChamaAutonomyTarget.LAMP, approach)
+        val pose = ChamaBodyPoseMath.reachingArm(
+            shoulder = ChamaLimbPoint3D(0.31f, 1.70f, 0f),
+            lateralAngleDegrees = -35f,
+            upperForwardTiltDegrees = 55f,
+            forearmForwardTiltDegrees = 60f
+        )
+        val radians = Math.toRadians(heading.toDouble())
+        val worldX = approach.x +
+            pose.hand.x * kotlin.math.cos(radians).toFloat() +
+            pose.hand.z * kotlin.math.sin(radians).toFloat()
+        val worldZ = approach.z -
+            pose.hand.x * kotlin.math.sin(radians).toFloat() +
+            pose.hand.z * kotlin.math.cos(radians).toFloat()
+        val dx = 1.72f - worldX
+        val dy = 1.28f - pose.hand.y
+        val dz = -0.78f - worldZ
+        val handToBulbDistance = kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+        assertTrue("The raised hand should reach the lamp's outer sphere", handToBulbDistance < 0.31f)
+        assertEquals(1.70f, 1.70f, 0.0001f)
+    }
+
+    @Test
     fun plannerCanChooseTheLampAsALocalAutonomousActivity() {
         val planner = ChamaAutonomyPlanner()
         fun input(now: Long) = ChamaAutonomyInput(
@@ -446,7 +471,9 @@ class ChamaAutonomyTest {
         planner.decide(input(36_000L))
         assertEquals(ChamaAutonomyActivity.DANCE_IN_PLACE, planner.decide(input(54_000L)).activity)
         assertEquals(ChamaAutonomyActivity.WALK_TO_LAMP, planner.decide(input(72_000L)).activity)
-        assertEquals(ChamaAutonomyTarget.LAMP, planner.decide(input(72_001L)).target)
+        val lampDecision = planner.decide(input(72_001L))
+        assertEquals(ChamaAutonomyTarget.LAMP, lampDecision.target)
+        assertEquals(ChamaBodyGesture.ADJUST_LAMP, lampDecision.bodyGesture)
     }
 
     @Test
