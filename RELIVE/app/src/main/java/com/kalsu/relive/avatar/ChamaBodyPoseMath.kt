@@ -34,7 +34,7 @@ object ChamaBodyPoseMath {
 
     /**
      * Euler angles that align a vertical capsule's local +Y axis with a
-     * start-to-end vector using SceneView's X-then-Z Euler convention.
+     * start-to-end vector using SceneView's Euler convention, with Z applied before X to the local +Y axis.
      * The returned angles are derived from the actual joint coordinates,
      * avoiding visual gaps between the capsules and their joints.
      */
