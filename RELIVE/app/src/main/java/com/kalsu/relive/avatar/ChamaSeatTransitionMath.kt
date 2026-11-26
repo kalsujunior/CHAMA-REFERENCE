@@ -27,6 +27,8 @@ object ChamaSeatTransitionMath {
         progress: Float
     ): ChamaSeatPose {
         val t = progress.coerceIn(0f, 1f)
+        if (t <= 0f) return ChamaSeatPose(approach, 0f)
+        if (t >= 1f) return ChamaSeatPose(cushion, 0f)
         val eased = t * t * (3f - 2f * t)
         val arc = 4f * eased * (1f - eased)
         return ChamaSeatPose(
