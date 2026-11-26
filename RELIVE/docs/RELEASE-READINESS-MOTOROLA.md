@@ -48,7 +48,7 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 
 ## Vérifications et éléments bloquants
 
-- Seize tests JUnit d'autonomie et de cinématique du corps sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
+- dix-sept tests JUnit d'autonomie et de cinématique du corps sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
 - Le module pur Kotlin `ChamaBodyPoseMath.kt` a été compilé séparément avec Kotlin/JVM 1.9 et vérifié sur les longueurs des bras, l'avancée des jambes et la hauteur des pieds. Cette vérification ciblée ne constitue ni l'exécution des tests JUnit ni une compilation Android.
 - Aucune compilation Android n'a été exécutée sur cette branche pendant cet audit.
 - Aucun APK n'a encore été installé ni testé sur le Motorola.
