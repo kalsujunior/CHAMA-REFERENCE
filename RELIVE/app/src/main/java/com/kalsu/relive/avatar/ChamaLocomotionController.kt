@@ -199,6 +199,16 @@ class ChamaLocomotionController(
         return frame()
     }
 
+    /** Changes the final body facing direction without restarting an arrived route. */
+    @Synchronized
+    fun orientAtArrival(headingDegrees: Float): ChamaLocomotionFrame {
+        require(headingDegrees.isFinite())
+        if (status == ChamaLocomotionStatus.ARRIVED) {
+            heading = normalizeAngle(headingDegrees)
+        }
+        return frame()
+    }
+
     /** Rolls back to the last known safe pose after a failed runtime guard. */
     @Synchronized
     fun holdAt(safePosition: ChamaRoomPoint, safeHeadingDegrees: Float): ChamaLocomotionFrame {
