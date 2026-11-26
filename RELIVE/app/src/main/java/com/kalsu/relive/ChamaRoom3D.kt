@@ -11,6 +11,8 @@ import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.math.Direction
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Size
+import com.kalsu.relive.avatar.ChamaBodyGesture
+import com.kalsu.relive.avatar.ChamaRoomPoint
 
 /**
  * First real-time 3D room blockout for RELIVE.
@@ -18,7 +20,7 @@ import io.github.sceneview.math.Size
  * Chama's protected portrait is not loaded, mapped, or modified here.
  */
 @Composable
-internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false) {
+internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false, bodyGesture: ChamaBodyGesture = ChamaBodyGesture.IDLE, bodyPosition: ChamaRoomPoint = ChamaRoomPoint(0f, 1.10f), bodyHeadingDegrees: Float = 0f) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
 
@@ -248,5 +250,12 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
             position = Position(2.20f, 1.12f, -1.65f))
         SphereNode(radius = 0.20f, materialInstance = leaf,
             position = Position(2.02f, 1.34f, -1.65f))
+        // Chama partage le même graphe 3D que le salon : son Node racine
+        // reçoit la position et le cap de la simulation de locomotion.
+        ChamaBodyNodes(
+            gesture = bodyGesture,
+            rootPosition = bodyPosition,
+            headingDegrees = bodyHeadingDegrees
+        )
     }
 }
