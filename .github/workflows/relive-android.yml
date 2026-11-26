@@ -2,7 +2,7 @@ name: RELIVE Android build
 # Rebuild latest RELIVE app features and version 0.4.0
 
 on:
-  workflow_dispatch::
+  workflow_dispatch:
 
 concurrency:
   group: relive-android-${{ github.ref }}
