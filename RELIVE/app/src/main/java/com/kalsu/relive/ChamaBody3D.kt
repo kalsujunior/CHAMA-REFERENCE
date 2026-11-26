@@ -8,16 +8,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.sceneview.SceneView
+import com.kalsu.relive.avatar.ChamaBodyGesture
+import com.kalsu.relive.avatar.ChamaRoomPoint
+import io.github.sceneview.SceneScope
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Size
-import io.github.sceneview.rememberCameraManipulator
-import io.github.sceneview.rememberEngine
-import io.github.sceneview.rememberMaterialLoader
-import com.kalsu.relive.avatar.ChamaBodyGesture
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -25,19 +22,17 @@ private fun chamaSinDeg(degrees: Float): Float = sin(Math.toRadians(degrees.toDo
 private fun chamaCosDeg(degrees: Float): Float = cos(Math.toRadians(degrees.toDouble())).toFloat()
 
 /**
- * Body-only procedural character blockout.
- *
- * The head and face are intentionally omitted. The immutable source portrait
- * remains a separate Compose image and is never used as a texture or mesh.
+ * Corps géométrique sans tête, rendu comme enfant du salon dans le même graphe
+ * SceneView. Le Node racine reçoit position et orientation calculées par
+ * l'autonomie ; le portrait demeure une image Compose séparée et immuable.
  */
 @Composable
-internal fun ChamaBody3D(
-    modifier: Modifier = Modifier,
-    gesture: ChamaBodyGesture = ChamaBodyGesture.IDLE,
+internal fun SceneScope.ChamaBodyNodes(
+    gesture: ChamaBodyGesture,
+    rootPosition: ChamaRoomPoint,
+    headingDegrees: Float,
     motionEnabled: Boolean = true
 ) {
-    val engine = rememberEngine()
-    val materialLoader = rememberMaterialLoader(engine)
     val sweater = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFFF7F1E8), roughness = 0.88f)
     }
@@ -64,6 +59,7 @@ internal fun ChamaBody3D(
         initialValue = -8f,
         targetValue = if (!motionEnabled) -8f else when (gesture) {
             ChamaBodyGesture.IDLE -> 6f
+            ChamaBodyGesture.WALK -> 18f
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
             ChamaBodyGesture.DANCE -> 48f
@@ -75,6 +71,7 @@ internal fun ChamaBody3D(
         initialValue = 7f,
         targetValue = if (!motionEnabled) 7f else when (gesture) {
             ChamaBodyGesture.IDLE -> -6f
+            ChamaBodyGesture.WALK -> -18f
             ChamaBodyGesture.WAVE -> -10f
             ChamaBodyGesture.LISTEN -> -8f
             ChamaBodyGesture.DANCE -> -42f
@@ -96,7 +93,7 @@ internal fun ChamaBody3D(
     )
     val step by motion.animateFloat(
         initialValue = -0.035f,
-        targetValue = if (!motionEnabled) -0.035f else if (gesture == ChamaBodyGesture.DANCE) 0.075f else 0.012f,
+        targetValue = if (!motionEnabled) -0.035f else if (gesture == ChamaBodyGesture.DANCE) 0.075f else if (gesture == ChamaBodyGesture.WALK) 0.12f else 0.012f,
         animationSpec = infiniteRepeatable(tween(if (gesture == ChamaBodyGesture.DANCE) 520 else 1800), RepeatMode.Reverse),
         label = "body_step"
     )
@@ -115,6 +112,7 @@ internal fun ChamaBody3D(
         initialValue = 0f,
         targetValue = if (!motionEnabled) 0f else when (gesture) {
             ChamaBodyGesture.IDLE -> 2f
+            ChamaBodyGesture.WALK -> 4f
             ChamaBodyGesture.WAVE -> 24f
             ChamaBodyGesture.LISTEN -> 7f
             ChamaBodyGesture.DANCE -> 18f
@@ -126,6 +124,7 @@ internal fun ChamaBody3D(
         initialValue = 0f,
         targetValue = if (!motionEnabled) 0f else when (gesture) {
             ChamaBodyGesture.IDLE -> -2f
+            ChamaBodyGesture.WALK -> -4f
             ChamaBodyGesture.WAVE -> -5f
             ChamaBodyGesture.LISTEN -> -9f
             ChamaBodyGesture.DANCE -> -16f
@@ -147,12 +146,14 @@ internal fun ChamaBody3D(
         ChamaBodyGesture.DANCE -> -28f
         ChamaBodyGesture.LISTEN -> 8f
         ChamaBodyGesture.IDLE -> 5f
+        ChamaBodyGesture.WALK -> 6f
     }
     val leftElbowBend = when (gesture) {
         ChamaBodyGesture.WAVE -> 8f
         ChamaBodyGesture.DANCE -> 30f
         ChamaBodyGesture.LISTEN -> -5f
         ChamaBodyGesture.IDLE -> 5f
+        ChamaBodyGesture.WALK -> 6f
     }
     val rightForearmAngle = rightShoulderAngle + rightElbowBend
     val leftForearmAngle = leftShoulderAngle + leftElbowBend
@@ -182,10 +183,10 @@ internal fun ChamaBody3D(
     val hipY = 0.78f
     val thighLength = 0.36f
     val calfLength = 0.34f
-    val leftThighAngle = if (gesture == ChamaBodyGesture.DANCE) step * 95f else 0f
-    val rightThighAngle = if (gesture == ChamaBodyGesture.DANCE) -step * 95f else 0f
-    val leftKneeBend = if (gesture == ChamaBodyGesture.DANCE) -8f else 0f
-    val rightKneeBend = if (gesture == ChamaBodyGesture.DANCE) 8f else 0f
+    val leftThighAngle = if (gesture == ChamaBodyGesture.DANCE) step * 95f else if (gesture == ChamaBodyGesture.WALK) step * 75f else 0f
+    val rightThighAngle = if (gesture == ChamaBodyGesture.DANCE) -step * 95f else if (gesture == ChamaBodyGesture.WALK) -step * 75f else 0f
+    val leftKneeBend = if (gesture == ChamaBodyGesture.DANCE || gesture == ChamaBodyGesture.WALK) -8f else 0f
+    val rightKneeBend = if (gesture == ChamaBodyGesture.DANCE || gesture == ChamaBodyGesture.WALK) 8f else 0f
     val leftHipX = bodyCenterX - 0.15f
     val rightHipX = bodyCenterX + 0.15f
     val leftKneeX = leftHipX + chamaSinDeg(leftThighAngle) * thighLength
@@ -199,16 +200,12 @@ internal fun ChamaBody3D(
     val rightAnkleX = rightKneeX + chamaSinDeg(rightCalfAngle) * calfLength
     val rightAnkleY = rightKneeY - chamaCosDeg(rightCalfAngle) * calfLength
 
-    SceneView(
-        modifier = modifier,
-        engine = engine,
-        materialLoader = materialLoader,
-        cameraManipulator = rememberCameraManipulator(
-            orbitHomePosition = Position(0f, 1.15f, 3.9f),
-            targetPosition = Position(0f, 1.0f, 0f)
-        )
+
+    Node(
+        position = Position(rootPosition.x, 0f, rootPosition.z),
+        rotation = Rotation(y = headingDegrees)
     ) {
-        // Layered torso silhouette: upper chest, tapered waist and pelvis
+    // Layered torso silhouette: upper chest, tapered waist and pelvis
         // are separate volumes so the waist does not keep the chest width.
         // The body starts below the absent neck; no head or neck is generated.
         CapsuleNode(radius = 0.255f, height = 0.48f,
@@ -359,5 +356,6 @@ internal fun ChamaBody3D(
             position = Position(leftAnkleX, leftAnkleY - 0.055f, 0.09f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
             position = Position(rightAnkleX, rightAnkleY - 0.055f, 0.09f))
+
     }
 }
