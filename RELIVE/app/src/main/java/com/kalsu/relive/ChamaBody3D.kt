@@ -94,7 +94,16 @@ internal fun SceneScope.ChamaBodyNodes(
     val step by motion.animateFloat(
         initialValue = -0.035f,
         targetValue = if (!motionEnabled) -0.035f else if (gesture == ChamaBodyGesture.DANCE) 0.075f else if (gesture == ChamaBodyGesture.WALK) 0.12f else 0.012f,
-        animationSpec = infiniteRepeatable(tween(if (gesture == ChamaBodyGesture.DANCE) 520 else 1800), RepeatMode.Reverse),
+        animationSpec = infiniteRepeatable(
+            tween(
+                when (gesture) {
+                    ChamaBodyGesture.DANCE -> 520
+                    ChamaBodyGesture.WALK -> 480
+                    else -> 1800
+                }
+            ),
+            RepeatMode.Reverse
+        ),
         label = "body_step"
     )
     // Small lateral torso flex is represented as coordinated layer offsets.
