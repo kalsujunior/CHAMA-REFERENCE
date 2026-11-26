@@ -21,6 +21,7 @@ enum class ChamaLocomotionStatus {
 
 enum class ChamaLocomotionPauseReason {
     DISABLED,
+    SPACE_NOT_VISIBLE,
     USER_INTERACTION,
     LOW_POWER
 }
@@ -70,6 +71,8 @@ class ChamaLocomotionController(
     ): ChamaLocomotionFrame {
         require(route.points.isNotEmpty()) { "A route must contain at least one point" }
         require(route.points.all { it.x.isFinite() && it.z.isFinite() })
+        require(currentPosition.x.isFinite() && currentPosition.z.isFinite())
+        require(currentHeadingDegrees.isFinite())
         position = currentPosition
         heading = normalizeAngle(currentHeadingDegrees)
         speed = 0f
@@ -94,11 +97,13 @@ class ChamaLocomotionController(
     fun update(
         nowElapsedRealtimeMs: Long,
         enabled: Boolean,
+        virtualSpaceVisible: Boolean = true,
         userInteracting: Boolean,
         lowPowerMode: Boolean
     ): ChamaLocomotionFrame {
         val pause = when {
             !enabled -> ChamaLocomotionPauseReason.DISABLED
+            !virtualSpaceVisible -> ChamaLocomotionPauseReason.SPACE_NOT_VISIBLE
             userInteracting -> ChamaLocomotionPauseReason.USER_INTERACTION
             lowPowerMode -> ChamaLocomotionPauseReason.LOW_POWER
             else -> null
