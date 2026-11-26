@@ -1,7 +1,9 @@
 package com.kalsu.relive.avatar
 
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 /** A point in Chama's body-local 3D coordinate system (metres). */
 data class ChamaLimbPoint3D(val x: Float, val y: Float, val z: Float)
@@ -17,6 +19,11 @@ data class ChamaLegChainPose(
     val ankle: ChamaLimbPoint3D
 )
 
+data class ChamaSegmentRotation(
+    val xDegrees: Float,
+    val zDegrees: Float
+)
+
 /**
  * Renderer-independent limb geometry. Keeping these calculations in pure
  * Kotlin makes the seated and reaching poses testable without starting Filament.
@@ -24,6 +31,31 @@ data class ChamaLegChainPose(
 object ChamaBodyPoseMath {
     private val seatedThighCos = cos(Math.toRadians(55.0)).toFloat()
     private val seatedCalfCos = cos(Math.toRadians(45.0)).toFloat()
+
+    /**
+     * Euler angles that align a vertical capsule's local +Y axis with a
+     * start-to-end vector using SceneView's X-then-Z Euler convention.
+     * The returned angles are derived from the actual joint coordinates,
+     * avoiding visual gaps between the capsules and their joints.
+     */
+    fun segmentRotation(
+        start: ChamaLimbPoint3D,
+        end: ChamaLimbPoint3D
+    ): ChamaSegmentRotation {
+        val dx = end.x - start.x
+        val dy = end.y - start.y
+        val dz = end.z - start.z
+        require(dx.isFinite() && dy.isFinite() && dz.isFinite())
+        val radial = sqrt(dy * dy + dz * dz)
+        require(dx * dx + radial * radial > 1e-10f) { "A segment must have non-zero length" }
+        val verticalSign = if (dy < 0f) -1f else 1f
+        val x = atan2(dz * verticalSign, kotlin.math.abs(dy))
+        val z = atan2(-dx, verticalSign * radial)
+        return ChamaSegmentRotation(
+            xDegrees = Math.toDegrees(x.toDouble()).toFloat(),
+            zDegrees = Math.toDegrees(z.toDouble()).toFloat()
+        )
+    }
 
     fun reachingArm(
         shoulder: ChamaLimbPoint3D,
