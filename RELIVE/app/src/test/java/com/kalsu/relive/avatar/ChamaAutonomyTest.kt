@@ -24,6 +24,44 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun sofaSeatIsReachableAndOutsideExpandedFurnitureFootprint() {
+        val seat = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.SOFA_SEAT)
+        val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.SOFA_STOP)
+        assertTrue(ChamaRoomCollisionMap.isPointWalkable(seat))
+        assertTrue(ChamaRoomCollisionMap.isSegmentWalkable(approach, seat))
+        val route = ChamaRoomNavigation.findRoute(
+            ChamaRoomWaypoint.ROOM_CENTER,
+            ChamaAutonomyTarget.SOFA
+        )
+        assertNotNull(route)
+        assertEquals(ChamaRoomWaypoint.SOFA_SEAT, route!!.waypoints.last())
+        assertTrue(ChamaRoomCollisionMap.validateRoute(route))
+    }
+
+    @Test
+    fun plannerUsesReachGestureAtFlowersAndSitGestureForRest() {
+        val planner = ChamaAutonomyPlanner()
+        fun input(now: Long, energy: Float) = ChamaAutonomyInput(
+            enabled = true,
+            virtualSpaceVisible = true,
+            userInteracting = false,
+            lowPowerMode = false,
+            energy = energy,
+            curiosity = 0.9f,
+            nowElapsedRealtimeMs = now
+        )
+        planner.decide(input(0L, 0.8f))
+        val flowers = planner.decide(input(18_000L, 0.8f))
+        assertEquals(ChamaAutonomyActivity.WALK_TO_FLOWERS, flowers.activity)
+        assertEquals(ChamaBodyGesture.REACH, flowers.bodyGesture)
+
+        val tired = ChamaAutonomyPlanner().decide(input(0L, 0.1f))
+        assertEquals(ChamaAutonomyActivity.REST, tired.activity)
+        assertEquals(ChamaBodyGesture.SIT, tired.bodyGesture)
+        assertEquals(ChamaAutonomyTarget.SOFA, tired.target)
+    }
+
+    @Test
     fun routePlannerRejectsStraightPathThroughFurniture() {
         val start = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER)
         val farSide = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.WINDOW_STOP)
