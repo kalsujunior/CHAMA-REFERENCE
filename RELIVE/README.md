@@ -11,6 +11,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Un second contrôle bascule l'ambiance visuelle de la fenêtre panoramique entre le jour et le soir, indépendamment de la lampe.
 - Un troisième contrôle prépare visuellement le canapé en modifiant la teinte des coussins ; l'action peut être annulée pour revenir à l'aménagement habituel.
 - Un quatrième contrôle met en valeur le bouquet en éclaircissant visuellement les roses ; l'action peut être annulée pour retrouver leur teinte initiale.
+- Un médaillon mural 3D RELIVE-KAL-SU a été ajouté au mur : panneau sombre, cœur rouge en relief, bordures dorées et accents floraux. Il s'agit d'une composition géométrique indépendante inspirée de l'illustration de référence, et non de l'image raster directement plaquée sur le mur.
 - Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse et oscillation des deux tresses géométriques.
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
 - Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
