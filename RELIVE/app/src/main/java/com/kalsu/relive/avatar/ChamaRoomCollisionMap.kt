@@ -36,7 +36,7 @@ object ChamaRoomCollisionMap {
 
     private val obstacles = listOf(
         // Sofa body plus both armrests.
-        ChamaRoomObstacle(-1.22f, 1.32f, -1.31f, -0.53f),
+        ChamaRoomObstacle(-1.22f, 1.32f, -1.36f, -0.53f),
         // Coffee table top and its supporting footprint.
         ChamaRoomObstacle(-0.65f, 0.75f, -0.235f, 0.435f),
         // Side console and lamp base.
