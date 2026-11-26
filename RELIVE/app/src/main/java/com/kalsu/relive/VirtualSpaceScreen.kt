@@ -163,6 +163,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     bodyGesture = if (autonomyEnabled) autonomyFrame.bodyGesture else bodyGesture,
                     bodyPosition = autonomyFrame.locomotion.position,
                     bodyHeadingDegrees = autonomyFrame.locomotion.headingDegrees,
+                    bodyGaitPhase = autonomyFrame.locomotion.gaitPhase,
                     onSceneInteraction = { pauseAutonomyForUser() }
                 )
             } else {
