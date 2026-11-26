@@ -11,10 +11,15 @@ class ChamaAutonomyTest {
 
     @Test
     fun everySemanticTargetHasACollisionValidatedRouteFromRoomCenter() {
-        ChamaAutonomyTarget.values().forEach { target ->
-            val route = ChamaRoomNavigation.findRoute(ChamaRoomWaypoint.ROOM_CENTER, target)
-            assertNotNull("Missing route for $target", route)
-            assertTrue("Unsafe route for $target", ChamaRoomCollisionMap.validateRoute(route!!))
+        ChamaRoomWaypoint.values().forEach { start ->
+            ChamaAutonomyTarget.values().forEach { target ->
+                val route = ChamaRoomNavigation.findRoute(start, target)
+                assertNotNull("Missing route from $start to $target", route)
+                assertTrue(
+                    "Unsafe route from $start to $target",
+                    ChamaRoomCollisionMap.validateRoute(route!!)
+                )
+            }
         }
     }
 
