@@ -79,6 +79,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
             ChamaBodyGesture.REACH -> -8f
+            ChamaBodyGesture.ADMIRE -> -5f
             ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> 48f
         },
@@ -93,6 +94,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> -10f
             ChamaBodyGesture.LISTEN -> -8f
             ChamaBodyGesture.REACH -> -6f
+            ChamaBodyGesture.ADMIRE -> -5f
             ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> -42f
         },
@@ -113,7 +115,11 @@ internal fun SceneScope.ChamaBodyNodes(
     )
     val glance by motion.animateFloat(
         initialValue = -7f,
-        targetValue = if (motionEnabled && gesture == ChamaBodyGesture.LISTEN) 7f else -7f,
+        targetValue = if (!motionEnabled) -7f else when (gesture) {
+            ChamaBodyGesture.LISTEN -> 7f
+            ChamaBodyGesture.ADMIRE -> 4f
+            else -> -7f
+        },
         animationSpec = infiniteRepeatable(tween(1600), RepeatMode.Reverse),
         label = "gentle_look_around"
     )
@@ -142,6 +148,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> 24f
             ChamaBodyGesture.LISTEN -> 7f
             ChamaBodyGesture.REACH -> 8f
+            ChamaBodyGesture.ADMIRE -> 3f
             ChamaBodyGesture.SIT -> 0f
             ChamaBodyGesture.DANCE -> 18f
         },
@@ -156,6 +163,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> -5f
             ChamaBodyGesture.LISTEN -> -9f
             ChamaBodyGesture.REACH -> -2f
+            ChamaBodyGesture.ADMIRE -> -3f
             ChamaBodyGesture.SIT -> -2f
             ChamaBodyGesture.DANCE -> -16f
         },
@@ -176,6 +184,7 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.DANCE -> -28f
         ChamaBodyGesture.LISTEN -> 8f
         ChamaBodyGesture.REACH -> 0f
+        ChamaBodyGesture.ADMIRE -> 3f
         ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
         ChamaBodyGesture.WALK -> 4f
@@ -185,6 +194,7 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.DANCE -> 30f
         ChamaBodyGesture.LISTEN -> -5f
         ChamaBodyGesture.REACH -> 5f
+        ChamaBodyGesture.ADMIRE -> -3f
         ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
         ChamaBodyGesture.WALK -> 6f
@@ -324,7 +334,7 @@ internal fun SceneScope.ChamaBodyNodes(
 
     Node(
         position = Position(rootPosition.x, rootHeight, rootPosition.z),
-        rotation = Rotation(y = headingDegrees + if (gesture == ChamaBodyGesture.LISTEN) glance else 0f)
+        rotation = Rotation(y = headingDegrees + if (gesture == ChamaBodyGesture.LISTEN || gesture == ChamaBodyGesture.ADMIRE) glance else 0f)
     ) {
         Node(position = Position(0f, postureDrop, 0f)) {
     // Layered torso silhouette: upper chest, tapered waist and pelvis
