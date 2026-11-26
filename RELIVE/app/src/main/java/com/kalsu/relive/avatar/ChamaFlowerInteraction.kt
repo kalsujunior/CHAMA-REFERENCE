@@ -29,7 +29,7 @@ data class ChamaFlowerPose(
  */
 object ChamaFlowerInteraction {
     val VASE_POSE = ChamaFlowerPose(1.72f, 0.84f, -0.78f)
-    val TABLE_POSE = ChamaFlowerPose(0.05f, 0.40f, 0.10f)
+    val TABLE_POSE = ChamaFlowerPose(0.05f, 0.35f, 0.10f)
 
     fun poseAt(
         location: ChamaFlowerLocation,
