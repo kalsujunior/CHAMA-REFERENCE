@@ -53,6 +53,7 @@ Ces fichiers restent des spécifications et ne doivent pas être présentés com
 - Sur Android 13 et versions ultérieures, un rappel n'est désormais planifié qu'après accord à la permission de notification ; en cas de refus, aucun rappel silencieusement inutilisable n'est créé.
 - Les autorisations persistantes de lecture des anciennes photos de galerie sont libérées lorsqu'une photo est remplacée ou retirée.
 - Une confirmation est demandée avant l'effacement complet de l'historique de conversation ou de tous les souvenirs, afin de réduire les suppressions accidentelles.
+- La commande d'envoi de conversation libère toujours son état de chargement même si une opération locale échoue ; l'effacement de l'historique est désactivé pendant l'envoi.
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 
 ## Backend IA
