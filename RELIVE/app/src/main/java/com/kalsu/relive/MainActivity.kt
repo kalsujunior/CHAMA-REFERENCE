@@ -46,6 +46,8 @@ import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.data.MemoryStore
 import com.kalsu.relive.data.MemoryCategories
 import com.kalsu.relive.voice.ChamaSpeech
+import com.kalsu.relive.voice.ChamaVoiceGateway
+import com.kalsu.relive.voice.ChamaVoicePlayer
 import com.kalsu.relive.notifications.ReminderScheduler
 import kotlinx.coroutines.launch
 
@@ -240,6 +242,7 @@ private fun ChatScreen(modifier: Modifier) {
     val chamaAvatar = remember { PhotoStore(context).get(0) }
     val scope = rememberCoroutineScope()
     val speech = remember { ChamaSpeech(context) }
+    val voicePlayer = remember { ChamaVoicePlayer(context) }
     var sending by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(store.load()) }
@@ -250,8 +253,32 @@ private fun ChatScreen(modifier: Modifier) {
         if (!recognized.isNullOrBlank()) draft = recognized
     }
 
-    DisposableEffect(speech) {
-        onDispose { speech.release() }
+    DisposableEffect(speech, voicePlayer) {
+        onDispose {
+            speech.release()
+            voicePlayer.stop()
+        }
+    }
+
+    fun speakChama(text: String) {
+        val usePersonalVoice = preferences.personalizedVoiceEnabled &&
+            preferences.languageTag == "fr-FR" &&
+            online.value &&
+            preferences.remoteAccessToken.isNotBlank()
+        if (!usePersonalVoice) {
+            speech.speak(text, preferences.languageTag)
+            return
+        }
+        speech.stop()
+        scope.launch {
+            val audio = ChamaVoiceGateway.generate(
+                text,
+                preferences.remoteAccessToken,
+                preferences.languageTag
+            )
+            if (audio != null) voicePlayer.play(audio)
+            else speech.speak(text, preferences.languageTag)
+        }
     }
 
     fun addMessage(author: String, text: String) {
@@ -291,7 +318,7 @@ private fun ChatScreen(modifier: Modifier) {
                             Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             MarkdownMessageText(message.text, modifier = Modifier.padding(top = 4.dp))
                             if (fromChama && preferences.voiceEnabled) {
-                                TextButton(onClick = { speech.speak(message.text, preferences.languageTag) }, contentPadding = PaddingValues(0.dp)) {
+                                TextButton(onClick = { speakChama(message.text) }, contentPadding = PaddingValues(0.dp)) {
                                     Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Gold, modifier = Modifier.size(16.dp))
                                     Spacer(Modifier.width(5.dp))
                                     Text("Écouter", color = Gold, fontSize = 11.sp)
@@ -339,7 +366,7 @@ private fun ChatScreen(modifier: Modifier) {
                             } else localReply(text, memories, preferences.languageTag)
                             val finalReply = answer ?: fallback
                             addMessage("Chama", finalReply)
-                            if (preferences.voiceEnabled) speech.speak(finalReply, preferences.languageTag)
+                            if (preferences.voiceEnabled) speakChama(finalReply)
                         } catch (_: Exception) {
                             addMessage(
                                 "Chama",
@@ -463,6 +490,7 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
     var remoteAiEnabled by remember { mutableStateOf(preferences.remoteAiEnabled) }
+    var personalizedVoiceEnabled by remember { mutableStateOf(preferences.personalizedVoiceEnabled) }
     var remoteAccessToken by remember { mutableStateOf(preferences.remoteAccessToken) }
     var themeMode by remember { mutableStateOf(preferences.themeMode) }
     var themePreset by remember { mutableStateOf(preferences.themePreset) }
@@ -509,6 +537,17 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
             }
             Switch(checked = remoteAiEnabled, onCheckedChange = { remoteAiEnabled = it })
         }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Voix personnalisée de Chama (français)", color = Cream)
+                Text("Option désactivée par défaut. Si tu l'actives, le texte des réponses sera envoyé au fournisseur vocal via le Worker sécurisé. Nécessite Internet, le code serveur et une voix créée avec l'autorisation explicite de sa locutrice. Le créole conserve la synthèse Android.", color = Muted, fontSize = 11.sp)
+            }
+            Switch(
+                checked = personalizedVoiceEnabled,
+                enabled = language == "fr-FR",
+                onCheckedChange = { personalizedVoiceEnabled = it }
+            )
+        }
         OutlinedTextField(
             value = remoteAccessToken,
             onValueChange = { remoteAccessToken = it },
@@ -523,13 +562,14 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
                 savedMessage = "Le nom doit contenir entre 1 et 40 caractères."
             } else if (remoteAccessToken.length > 512) {
                 savedMessage = "Le code d'accès est trop long (512 caractères maximum)."
-            } else if (remoteAiEnabled && remoteAccessToken.isBlank()) {
-                savedMessage = "Ajoute le code d'accès du serveur avant d'activer l'IA distante."
+            } else if ((remoteAiEnabled || personalizedVoiceEnabled) && remoteAccessToken.isBlank()) {
+                savedMessage = "Ajoute le code d'accès du serveur avant d'activer l'IA distante ou la voix personnalisée."
             } else {
                 preferences.displayName = displayName
                 preferences.languageTag = language.takeIf { it == "fr-FR" || it == "ht-HT" } ?: "fr-FR"
                 preferences.voiceEnabled = voiceEnabled
                 preferences.remoteAiEnabled = remoteAiEnabled
+                preferences.personalizedVoiceEnabled = personalizedVoiceEnabled && language == "fr-FR"
                 preferences.remoteAccessToken = remoteAccessToken.trim()
                 preferences.themeMode = themeMode
                 preferences.themePreset = themePreset
