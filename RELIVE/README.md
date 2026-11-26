@@ -72,6 +72,14 @@ Le Worker IA fournit désormais un cadre de personnalité cohérent pour Espéra
 
 Cette amélioration modifie le code du Worker sur la branche `relive-app`. Elle ne déploie pas automatiquement la version sur Cloudflare : le Worker doit être déployé séparément avant que l'application en production bénéficie de ce nouveau comportement. Aucun changement n'est apporté au portrait ni au rendu du visage.
 
+## Voix personnalisée de Chama
+
+Le code comprend une option de synthèse vocale distante en français, désactivée par défaut. Le profil propose un consentement distinct pour envoyer le texte des réponses au Worker vocal. Les identifiants du fournisseur restent exclusivement dans les secrets Cloudflare. Si le service échoue ou si le français n'est pas sélectionné, la synthèse Android locale est utilisée. Le créole haïtien reste en TTS Android.
+
+L'activation réelle nécessite un échantillon fourni avec l'autorisation explicite de sa locutrice, la création de la voix auprès du fournisseur, la configuration des secrets Cloudflare et le déploiement du Worker. Le dépôt ne contient aucun échantillon vocal ni aucune clé fournisseur. La voix ne touche jamais au portrait et ne produit pas de synchronisation labiale.
+
+Voir `VOICE_SETUP.md` pour les étapes et les conditions de consentement.
+
 ## Backend IA
 
 Le Worker Cloudflare est configuré à l'adresse :
@@ -99,7 +107,7 @@ Voir `backend/cloudflare-worker/README.md` pour les détails de configuration.
 - Fusionner ou optimiser les deux scènes 3D si les mesures de mémoire/GPU le nécessitent.
 - Étendre les interactions avec le mobilier (assise réelle, autres objets décoratifs, éclairage complémentaire) et les déplacements dans la pièce. Le canapé et le bouquet disposent déjà de commandes visuelles simples. Le contrôle actuel du canapé ne simule pas encore une véritable animation d'assise.
 - Évaluer les performances et la stabilité sur le Motorola Moto G Stylus 5G avant de considérer l'espace 3D comme validé.
-- Aucun clonage vocal n'est implémenté. Android TTS utilise les voix installées sur le téléphone.
+- L'intégration optionnelle du fournisseur vocal est présente dans le code, mais aucun clone vocal n'est créé ni activé par défaut. Sans configuration et consentement explicite de la locutrice, Android TTS utilise les voix installées sur le téléphone.
 - Pas encore de compte utilisateur, de synchronisation multi-appareils ni de sauvegarde cloud.
 - Le code d'accès du Worker est un secret partagé pour cette installation, pas un système complet de comptes individuels.
 
