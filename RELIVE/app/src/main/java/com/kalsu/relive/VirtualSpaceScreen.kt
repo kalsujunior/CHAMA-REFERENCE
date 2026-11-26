@@ -1,6 +1,8 @@
 package com.kalsu.relive
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -127,43 +129,41 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 Spacer(Modifier.height(12.dp))
                 Text(status, color = RoomCream, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
                 Text("Choisis une interaction", color = palette.muted, fontSize = 11.sp, modifier = Modifier.padding(top = 5.dp, bottom = 8.dp))
-                OutlinedButton(
-                    onClick = { lampOn = !lampOn },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(if (lampOn) "Éteindre la lampe" else "Allumer la lampe", fontSize = 11.sp)
-                }
+                    OutlinedButton(
+                        onClick = { lampOn = !lampOn },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
+                    ) { Text(if (lampOn) "Éteindre lampe" else "Allumer lampe", fontSize = 10.sp) }
 
-                OutlinedButton(
-                    onClick = { eveningAmbience = !eveningAmbience },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
-                ) {
-                    Text(if (eveningAmbience) "Passer en ambiance jour" else "Passer en ambiance soir", fontSize = 11.sp)
-                }
+                    OutlinedButton(
+                        onClick = { eveningAmbience = !eveningAmbience },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
+                    ) { Text(if (eveningAmbience) "Ambiance jour" else "Ambiance soir", fontSize = 10.sp) }
 
-                OutlinedButton(
-                    onClick = {
-                        sofaWelcoming = !sofaWelcoming
-                        status = if (sofaWelcoming) "J'ai préparé les coussins du canapé pour un moment de détente. ❤️" else "Le salon retrouve son aménagement habituel."
-                        bodyGesture = ChamaBodyGesture.LISTEN
-                    },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
-                ) {
-                    Text(if (sofaWelcoming) "Ranger les coussins" else "Préparer le canapé", fontSize = 11.sp)
-                }
+                    OutlinedButton(
+                        onClick = {
+                            sofaWelcoming = !sofaWelcoming
+                            status = if (sofaWelcoming) "J'ai préparé les coussins du canapé pour un moment de détente. ❤️" else "Le salon retrouve son aménagement habituel."
+                            bodyGesture = ChamaBodyGesture.LISTEN
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
+                    ) { Text(if (sofaWelcoming) "Ranger le canapé" else "Préparer le canapé", fontSize = 10.sp) }
 
-                OutlinedButton(
-                    onClick = {
-                        bouquetHighlighted = !bouquetHighlighted
-                        status = if (bouquetHighlighted) "J'ai mis mes roses préférées en valeur. 🌹" else "Les roses retrouvent leur teinte naturelle."
-                    },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
-                ) {
-                    Text(if (bouquetHighlighted) "Rétablir les roses" else "Mettre les roses en valeur", fontSize = 11.sp)
+                    OutlinedButton(
+                        onClick = {
+                            bouquetHighlighted = !bouquetHighlighted
+                            status = if (bouquetHighlighted) "J'ai mis mes roses préférées en valeur. 🌹" else "Les roses retrouvent leur teinte naturelle."
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
+                    ) { Text(if (bouquetHighlighted) "Rétablir les roses" else "Valoriser les roses", fontSize = 10.sp) }
                 }
 
                 Row(
