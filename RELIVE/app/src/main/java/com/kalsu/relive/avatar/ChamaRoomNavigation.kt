@@ -8,9 +8,9 @@ import kotlin.math.sqrt
  *
  * Coordinates use the room's X/Z floor plane in metres. The graph deliberately
  * routes around the sofa, coffee table and side console rather than drawing
- * straight lines through furniture. Waypoints include a conservative horizontal
- * clearance for the current blockout; a live renderer must still validate
- * avatar radius, swept movement and dynamic furniture before applying motion.
+ * straight lines through furniture. Waypoints include conservative clearance
+ * for the current blockout; ChamaAutonomyRuntime rechecks every motion segment.
+ * Dynamic furniture and the full articulated avatar volume still need device tests.
  */
 enum class ChamaRoomWaypoint {
     ROOM_CENTER,
