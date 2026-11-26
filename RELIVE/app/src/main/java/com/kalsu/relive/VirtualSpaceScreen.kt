@@ -168,33 +168,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 Text("ESPÉRANCE RUCHAMA KEFORA", color = RoomGold, fontSize = 11.sp, letterSpacing = 1.sp)
                 Spacer(Modifier.height(12.dp))
 
-                Box(
-                    Modifier.weight(1f).fillMaxWidth().padding(horizontal = 18.dp)
-                        .clip(RoundedCornerShape(26.dp)).background(palette.surface.copy(alpha = 0.22f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(Modifier.fillMaxSize()) {
-                        // Le corps 3D est maintenant rendu dans la scène commune du salon.
-                        // Cette zone transparente conserve la composition du portrait.
-                        Box(Modifier.weight(1.15f).fillMaxWidth())
-                        Divider(color = palette.secondary.copy(alpha = 0.55f))
-                        Box(Modifier.weight(0.85f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            ChamaPortrait(modifier = Modifier.fillMaxSize())
-                        }
-                    }
-                    if (speaking) {
-                        Surface(
-                            modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
-                            color = palette.secondary.copy(alpha = 0.88f), shape = RoundedCornerShape(50)
-                        ) {
-                            Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.VolumeUp, contentDescription = null, tint = RoomGold, modifier = Modifier.size(16.dp))
-                                Spacer(Modifier.width(7.dp))
-                                Text("Chama parle", color = RoomInk, fontSize = 12.sp)
-                            }
-                        }
-                    }
-                }
+                Spacer(Modifier.weight(1f))
 
                 Spacer(Modifier.height(12.dp))
                 Text(status, color = RoomCream, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
@@ -303,6 +277,15 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     }
                 }
                 Spacer(Modifier.height(14.dp))
+            }
+            Surface(
+                modifier = Modifier.align(Alignment.CenterStart)
+                    .padding(start = 10.dp)
+                    .size(width = 86.dp, height = 120.dp),
+                color = palette.surface.copy(alpha = 0.92f),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                ChamaPortrait(modifier = Modifier.fillMaxSize().padding(4.dp))
             }
         }
         Text(
