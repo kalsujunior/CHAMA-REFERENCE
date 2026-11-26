@@ -21,12 +21,7 @@
     "hand_left",
     "arm_right_upper",
     "arm_right_forearm",
-    "hand_right",
-    "hair_back",
-    "braid_left_back",
-    "braid_right_back",
-    "braid_left_front",
-    "braid_right_front"
+    "hand_right"
   ],
   "bodyJoints": [
     "root",
@@ -44,9 +39,7 @@
     "shoulder_right",
     "elbow_right",
     "wrist_right",
-    "hand_right",
-    "braid_left",
-    "braid_right"
+    "hand_right"
   ],
   "excludedJoints": [
     "head",
@@ -60,8 +53,7 @@
   ],
   "animationClips": {
     "idle": [
-      "subtle_body_breathing",
-      "braid_secondary_motion"
+      "subtle_body_breathing"
     ],
     "listening": [
       "body_stillness",
@@ -84,8 +76,7 @@
       "shoulder_left",
       "elbow_left",
       "shoulder_right",
-      "elbow_right",
-      "braids"
+      "elbow_right"
     ]
   },
   "overlayContract": {
@@ -103,8 +94,8 @@
     "avoidGapsDuringBodyMotion": true
   },
   "runtimeNotes": {
-    "currentImplementation": "procedural SceneView body blockout with two-link arm positioning from shoulder-elbow-wrist pivots and two-link leg positioning from hip-knee-ankle pivots; the original portrait remains a static independent overlay; production-grade mesh, inverse-kinematics solver and imported GLB asset are not available",
-    "futureBodyRenderer": "replace or refine the geometric blockout with detailed separate body geometry and production skinning while keeping the original portrait overlay byte-for-byte unchanged",
+    "currentImplementation": "procedural SceneView headless body blockout with calculated shoulder-elbow-wrist and hip-knee-ankle chains; limb segment axes are aligned to their pivot-to-pivot vectors; the original portrait remains a static independent overlay; production-grade mesh, inverse-kinematics solver and imported GLB asset are not available",
+    "futureBodyRenderer": "refine the geometric body-only blockout with detailed separate body geometry and production skinning while keeping the original portrait overlay byte-for-byte unchanged; no head, neck, face or hair geometry belongs to this body reference",
     "speech": "Android TTS is audio-only and must never drive facial animation"
   }
 }
