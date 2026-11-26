@@ -122,7 +122,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 ) {
                     Column(Modifier.fillMaxSize()) {
                         Box(Modifier.weight(1.15f).fillMaxWidth()) {
-                            ChamaBody3D(modifier = Modifier.fillMaxSize(), gesture = bodyGesture)
+                            ChamaBody3D(modifier = Modifier.fillMaxSize(), gesture = if (lightMode) ChamaBodyGesture.IDLE else bodyGesture, motionEnabled = !lightMode)
                         }
                         Divider(color = palette.secondary.copy(alpha = 0.55f))
                         Box(Modifier.weight(0.85f).fillMaxWidth(), contentAlignment = Alignment.Center) {
