@@ -13,6 +13,7 @@ package com.kalsu.relive.avatar
 enum class ChamaAutonomyActivity {
     WALK_TO_WINDOW,
     WALK_TO_FLOWERS,
+    WALK_TO_LAMP,
     WALK_TO_SOFA,
     LOOK_AROUND,
     DANCE_IN_PLACE,
@@ -23,6 +24,7 @@ enum class ChamaAutonomyActivity {
 enum class ChamaAutonomyTarget {
     WINDOW,
     FLOWERS,
+    LAMP,
     SOFA,
     ROOM_CENTER
 }
@@ -150,10 +152,12 @@ class ChamaAutonomyPlanner(
             Candidate(ChamaAutonomyActivity.WALK_TO_SOFA, ChamaAutonomyTarget.SOFA,
                 ChamaBodyGesture.IDLE, "Je vais me rapprocher du canapé."),
             Candidate(ChamaAutonomyActivity.LOOK_AROUND, ChamaAutonomyTarget.ROOM_CENTER,
-                ChamaBodyGesture.LISTEN, "Je prends un instant pour observer mon espace.")
+                ChamaBodyGesture.LISTEN, "Je prends un instant pour observer mon espace."),
+            Candidate(ChamaAutonomyActivity.WALK_TO_LAMP, ChamaAutonomyTarget.LAMP,
+                ChamaBodyGesture.IDLE, "Je vais ajuster la petite lampe du salon.")
         )
 
-        if (energy > 0.68f && curiosity > 0.72f && sequence % 4 == 3) {
+        if (energy > 0.68f && curiosity > 0.72f && sequence % 5 == 3) {
             return Candidate(
                 ChamaAutonomyActivity.DANCE_IN_PLACE, ChamaAutonomyTarget.ROOM_CENTER,
                 ChamaBodyGesture.DANCE, "J'ai envie de danser un petit peu !"
