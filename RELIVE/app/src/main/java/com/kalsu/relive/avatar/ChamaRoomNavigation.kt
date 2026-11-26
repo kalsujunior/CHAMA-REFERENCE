@@ -47,7 +47,10 @@ object ChamaRoomNavigation {
         ChamaRoomWaypoint.SOFA_SEAT to ChamaRoomPoint(-1.75f, -0.25f),
         // The right aisle stays in front of the coffee table and away from the console.
         ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.55f, 1.10f),
-        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.30f, 0.15f)
+        // Stop just in front of the console's expanded collision margin.
+        // This shortens the arm's visual reach toward the vase without entering
+        // the console or plant footprint.
+        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.30f, -0.05f)
     )
 
     private val edges = listOf(
