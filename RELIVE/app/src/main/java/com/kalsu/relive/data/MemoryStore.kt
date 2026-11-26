@@ -28,8 +28,10 @@ class MemoryStore(context: Context) {
     @Synchronized
     fun add(text: String): ReliveMemory {
         require(text.isNotBlank()) { "Le souvenir ne peut pas être vide." }
-        val item = ReliveMemory(System.currentTimeMillis(), text.trim(), System.currentTimeMillis())
-        val next = (load() + item).takeLast(MAX_ITEMS)
+        val existing = load()
+        val now = System.currentTimeMillis()
+        val item = ReliveMemory(maxOf(now, (existing.lastOrNull()?.id ?: 0L) + 1L), text.trim(), now)
+        val next = (existing + item).takeLast(MAX_ITEMS)
         val array = JSONArray()
         next.forEach { memory ->
             array.put(JSONObject().put("id", memory.id).put("text", memory.text).put("createdAt", memory.createdAt))
