@@ -60,6 +60,12 @@ Ces fichiers restent des spécifications et ne doivent pas être présentés com
 - La commande d'envoi de conversation libère toujours son état de chargement même si une opération locale échoue et affiche un message de reprise ; l'effacement de l'historique est désactivé pendant l'envoi.
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 
+## Personnalité conversationnelle de Chama
+
+Le Worker IA fournit désormais un cadre de personnalité cohérent pour Espérance Ruchama Kefora (Chama) : ton chaleureux, attentif, calme et naturel ; réponses adaptées au contexte et à la langue française ou créole haïtien ; honnêteté explicite sur les limites de l'IA ; absence de souvenirs ou de faits inventés ; respect de l'autonomie de l'utilisateur et absence de pression affective. Les souvenirs transmis restent du contexte utilisateur et ne remplacent jamais les règles de sécurité ni la demande actuelle.
+
+Cette amélioration modifie le code du Worker sur la branche `relive-app`. Elle ne déploie pas automatiquement la version sur Cloudflare : le Worker doit être déployé séparément avant que l'application en production bénéficie de ce nouveau comportement. Aucun changement n'est apporté au portrait ni au rendu du visage.
+
 ## Backend IA
 
 Le Worker Cloudflare est configuré à l'adresse :
