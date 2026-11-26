@@ -64,4 +64,4 @@ L'option d'autonomie doit rester désactivée par défaut jusqu'à ce qu'un cont
 
 ## Validation
 
-Le planificateur, le graphe, la carte de collision, le contrôleur de locomotion et le coordinateur sont écrits en Kotlin pur et n'ajoutent aucune dépendance Android ou réseau. Ils n'ont pas encore été compilés dans l'application ni validés sur appareil. La compilation Android finale reste réservée à la fin de l'intégration des fonctionnalités.
+Le planificateur, le graphe, la carte de collision, le contrôleur de locomotion et le coordinateur sont écrits en Kotlin pur et n'ajoutent aucune dépendance Android ou réseau. Un harnais Kotlin indépendant a validé le calcul des itinéraires depuis le centre vers les quatre cibles, les marges de collision des segments, l'arrivée du contrôleur, l'interruption utilisateur et l'arrêt explicite. Ce contrôle ne remplace pas les tests du module Android : les sources n'ont pas encore été compilées dans l'application ni validées sur appareil. La compilation Android finale reste réservée à la fin de l'intégration des fonctionnalités.
