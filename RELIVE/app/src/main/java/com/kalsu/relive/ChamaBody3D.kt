@@ -200,10 +200,6 @@ internal fun SceneScope.ChamaBodyNodes(
     val sitting = gesture == ChamaBodyGesture.SIT
     // Forward reach is solved in the body-local Y/Z plane so the hand travels
     // toward the flowers rather than sideways across the chest.
-    val rightElbowZ = rightReachPose?.elbow?.z ?: if (sitting) 0.12f * sitBlend else 0f
-    val rightWristZ = rightReachPose?.wrist?.z ?: if (sitting) 0.22f * sitBlend else 0f
-    val leftElbowZ = if (sitting) 0.12f * sitBlend else 0f
-    val leftWristZ = if (sitting) 0.30f * sitBlend else 0f
     val rightReachPose = if (reaching) {
         ChamaBodyPoseMath.reachingArm(
             shoulder = ChamaLimbPoint3D(rightShoulderX, shoulderY, 0f),
@@ -211,6 +207,10 @@ internal fun SceneScope.ChamaBodyNodes(
             forearmLength = forearmLength
         )
     } else null
+    val rightElbowZ = rightReachPose?.elbow?.z ?: if (sitting) 0.12f * sitBlend else 0f
+    val rightWristZ = rightReachPose?.wrist?.z ?: if (sitting) 0.22f * sitBlend else 0f
+    val leftElbowZ = if (sitting) 0.12f * sitBlend else 0f
+    val leftWristZ = if (sitting) 0.30f * sitBlend else 0f
     val rightElbowX = rightReachPose?.elbow?.x ?: rightShoulderX + chamaSinDeg(rightShoulderAngle) * upperArmLength
     val rightElbowY = rightReachPose?.elbow?.y ?: shoulderY - chamaCosDeg(rightShoulderAngle) * upperArmLength
     val leftElbowX = leftShoulderX + chamaSinDeg(leftShoulderAngle) * upperArmLength
