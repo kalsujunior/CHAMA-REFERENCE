@@ -2,6 +2,13 @@
 
 Dernière vérification : 26 novembre 2026.
 
+## Environnement Motorola connu
+
+- Développement effectué dans Termux sur le Motorola.
+- Copie locale du projet : `$HOME/RELIVE`.
+- Dépôt cloné : `$HOME/CHAMA-REFERENCE`.
+- La compilation reste volontairement différée jusqu'à l'intégration de toutes les fonctionnalités prévues ; le script de build est préparé pour la validation finale et ne doit pas être lancé prématurément.
+
 ## Compatibilité Android
 
 - Appareil cible déclaré : Android 12 et versions ultérieures.
