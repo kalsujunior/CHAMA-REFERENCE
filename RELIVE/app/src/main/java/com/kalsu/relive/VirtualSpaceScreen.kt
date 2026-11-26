@@ -309,7 +309,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                                 ChamaBodyGesture.IDLE
                             autonomyFrame.decision.activity == com.kalsu.relive.avatar.ChamaAutonomyActivity.WALK_TO_FLOWERS &&
                                 flowerLocation == ChamaFlowerLocation.COFFEE_TABLE ->
-                                ChamaBodyGesture.IDLE
+                                ChamaBodyGesture.ADMIRE
                             else -> autonomyFrame.bodyGesture
                         }
                     } else bodyGesture,
