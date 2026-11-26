@@ -108,7 +108,8 @@
               "t": 1250,
               "v": 0
             }
-          ]
+          ],
+          "description": "Alternating palm rotation for a restrained wave"
         }
       ]
     },
@@ -343,6 +344,58 @@
             {
               "t": 1800,
               "v": -5
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "wrist_left",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -8
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": -8
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "wrist_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": 12
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": 12
             },
             {
               "t": 2400,
