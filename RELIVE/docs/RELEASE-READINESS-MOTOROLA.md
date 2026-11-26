@@ -15,16 +15,14 @@ Référence officielle : https://developer.android.com/build/releases/agp-9-4-0-
 
 ### Préparer une compilation locale
 
-Le dépôt ne contient pas encore le Wrapper. Depuis le dossier `RELIVE`, avec un JDK 21, Android SDK Platform 37, Build Tools 36.0.0 et une installation Gradle disponible :
+Le dépôt ne contient pas encore le Wrapper. Avec un JDK 21, Android SDK Platform 37, Build Tools 36.0.0 et Gradle disponible, le script fourni automatise la génération locale du Wrapper 9.6.0, les tests, la compilation et la copie de l'APK :
 
 ```bash
 cd RELIVE
-gradle wrapper --gradle-version 9.6.0
-./gradlew --version
-./gradlew :app:testDebugUnitTest :app:assembleDebug
+bash scripts/build-motorola.sh
 ```
 
-La commande de test et la compilation doivent toutes deux réussir avant de récupérer l'APK dans `app/build/outputs/apk/debug/app-debug.apk`. Si la commande `gradle wrapper` échoue parce que Gradle ou le JDK installé est trop ancien, mettre d'abord l'environnement de compilation à niveau ; ne pas modifier les versions Android du projet au hasard.
+L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` lorsque le stockage Android est accessible ; sinon, le script affiche son emplacement dans le dossier de build. Si l'environnement Gradle/JDK/SDK est trop ancien ou incomplet, le script s'arrête avec un message d'erreur ; ne pas modifier les versions Android du projet au hasard.
 
 ## Fonctions présentes dans l'application
 
