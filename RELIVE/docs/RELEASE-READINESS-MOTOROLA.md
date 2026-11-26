@@ -48,7 +48,7 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 
 ## Vérifications et éléments bloquants
 
-- Treize tests JUnit d'autonomie sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
+- Quatorze tests JUnit d'autonomie sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
 - Aucune compilation Android n'a été exécutée sur cette branche pendant cet audit.
 - Aucun APK n'a encore été installé ni testé sur le Motorola.
 - La collision dynamique du corps articulé, le rig 3D skinné et les manipulations physiques d'objets restent à réaliser. L'assise actuelle est une pose géométrique simplifiée, pas une animation squelettique réaliste.
