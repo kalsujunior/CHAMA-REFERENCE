@@ -95,9 +95,9 @@ object ChamaBodyPoseMath {
     }
 
     /**
-     * Blends a standing two-link leg into a seated pose. The seated knee and
-     * ankle travel forward in local +Z while the feet remain close to floor
-     * height once the body root is lowered to the sofa cushion.
+     * Blends a standing two-link leg into a seated pose. The thigh hangs
+     * beneath the hip while the lower leg projects forward in local +Z;
+     * ankle and shoe geometry remain close to floor height after the root drops.
      */
     fun blendLegToSeat(
         hipX: Float,
