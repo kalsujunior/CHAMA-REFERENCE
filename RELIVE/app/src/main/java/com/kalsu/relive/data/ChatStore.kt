@@ -38,13 +38,15 @@ class ChatStore(context: Context) {
 
     @Synchronized
     fun append(author: String, text: String): ChatMessage {
+        val existing = load()
+        val now = System.currentTimeMillis()
         val message = ChatMessage(
-            id = System.currentTimeMillis(),
+            id = maxOf(now, (existing.lastOrNull()?.id ?: 0L) + 1L),
             author = author,
             text = text.trim(),
-            timestamp = System.currentTimeMillis()
+            timestamp = now
         )
-        val messages = (load() + message).takeLast(MAX_MESSAGES)
+        val messages = (existing + message).takeLast(MAX_MESSAGES)
         val array = JSONArray()
         messages.forEach { item ->
             array.put(JSONObject()
