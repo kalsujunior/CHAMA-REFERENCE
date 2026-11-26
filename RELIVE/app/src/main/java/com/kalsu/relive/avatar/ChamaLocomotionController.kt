@@ -1,10 +1,7 @@
 package com.kalsu.relive.avatar
 
-import kotlin.math.PI
 import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.min
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -78,9 +75,13 @@ class ChamaLocomotionController(
         speed = 0f
         gaitDistance = 0f
         lastUpdateMs = nowElapsedRealtimeMs.coerceAtLeast(0L)
-        routePoints = route.points
-        nextPointIndex = if (route.points.size > 1) 1 else route.points.size
-        status = if (route.points.size > 1) ChamaLocomotionStatus.TURNING
+        val first = route.points.first()
+        val dx = first.x - currentPosition.x
+        val dz = first.z - currentPosition.z
+        val startsAtWaypoint = sqrt(dx * dx + dz * dz) <= stopRadiusMeters
+        routePoints = if (startsAtWaypoint) route.points else listOf(currentPosition) + route.points
+        nextPointIndex = if (routePoints.size > 1) 1 else routePoints.size
+        status = if (routePoints.size > 1) ChamaLocomotionStatus.TURNING
             else ChamaLocomotionStatus.ARRIVED
         return frame()
     }
