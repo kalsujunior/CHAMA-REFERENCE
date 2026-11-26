@@ -33,6 +33,7 @@ private fun chamaCosDeg(degrees: Float): Float = cos(Math.toRadians(degrees.toDo
 internal fun SceneScope.ChamaBodyNodes(
     gesture: ChamaBodyGesture,
     rootPosition: ChamaRoomPoint,
+    rootHeight: Float = 0f,
     headingDegrees: Float,
     gaitPhase: Float = 0f,
     motionEnabled: Boolean = true
@@ -299,7 +300,7 @@ internal fun SceneScope.ChamaBodyNodes(
 
 
     Node(
-        position = Position(rootPosition.x, 0f, rootPosition.z),
+        position = Position(rootPosition.x, rootHeight, rootPosition.z),
         rotation = Rotation(y = headingDegrees + if (gesture == ChamaBodyGesture.LISTEN) glance else 0f)
     ) {
         Node(position = Position(0f, postureDrop, 0f)) {
