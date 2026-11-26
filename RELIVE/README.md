@@ -104,4 +104,6 @@ gradle assembleDebug
 
 APK : `app/build/outputs/apk/debug/app-debug.apk`.
 
+Le workflow GitHub Actions `.github/workflows/relive-android.yml` a été corrigé pour installer Android API 37, Build Tools 37.0.0 et Gradle 9.9.2, avec la création correcte du lien `android-37`.
+
 Les modifications présentes sur GitHub ne prouvent pas à elles seules que la compilation ou le fonctionnement sur le téléphone ont été vérifiés. La prochaine validation doit couvrir la compilation, l'ouverture de l'espace virtuel, les interactions, la stabilité et la consommation de ressources.
