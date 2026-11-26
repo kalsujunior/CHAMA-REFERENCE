@@ -102,6 +102,32 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun flowerPickupPosePlacesBouquetAtTheLoweredReachingHand() {
+        val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
+        val heading = ChamaRoomNavigation.facingDegreesAt(ChamaAutonomyTarget.FLOWERS, approach)
+        val hand = ChamaFlowerInteraction.handPose(approach, heading)
+        assertTrue(hand.isFinite)
+        assertEquals(0.9102f, hand.y, 0.002f)
+        // The hand is aimed into the console/vase area, not across the room.
+        assertTrue(kotlin.math.abs(hand.x - ChamaFlowerInteraction.VASE_POSE.x) < 0.15f)
+        assertTrue(kotlin.math.abs(hand.z - ChamaFlowerInteraction.VASE_POSE.z) < 0.15f)
+        assertTrue(kotlin.math.abs(hand.y - ChamaFlowerInteraction.VASE_POSE.y) < 0.10f)
+    }
+
+    @Test
+    fun bouquetLocationsStayInsideTheSalonAndOnStableSurfaces() {
+        val body = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
+        val vase = ChamaFlowerInteraction.poseAt(ChamaFlowerLocation.VASE, body, 0f)
+        val table = ChamaFlowerInteraction.poseAt(ChamaFlowerLocation.COFFEE_TABLE, body, 0f)
+        val hand = ChamaFlowerInteraction.poseAt(ChamaFlowerLocation.IN_HAND, body, 150f)
+        assertEquals(ChamaFlowerInteraction.VASE_POSE, vase)
+        assertEquals(ChamaFlowerInteraction.TABLE_POSE, table)
+        assertTrue(hand.isFinite)
+        assertTrue(table.x in -0.65f..0.75f)
+        assertTrue(table.z in -0.235f..0.435f)
+    }
+
+    @Test
     fun sweptCollisionRejectsObstacleEvenWhenSamplingWouldSkipIt() {
         val start = ChamaRoomPoint(-2.0f, -0.8f)
         val end = ChamaRoomPoint(2.0f, -0.8f)
