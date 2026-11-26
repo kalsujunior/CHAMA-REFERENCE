@@ -13,6 +13,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,6 +44,7 @@ import com.kalsu.relive.data.ChatStore
 import com.kalsu.relive.data.PhotoStore
 import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.data.MemoryStore
+import com.kalsu.relive.data.MemoryCategories
 import com.kalsu.relive.voice.ChamaSpeech
 import com.kalsu.relive.notifications.ReminderScheduler
 import kotlinx.coroutines.launch
@@ -323,11 +325,13 @@ private fun ChatScreen(modifier: Modifier) {
                             if (requestedMemory != null && memoryStore.load().none { it.text.equals(requestedMemory, ignoreCase = true) }) {
                                 memoryStore.add(requestedMemory)
                             }
-                            val memories = memoryStore.load().map { it.text }
+                            val savedMemories = memoryStore.load()
+                            val memories = savedMemories.map { it.text }
+                            val aiMemories = savedMemories.map { "${it.category}: ${it.text}" }
                             online.value = NetworkStatus.isOnline(context)
                             val history = store.load().dropLast(1).takeLast(20).map { it.author to it.text }
                             val answer = if (online.value && preferences.remoteAiEnabled && preferences.remoteAccessToken.isNotBlank()) {
-                                AiGateway.reply(text, preferences.languageTag, memories, history, preferences.remoteAccessToken)
+                                AiGateway.reply(text, preferences.languageTag, aiMemories, history, preferences.remoteAccessToken)
                             } else null
                             val fallback = if (requestedMemory != null) {
                                 if (preferences.languageTag == "ht-HT") "Mwen anrejistre sa nan memwa mwen sou telefòn sa a. M ap sonje l nan pwochen konvèsasyon nou yo."
@@ -438,6 +442,14 @@ private fun GalleryScreen(modifier: Modifier) {
     }
 }
 
+private fun memoryCategoryLabel(category: String): String = when (category) {
+    MemoryCategories.IDENTITY -> "Identité"
+    MemoryCategories.PREFERENCES -> "Préférences"
+    MemoryCategories.PROJECTS -> "Projets"
+    MemoryCategories.IMPORTANT -> "Événements importants"
+    else -> "Général"
+}
+
 @Composable
 private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -> Unit) {
     val context = LocalContext.current
@@ -446,6 +458,7 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
     var memories by remember { mutableStateOf(memoryStore.load()) }
     var showClearMemoriesDialog by remember { mutableStateOf(false) }
     var memoryDraft by remember { mutableStateOf("") }
+    var memoryCategory by remember { mutableStateOf(MemoryCategories.GENERAL) }
     var displayName by remember { mutableStateOf(preferences.displayName) }
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
@@ -542,11 +555,30 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
         OutlinedTextField(value = memoryDraft, onValueChange = { memoryDraft = it },
             label = { Text("Un détail important à mémoriser") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), minLines = 2)
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            listOf(
+                MemoryCategories.IDENTITY to "Identité",
+                MemoryCategories.PREFERENCES to "Préférences",
+                MemoryCategories.PROJECTS to "Projets",
+                MemoryCategories.IMPORTANT to "Important",
+                MemoryCategories.GENERAL to "Général"
+            ).forEach { (key, label) ->
+                FilterChip(
+                    selected = memoryCategory == key,
+                    onClick = { memoryCategory = key },
+                    label = { Text(label) }
+                )
+            }
+        }
         Button(onClick = {
             if (memoryDraft.isNotBlank()) {
-                memoryStore.add(memoryDraft)
+                memoryStore.add(memoryDraft, memoryCategory)
                 memories = memoryStore.load()
                 memoryDraft = ""
+                memoryCategory = MemoryCategories.GENERAL
             }
         }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
@@ -559,7 +591,10 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
                 Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 5.dp)
                     .background(Panel, RoundedCornerShape(12.dp)).padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Text(memory.text, color = Cream, modifier = Modifier.weight(1f))
+                    Column(Modifier.weight(1f)) {
+                        Text(memoryCategoryLabel(memory.category), color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(memory.text, color = Cream, modifier = Modifier.padding(top = 3.dp))
+                    }
                     IconButton(onClick = {
                         memoryStore.delete(memory.id)
                         memories = memoryStore.load()
