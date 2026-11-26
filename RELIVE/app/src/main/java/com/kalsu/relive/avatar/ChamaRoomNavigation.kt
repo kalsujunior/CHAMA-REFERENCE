@@ -36,14 +36,14 @@ data class ChamaRoomRoute(
 
 object ChamaRoomNavigation {
     private val positions = mapOf(
-        ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomPoint(0.0f, 0.85f),
+        ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomPoint(0.0f, 1.10f),
         // Keep a body-width margin from the sofa's left arm and the left wall.
-        ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomPoint(-1.75f, 0.85f),
-        ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.75f, -1.60f),
-        ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.65f, -0.20f),
+        ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomPoint(-1.95f, 1.10f),
+        ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.95f, -1.50f),
+        ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.95f, -0.15f),
         // The right aisle stays in front of the coffee table and away from the console.
-        ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.55f, 0.85f),
-        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.20f, 0.15f)
+        ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.55f, 1.10f),
+        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.30f, 0.15f)
     )
 
     private val edges = listOf(
