@@ -203,7 +203,7 @@ internal fun SceneScope.ChamaBodyNodes(
     // toward the flowers rather than sideways across the chest.
     val rightReachPose = if (reaching) {
         ChamaBodyPoseMath.reachingArm(
-            shoulder = ChamaLimbPoint3D(rightShoulderX, shoulderY, 0f),
+            shoulder = ChamaLimbPoint3D(rightShoulderX, shoulderY - 0.40f, 0f),
             upperArmLength = upperArmLength,
             forearmLength = forearmLength,
             lateralAngleDegrees = -35f,
@@ -296,7 +296,7 @@ internal fun SceneScope.ChamaBodyNodes(
     val rightAnkleY = rightLegPose.ankle.y
     val rightAnkleZ = rightLegPose.ankle.z
 
-    val rightShoulderPoint = ChamaLimbPoint3D(rightShoulderX, shoulderY, 0f)
+    val rightShoulderPoint = ChamaLimbPoint3D(rightShoulderX, if (reaching) shoulderY - 0.40f else shoulderY, 0f)
     val leftShoulderPoint = ChamaLimbPoint3D(leftShoulderX, shoulderY, 0f)
     val rightElbowPoint = ChamaLimbPoint3D(rightElbowX, rightElbowY, rightElbowZ)
     val leftElbowPoint = ChamaLimbPoint3D(leftElbowX, leftElbowY, leftElbowZ)
@@ -364,14 +364,14 @@ internal fun SceneScope.ChamaBodyNodes(
         SphereNode(radius = 0.13f, materialInstance = sweater,
             position = Position(leftShoulderX, shoulderY, 0f))
         SphereNode(radius = 0.13f, materialInstance = sweater,
-            position = Position(rightShoulderX, shoulderY, 0f))
+            position = Position(rightShoulderX, rightShoulderPoint.y, 0f))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, leftElbowZ / 2f),
             rotation = Rotation(x = leftUpperRotation.xDegrees, z = leftUpperRotation.zDegrees))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
-            position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, rightElbowZ / 2f),
+            position = Position((rightShoulderX + rightElbowX) / 2f, (rightShoulderPoint.y + rightElbowY) / 2f, rightElbowZ / 2f),
             rotation = Rotation(x = rightUpperRotation.xDegrees, z = rightUpperRotation.zDegrees))
         SphereNode(radius = 0.092f, materialInstance = sweater,
             position = Position(leftElbowX, leftElbowY, leftElbowZ))
