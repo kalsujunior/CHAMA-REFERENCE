@@ -8,6 +8,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Un premier blocage géométrique 3D du corps indépendant est intégré : torse, bassin, épaules, coudes, avant-bras, poignets, paumes, doigts géométriques, jambes, chaussures et détails géométriques du pull.
 - Les interactions Bonjour, Écouter et Danser sélectionnent respectivement les gestes corporels WAVE, LISTEN et DANCE.
 - Un contrôle dans l'interface permet d'allumer et d'éteindre visuellement la lampe du salon 3D.
+- Un second contrôle bascule l'ambiance visuelle de la fenêtre panoramique entre le jour et le soir, indépendamment de la lampe.
 - Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse et oscillation des deux tresses géométriques.
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
 - Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
