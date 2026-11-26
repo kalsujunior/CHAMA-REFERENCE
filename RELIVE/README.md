@@ -6,7 +6,8 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 
 - Une pièce 3D procédurale SceneView/Filament est intégrée : sol, murs, fenêtre panoramique, rideaux, canapé, coussins, tapis, table, lampe, suspension, étagère, livres, cadre mural, vase de roses et plante.
 - Un premier blocage géométrique 3D du corps indépendant est intégré : torse, bassin, épaules, coudes, avant-bras, poignets, paumes, doigts géométriques, jambes, chaussures et détails géométriques du pull.
-- Les interactions Bonjour, Écouter et Partager sélectionnent respectivement les gestes corporels WAVE, LISTEN et DANCE.
+- Les interactions Bonjour, Écouter et Danser sélectionnent respectivement les gestes corporels WAVE, LISTEN et DANCE.
+- Un contrôle dans l'interface permet d'allumer et d'éteindre visuellement la lampe du salon 3D.
 - Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse et oscillation des deux tresses géométriques.
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
 - Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
@@ -69,7 +70,7 @@ Voir `backend/cloudflare-worker/README.md` pour les détails de configuration.
 - Remplacer progressivement le blocage géométrique par un corps 3D détaillé et réellement articulé, sans toucher au portrait.
 - Ajouter les tresses et les vêtements comme éléments séparés, puis leurs mouvements corporels.
 - Fusionner ou optimiser les deux scènes 3D si les mesures de mémoire/GPU le nécessitent.
-- Améliorer les interactions avec le mobilier et les déplacements dans la pièce.
+- Étendre les interactions avec le mobilier (assise, objets décoratifs, éclairage complémentaire) et les déplacements dans la pièce.
 - Évaluer les performances et la stabilité sur le Motorola Moto G Stylus 5G avant de considérer l'espace 3D comme validé.
 - Aucun clonage vocal n'est implémenté. Android TTS utilise les voix installées sur le téléphone.
 - Pas encore de compte utilisateur, de synchronisation multi-appareils ni de sauvegarde cloud.
