@@ -393,11 +393,24 @@ private fun GalleryScreen(modifier: Modifier) {
     val store = remember { PhotoStore(context) }
     val slots = remember { mutableStateListOf<Uri?>(store.get(0), store.get(1), store.get(2)) }
     var pendingSlot by remember { mutableIntStateOf(0) }
+    var galleryStatus by remember { mutableStateOf("") }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
-            try { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: SecurityException) { }
-            store.set(pendingSlot, uri)
-            slots[pendingSlot] = uri
+            val persisted = try {
+                context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                true
+            } catch (_: SecurityException) {
+                false
+            } catch (_: IllegalArgumentException) {
+                false
+            }
+            if (persisted) {
+                store.set(pendingSlot, uri)
+                slots[pendingSlot] = uri
+                galleryStatus = "Photo ajoutée à la galerie locale."
+            } else {
+                galleryStatus = "Ce fournisseur ne permet pas de conserver l'accès à cette photo. Choisis une autre image depuis la galerie du téléphone."
+            }
         }
     }
     val labels = listOf("Portrait principal — pull blanc avec cœurs rouges", "Photo de galerie 2", "Photo de galerie 3")
@@ -405,6 +418,9 @@ private fun GalleryScreen(modifier: Modifier) {
         BrandHeader()
         Text("Galerie de Chama", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
         Text("Sélectionne les photos originales depuis ton téléphone. RELIVE les conserve sans retoucher leur apparence.", color = Muted, modifier = Modifier.padding(20.dp))
+        if (galleryStatus.isNotBlank()) {
+            Text(galleryStatus, color = Gold, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+        }
         slots.forEachIndexed { index, uri ->
             Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 7.dp).background(Panel, RoundedCornerShape(14.dp)).padding(12.dp)) {
                 if (uri != null || index == 0) {
