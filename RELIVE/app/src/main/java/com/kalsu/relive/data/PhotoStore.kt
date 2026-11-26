@@ -8,7 +8,7 @@ import android.content.Intent
  * Stores only the two optional gallery photos.
  * Slot 0 is reserved for the bundled, immutable Chama portrait.
  */
-class PhotoStore(context: Context) {
+class PhotoStore(private val context: Context) {
     private val prefs = SecurePreferences.open(context, "relive_photos")
 
     fun get(slot: Int): Uri? {
