@@ -39,6 +39,39 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun autonomousRestArrivesAtSofaSeatAndUsesSitGesture() {
+        val runtime = ChamaAutonomyRuntime()
+        var frame = runtime.tick(
+            ChamaAutonomyRuntimeInput(
+                enabled = true,
+                virtualSpaceVisible = true,
+                userInteracting = false,
+                lowPowerMode = false,
+                energy = 0.1f,
+                curiosity = 0.5f,
+                nowElapsedRealtimeMs = 0L
+            )
+        )
+        for (time in 50L..30_000L step 50L) {
+            frame = runtime.tick(
+                ChamaAutonomyRuntimeInput(
+                    enabled = true,
+                    virtualSpaceVisible = true,
+                    userInteracting = false,
+                    lowPowerMode = false,
+                    energy = 0.1f,
+                    curiosity = 0.5f,
+                    nowElapsedRealtimeMs = time
+                )
+            )
+            if (frame.locomotion.status == ChamaLocomotionStatus.ARRIVED) break
+        }
+        assertEquals(ChamaRoomWaypoint.SOFA_SEAT, frame.currentWaypoint)
+        assertEquals(ChamaLocomotionStatus.ARRIVED, frame.locomotion.status)
+        assertEquals(ChamaBodyGesture.SIT, frame.bodyGesture)
+    }
+
+    @Test
     fun plannerUsesReachGestureAtFlowersAndSitGestureForRest() {
         val planner = ChamaAutonomyPlanner()
         fun input(now: Long, energy: Float) = ChamaAutonomyInput(
