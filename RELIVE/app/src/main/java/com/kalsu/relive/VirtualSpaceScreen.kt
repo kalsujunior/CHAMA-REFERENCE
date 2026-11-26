@@ -71,8 +71,12 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     }
 
     fun pauseAutonomyForUser() {
+        val wasEnabled = autonomyEnabled
         autonomyEnabled = false
         autonomyFrame = autonomyRuntime.stop()
+        if (wasEnabled) {
+            status = "Je m'arrête pour être attentive à toi."
+        }
     }
 
     LaunchedEffect(autonomyEnabled, lightMode) {
