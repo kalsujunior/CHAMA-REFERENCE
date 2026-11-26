@@ -3,8 +3,9 @@ package com.kalsu.relive.avatar
 /**
  * Coordinates planning, salon routing and time-based locomotion.
  *
- * This is still a simulation boundary: callers must apply its frames to a
- * shared 3D world only after renderer integration and collision validation.
+ * VirtualSpaceScreen applies each locomotion frame to the body root Node in
+ * the shared salon SceneView. Static and per-frame route guards run here; the
+ * articulated body still needs final on-device collision and visual validation.
  */
 data class ChamaAutonomyRuntimeInput(
     val enabled: Boolean,
