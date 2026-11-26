@@ -34,6 +34,7 @@ import com.kalsu.relive.avatar.ChamaAutonomyRuntime
 import com.kalsu.relive.avatar.ChamaAutonomyRuntimeInput
 import com.kalsu.relive.avatar.ChamaAutonomyNeeds
 import com.kalsu.relive.avatar.ChamaRoomWaypoint
+import com.kalsu.relive.avatar.ChamaLocomotionStatus
 import com.kalsu.relive.voice.ChamaSpeech
 
 private val RoomGold: Color @Composable get() = LocalRelivePalette.current.primary
@@ -153,11 +154,11 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     evening = eveningAmbience,
                     sofaWelcoming = sofaWelcoming || (
                         autonomyEnabled && autonomyFrame.currentWaypoint == ChamaRoomWaypoint.SOFA_STOP &&
-                            autonomyFrame.locomotion.status == com.kalsu.relive.avatar.ChamaLocomotionStatus.ARRIVED
+                            autonomyFrame.locomotion.status == ChamaLocomotionStatus.ARRIVED
                     ),
                     bouquetHighlighted = bouquetHighlighted || (
                         autonomyEnabled && autonomyFrame.currentWaypoint == ChamaRoomWaypoint.FLOWERS_STOP &&
-                            autonomyFrame.locomotion.status == com.kalsu.relive.avatar.ChamaLocomotionStatus.ARRIVED
+                            autonomyFrame.locomotion.status == ChamaLocomotionStatus.ARRIVED
                     ),
                     bodyGesture = if (autonomyEnabled) autonomyFrame.bodyGesture else bodyGesture,
                     bodyPosition = autonomyFrame.locomotion.position,
