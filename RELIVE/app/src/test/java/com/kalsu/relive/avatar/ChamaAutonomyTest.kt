@@ -102,6 +102,47 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun sweptCollisionRejectsObstacleEvenWhenSamplingWouldSkipIt() {
+        val start = ChamaRoomPoint(-2.0f, -0.8f)
+        val end = ChamaRoomPoint(2.0f, -0.8f)
+        assertTrue(ChamaRoomCollisionMap.isPointWalkable(start))
+        assertTrue(ChamaRoomCollisionMap.isPointWalkable(end))
+        // A 10 m sampling interval would previously test no interior point.
+        assertFalse(
+            ChamaRoomCollisionMap.isSegmentWalkable(
+                start = start,
+                end = end,
+                sampleSpacingMeters = 10f
+            )
+        )
+    }
+
+    @Test
+    fun sweptCollisionRejectsTangentialContactWithExpandedFurniture() {
+        val start = ChamaRoomPoint(-2.0f, -0.08f)
+        val end = ChamaRoomPoint(2.0f, -0.08f)
+        assertTrue(ChamaRoomCollisionMap.isPointWalkable(start))
+        assertTrue(ChamaRoomCollisionMap.isPointWalkable(end))
+        assertFalse(ChamaRoomCollisionMap.isSegmentWalkable(start, end))
+    }
+
+    @Test
+    fun sweptCollisionAcceptsStationarySafePoseAndRejectsInvalidClearance() {
+        val safe = ChamaRoomPoint(0f, 1.10f)
+        assertTrue(ChamaRoomCollisionMap.isSegmentWalkable(safe, safe))
+        assertFalse(
+            ChamaRoomCollisionMap.isSegmentWalkable(
+                safe, safe, avatarRadiusMeters = Float.NaN
+            )
+        )
+        assertFalse(
+            ChamaRoomCollisionMap.isSegmentWalkable(
+                safe, safe, safetyMarginMeters = -0.01f
+            )
+        )
+    }
+
+    @Test
     fun nearestWaypointMustHaveClearConnector() {
         val point = ChamaRoomPoint(-0.72f, 1.10f)
         val nearest = ChamaRoomNavigation.nearestReachableWaypoint(point)
