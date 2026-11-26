@@ -22,6 +22,9 @@ data class ChamaLegChainPose(
  * Kotlin makes the seated and reaching poses testable without starting Filament.
  */
 object ChamaBodyPoseMath {
+    private val seatedThighCos = cos(Math.toRadians(55.0)).toFloat()
+    private val seatedCalfCos = cos(Math.toRadians(45.0)).toFloat()
+
     fun reachingArm(
         shoulder: ChamaLimbPoint3D,
         upperArmLength: Float = 0.42f,
@@ -31,7 +34,9 @@ object ChamaBodyPoseMath {
         forearmForwardTiltDegrees: Float = 35f,
         handLength: Float = 0.09f
     ): ChamaArmReachPose {
-        require(listOf(upperArmLength, forearmLength, handLength).all { it.isFinite() && it >= 0f })
+        require(upperArmLength.isFinite() && upperArmLength >= 0f)
+        require(forearmLength.isFinite() && forearmLength >= 0f)
+        require(handLength.isFinite() && handLength >= 0f)
         require(lateralAngleDegrees.isFinite())
         require(upperForwardTiltDegrees.isFinite())
         require(forearmForwardTiltDegrees.isFinite())
@@ -78,9 +83,12 @@ object ChamaBodyPoseMath {
         require(blend.isFinite())
         require(thighLength > 0f && calfLength > 0f)
         val amount = blend.coerceIn(0f, 1f)
-        val seatedKneeY = hipY - cos(Math.toRadians(seatedThighAngleDegrees.toDouble())).toFloat() * thighLength
-        val seatedAnkleY = seatedKneeY -
-            cos(Math.toRadians(seatedCalfAngleDegrees.toDouble())).toFloat() * calfLength
+        val thighCos = if (seatedThighAngleDegrees == 55f) seatedThighCos
+            else cos(Math.toRadians(seatedThighAngleDegrees.toDouble())).toFloat()
+        val calfCos = if (seatedCalfAngleDegrees == 45f) seatedCalfCos
+            else cos(Math.toRadians(seatedCalfAngleDegrees.toDouble())).toFloat()
+        val seatedKneeY = hipY - thighCos * thighLength
+        val seatedAnkleY = seatedKneeY - calfCos * calfLength
         fun mix(a: Float, b: Float) = a + (b - a) * amount
         return ChamaLegChainPose(
             knee = ChamaLimbPoint3D(
