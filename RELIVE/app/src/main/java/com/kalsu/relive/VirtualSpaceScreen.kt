@@ -69,6 +69,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var autonomyEnabled by remember { mutableStateOf(false) }
     var autonomyFrame by remember { mutableStateOf(autonomyRuntime.stop()) }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
+    var interactionStatus by remember { mutableStateOf<String?>(null) }
     var speaking by remember { mutableStateOf(false) }
     var bodyGesture by remember { mutableStateOf(ChamaBodyGesture.IDLE) }
     var lampOn by remember { mutableStateOf(true) }
@@ -189,6 +190,13 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         }
     }
 
+    LaunchedEffect(interactionStatus) {
+        if (interactionStatus != null) {
+            delay(3_500L)
+            interactionStatus = null
+        }
+    }
+
     // When Chama reaches the vase autonomously, she briefly picks up a rose
     // and places the bouquet on the coffee table. The object remains inside
     // the salon and returns to a safe surface if the user interrupts.
@@ -213,11 +221,11 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         ) {
             if (flowerInteraction.pickUp()) {
                 flowerLocation = flowerInteraction.location
-                status = "J'ai choisi une rose pour la regarder de plus près. 🌹"
+                interactionStatus = "J'ai choisi une rose pour la regarder de plus près. 🌹"
                 delay(1_200L)
                 if (autonomyEnabled && flowerInteraction.placeOnTable()) {
                     flowerLocation = flowerInteraction.location
-                    status = "J'ai déposé le bouquet sur la table basse."
+                    interactionStatus = "J'ai déposé le bouquet sur la table basse."
                 }
             }
         }
@@ -315,7 +323,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 Spacer(Modifier.weight(1f))
 
                 Spacer(Modifier.height(12.dp))
-                Text(status, color = RoomCream, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
+                Text(interactionStatus ?: status, color = RoomCream, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
                 if (autonomyEnabled) {
                     Text(
                         "Énergie de Chama : ${(needsSnapshot.energy * 100f).toInt()} %",
@@ -359,7 +367,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                                 if (flowerInteraction.returnToVase()) {
                                     flowerLocation = flowerInteraction.location
                                 }
-                                status = "J'ai remis le bouquet dans son vase. 🌹"
+                                interactionStatus = "J'ai remis le bouquet dans son vase. 🌹"
                                 bodyGesture = ChamaBodyGesture.LISTEN
                             },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
