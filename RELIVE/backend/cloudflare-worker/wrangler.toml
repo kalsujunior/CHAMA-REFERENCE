@@ -3,9 +3,9 @@ main = "src/index.js"
 compatibility_date = "2026-11-25"
 
 [vars]
-AI_API_URL = "https://api.openai.com/v1/chat/completions"
-# Configure AI_MODEL as a Worker variable in the Cloudflare dashboard.
+# Configure GROQ_MODEL and GEMINI_MODEL as optional Worker variables.
 # Configure ALLOWED_ORIGIN only when a browser client needs CORS.
+# Store GROQ_API_KEY, GEMINI_API_KEY and RELIVE_ACCESS_TOKEN as Worker secrets.
 
 [[ratelimits]]
 name = "RATE_LIMITER"
