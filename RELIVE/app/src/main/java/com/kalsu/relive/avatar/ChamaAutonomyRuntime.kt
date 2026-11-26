@@ -23,7 +23,13 @@ data class ChamaAutonomyRuntimeFrame(
     val routeError: String? = null
 ) {
     val activity: ChamaAutonomyActivity? get() = decision.activity
-    val bodyGesture: ChamaBodyGesture get() = decision.bodyGesture
+    val bodyGesture: ChamaBodyGesture
+        get() = if (locomotion.status == ChamaLocomotionStatus.WALKING ||
+            locomotion.status == ChamaLocomotionStatus.TURNING) {
+            ChamaBodyGesture.IDLE
+        } else {
+            decision.bodyGesture
+        }
 }
 
 /**
