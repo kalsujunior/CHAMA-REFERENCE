@@ -25,10 +25,10 @@ data class ChamaAutonomyRuntimeFrame(
 ) {
     val activity: ChamaAutonomyActivity? get() = decision.activity
     val bodyGesture: ChamaBodyGesture
-        get() = if (locomotion.status == ChamaLocomotionStatus.WALKING) {
-            ChamaBodyGesture.WALK
-        } else {
-            decision.bodyGesture
+        get() = when (locomotion.status) {
+            ChamaLocomotionStatus.WALKING -> ChamaBodyGesture.WALK
+            ChamaLocomotionStatus.TURNING -> ChamaBodyGesture.IDLE
+            else -> decision.bodyGesture
         }
 }
 
