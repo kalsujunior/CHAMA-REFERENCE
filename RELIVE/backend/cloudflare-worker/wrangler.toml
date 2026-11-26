@@ -1,0 +1,13 @@
+name = "relive-chama-api"
+main = "src/index.js"
+compatibility_date = "2026-11-25"
+
+[vars]
+# Configure GROQ_MODEL and GEMINI_MODEL as optional Worker variables.
+# Configure ALLOWED_ORIGIN only when a browser client needs CORS.
+# Store GROQ_API_KEY, GEMINI_API_KEY and RELIVE_ACCESS_TOKEN as Worker secrets.
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 15, period = 60 }

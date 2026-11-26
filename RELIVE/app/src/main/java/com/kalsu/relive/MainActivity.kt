@@ -1,0 +1,748 @@
+package com.kalsu.relive
+
+import android.os.Bundle
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.net.Uri
+import android.provider.CalendarContract
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.material3.lightColorScheme
+import coil.compose.AsyncImage
+import androidx.compose.runtime.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.kalsu.relive.core.NetworkStatus
+import com.kalsu.relive.ai.AiGateway
+import com.kalsu.relive.data.ChatMessage
+import com.kalsu.relive.data.ChatStore
+import com.kalsu.relive.data.PhotoStore
+import com.kalsu.relive.data.PreferenceStore
+import com.kalsu.relive.data.MemoryStore
+import com.kalsu.relive.data.MemoryCategories
+import com.kalsu.relive.voice.ChamaSpeech
+import com.kalsu.relive.voice.ChamaVoiceGateway
+import com.kalsu.relive.voice.ChamaVoicePlayer
+import com.kalsu.relive.notifications.ReminderScheduler
+import kotlinx.coroutines.launch
+
+// Palette RELIVE centralisée : les écrans lisent la palette active.
+internal data class RelivePalette(
+    val background: Color,
+    val surface: Color,
+    val primary: Color,
+    val secondary: Color,
+    val text: Color,
+    val muted: Color
+)
+
+private val ChamaOutfitPalette = RelivePalette(
+    Color(0xFFF5F1EA), Color(0xFFFFFFFF), Color(0xFFC6283D),
+    Color(0xFFE8B9C1), Color(0xFF24191B), Color(0xFF777777)
+)
+private val RosePalette = RelivePalette(
+    Color(0xFFFFF1F4), Color(0xFFFFFFFF), Color(0xFFAD4963),
+    Color(0xFFF0C5D0), Color(0xFF39232B), Color(0xFF806B73)
+)
+private val MidnightPalette = RelivePalette(
+    Color(0xFF171717), Color(0xFF262326), Color(0xFFD4AF37),
+    Color(0xFF6B343B), Color(0xFFF5F1EA), Color(0xFFB8ADB0)
+)
+
+internal val LocalRelivePalette = staticCompositionLocalOf { ChamaOutfitPalette }
+private val Ink: Color @Composable get() = LocalRelivePalette.current.background
+private val Panel: Color @Composable get() = LocalRelivePalette.current.surface
+private val Gold: Color @Composable get() = LocalRelivePalette.current.primary
+private val Cream: Color @Composable get() = LocalRelivePalette.current.text
+private val Muted: Color @Composable get() = LocalRelivePalette.current.muted
+private val ChamaRose: Color @Composable get() = LocalRelivePalette.current.secondary
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent { ReliveApp() }
+    }
+}
+
+@Composable
+private fun ReliveApp() {
+    val context = LocalContext.current
+    val preferences = remember { PreferenceStore(context) }
+    var page by remember { mutableStateOf("home") }
+    var themeMode by remember { mutableStateOf(preferences.themeMode) }
+    var themePreset by remember { mutableStateOf(preferences.themePreset) }
+    val activePalette = when (themeMode) {
+        "manual" -> when (themePreset) {
+            "rose" -> RosePalette
+            "midnight" -> MidnightPalette
+            else -> ChamaOutfitPalette
+        }
+        else -> ChamaOutfitPalette
+    }
+    CompositionLocalProvider(LocalRelivePalette provides activePalette) {
+    MaterialTheme(colorScheme = lightColorScheme(
+        primary = activePalette.primary, secondary = activePalette.secondary,
+        background = activePalette.background, surface = activePalette.surface,
+        onPrimary = Color.White, onSecondary = activePalette.text,
+        onBackground = activePalette.text, onSurface = activePalette.text
+    )) {
+        Scaffold(
+            containerColor = Ink,
+            bottomBar = {
+                NavigationBar(containerColor = Panel) {
+                    val tabs = listOf(
+                        Triple("home", "Accueil", Icons.Default.Home),
+                        Triple("chat", "Parler", Icons.Default.Chat),
+                        Triple("gallery", "Photos", Icons.Default.PhotoLibrary),
+                        Triple("profile", "Profil", Icons.Default.Person),
+                        Triple("reminders", "Rappels", Icons.Default.Notifications), Triple("space", "Espace", Icons.Default.Star)
+                    )
+                    tabs.forEach { (key, label, icon) ->
+                        NavigationBarItem(
+                            selected = page == key,
+                            onClick = { page = key },
+                            icon = { Icon(icon, contentDescription = label) },
+                            label = { Text(label) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = Gold, selectedTextColor = Gold,
+                                indicatorColor = ChamaRose.copy(alpha = 0.28f),
+                                unselectedIconColor = Muted, unselectedTextColor = Muted
+                            )
+                        )
+                    }
+                }
+            }
+        ) { padding ->
+            when (page) {
+                "chat" -> ChatScreen(Modifier.padding(padding))
+                "gallery" -> GalleryScreen(Modifier.padding(padding))
+                "profile" -> ProfileScreen(Modifier.padding(padding), onThemeChanged = { mode, preset -> themeMode = mode; themePreset = preset })
+                "reminders" -> RemindersScreen(Modifier.padding(padding))
+                "space" -> VirtualSpaceScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" })
+                else -> HomeScreen(Modifier.padding(padding), { page = "chat" }, { page = "gallery" }, { page = "space" })
+            }
+        }
+    }
+    }
+}
+
+@Composable
+private fun BrandHeader() {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 18.dp),
+        horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Column {
+            Text("RELIVE", color = Gold, fontSize = 23.sp, fontWeight = FontWeight.Black, letterSpacing = 3.sp)
+            Text("KAL-SU • COMPAGNE VIRTUELLE", color = Muted, fontSize = 9.sp, letterSpacing = 1.2.sp)
+        }
+        Box(Modifier.size(42.dp).background(ChamaRose, CircleShape), contentAlignment = Alignment.Center) {
+            Text("KS", color = Gold, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> Unit, onSpace: () -> Unit) {
+    val context = LocalContext.current
+    val mainPhoto = remember { PhotoStore(context).get(0) }
+    val displayName = remember { PreferenceStore(context).displayName.ifBlank { "Chama" } }
+    Column(modifier.fillMaxSize().background(Ink)) {
+        BrandHeader()
+        Column(Modifier.fillMaxSize().padding(horizontal = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Heureuse de te retrouver", color = Cream, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+            Text("Je suis $displayName. Je suis là pour toi.", color = Muted, fontSize = 14.sp)
+            Spacer(Modifier.height(22.dp))
+            Box(Modifier.fillMaxWidth().weight(1f).padding(horizontal = 12.dp).background(Panel, RoundedCornerShape(28.dp)),
+                contentAlignment = Alignment.Center) {
+                AsyncImage(
+                    model = mainPhoto ?: R.drawable.chama_portrait,
+                    contentDescription = "Portrait principal intégré de Chama",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            }
+            Spacer(Modifier.height(18.dp))
+            Button(onClick = onTalk, modifier = Modifier.fillMaxWidth().height(54.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Gold), shape = RoundedCornerShape(16.dp)) {
+                Icon(Icons.Default.Forum, contentDescription = null)
+                Spacer(Modifier.width(9.dp))
+                Text("Parler avec Chama", color = Ink, fontWeight = FontWeight.Bold)
+            }
+            TextButton(onClick = onGallery) { Text("Voir sa galerie", color = Gold) }
+            OutlinedButton(onClick = onSpace, modifier = Modifier.fillMaxWidth()) { Text("Entrer dans son espace virtuel", color = Gold) }
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+private fun localReply(message: String, memories: List<String>, languageTag: String): String {
+    val normalized = message.lowercase()
+    val creole = languageTag == "ht-HT"
+    if (listOf("que sais-tu de moi", "que sais tu de moi", "que te rappelles-tu", "que te rappelles tu", "qu'est-ce que tu sais", "sa ou sonje", "kisa ou sonje").any { normalized.contains(it) }) {
+        return if (memories.isEmpty()) {
+            if (creole) "Mwen poko gen okenn souvni ou te anrejistre. Ou ka ajoute yo nan Profil, nan seksyon Souvenirs à conserver."
+            else "Je n'ai pas encore de souvenir enregistré. Tu peux m'en confier dans Profil, rubrique Souvenirs à conserver."
+        } else {
+            val heading = if (creole) "Men souvni ou te konfye m yo :" else "Voici les souvenirs que tu m'as confiés :"
+            heading + "\n" + memories.takeLast(20).mapIndexed { index, item -> (index + 1).toString() + ". " + item }.joinToString("\n")
+        }
+    }
+    if (listOf("souviens-toi", "souviens toi", "sonje sa", "sonje sa pou mwen").any { normalized.contains(it) }) {
+        return if (creole) "Mwen ka konsève detay sa a. Ajoute li nan Profil, seksyon « Souvenirs à conserver », pou l rete anrejistre sou telefòn sa a."
+        else "Je peux conserver ce détail. Ajoute-le dans Profil, rubrique « Souvenirs à conserver », pour qu'il reste enregistré sur cet appareil."
+    }
+    val value = message.lowercase()
+    return when {
+        listOf("bonjour", "salut", "coucou", "bonjou").any { value.contains(it) } ->
+            if (creole) "Bonjou ! Mwen kontan ou ekri m. Kijan ou santi w jodi a ?"
+            else "Coucou ! Je suis contente de te lire. Comment te sens-tu aujourd'hui ?"
+        listOf("triste", "malheureux", "difficile", "fatigué", "fatigue", "tris").any { value.contains(it) } ->
+            if (creole) "Mwen la pou koute w. Ou ka rakonte m sa k ap boulvèse w, san prese."
+            else "Je suis là pour t'écouter. Tu peux me raconter ce qui te pèse, à ton rythme."
+        listOf("merci", "mesi").any { value.contains(it) } ->
+            if (creole) "Se ak tout plezi mwen. Mwen kontan pale avè w."
+            else "Avec plaisir. Je suis heureuse de pouvoir échanger avec toi."
+        listOf("créole", "kreyòl", "creole").any { value.contains(it) } ->
+            "Mwen la avèk ou. M ap aprann adapte konvèsasyon nou an ak lang ou prefere."
+        else -> if (creole) "Mwen resevwa mesaj ou a. Mòd konvèsasyon lokal la aktif; sèvis entèlijans atifisyèl la poko konekte."
+            else "J'ai bien reçu ton message. Le mode conversation local est actif ; la connexion au service d'intelligence artificielle distant reste à configurer."
+    }
+}
+
+@Composable
+private fun ChatScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    val store = remember { ChatStore(context) }
+    val preferences = remember { PreferenceStore(context) }
+    val memoryStore = remember { MemoryStore(context) }
+    val chamaAvatar = remember { PhotoStore(context).get(0) }
+    val scope = rememberCoroutineScope()
+    val speech = remember { ChamaSpeech(context) }
+    val voicePlayer = remember { ChamaVoicePlayer(context) }
+    var sending by remember { mutableStateOf(false) }
+    var draft by remember { mutableStateOf("") }
+    var messages by remember { mutableStateOf(store.load()) }
+    var showClearHistoryDialog by remember { mutableStateOf(false) }
+    val online = remember { mutableStateOf(NetworkStatus.isOnline(context)) }
+    val speechInput = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val recognized = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+        if (!recognized.isNullOrBlank()) draft = recognized
+    }
+
+    DisposableEffect(speech, voicePlayer) {
+        onDispose {
+            speech.release()
+            voicePlayer.stop()
+        }
+    }
+
+    fun speakChama(text: String) {
+        val usePersonalVoice = preferences.personalizedVoiceEnabled &&
+            preferences.languageTag == "fr-FR" &&
+            online.value &&
+            preferences.remoteAccessToken.isNotBlank()
+        if (!usePersonalVoice) {
+            speech.speak(text, preferences.languageTag)
+            return
+        }
+        speech.stop()
+        scope.launch {
+            val audio = ChamaVoiceGateway.generate(
+                text,
+                preferences.remoteAccessToken,
+                preferences.languageTag
+            )
+            if (audio != null) voicePlayer.play(audio)
+            else speech.speak(text, preferences.languageTag)
+        }
+    }
+
+    fun addMessage(author: String, text: String) {
+        val saved = store.append(author, text)
+        messages = (messages + saved).takeLast(1000)
+    }
+
+    Column(modifier.fillMaxSize().background(Ink)) {
+        BrandHeader()
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Conversation", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Text(if (online.value) "Réseau disponible" else "Mode hors ligne",
+                color = if (online.value) Gold else Muted, fontSize = 11.sp)
+            IconButton(enabled = !sending, onClick = { showClearHistoryDialog = true }) {
+                Icon(Icons.Default.DeleteOutline, contentDescription = "Effacer l'historique", tint = Muted)
+            }
+        }
+        if (messages.isEmpty()) {
+            Text("Votre conversation commencera ici. Les messages seront conservés sur cet appareil.",
+                color = Muted, modifier = Modifier.padding(20.dp))
+        }
+        LazyColumn(Modifier.weight(1f).fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            items(messages, key = { it.id }) { message ->
+                val fromChama = message.author == "Chama"
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = if (fromChama) Arrangement.Start else Arrangement.End, verticalAlignment = Alignment.Bottom) {
+                    if (fromChama) {
+                        AsyncImage(
+                            model = chamaAvatar ?: R.drawable.chama_portrait,
+                            contentDescription = "Avatar intégré de Chama",
+                            modifier = Modifier.size(38.dp).clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(Modifier.width(7.dp))
+                    }
+                    Surface(color = if (fromChama) Panel else ChamaRose, shape = RoundedCornerShape(16.dp)) {
+                        Column(Modifier.widthIn(max = 300.dp).padding(12.dp)) {
+                            Text(message.author, color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            MarkdownMessageText(message.text, modifier = Modifier.padding(top = 4.dp))
+                            if (fromChama && preferences.voiceEnabled) {
+                                TextButton(onClick = { speakChama(message.text) }, contentPadding = PaddingValues(0.dp)) {
+                                    Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Gold, modifier = Modifier.size(16.dp))
+                                    Spacer(Modifier.width(5.dp))
+                                    Text("Écouter", color = Gold, fontSize = 11.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, preferences.languageTag)
+                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Parle à Chama")
+                }
+                try { speechInput.launch(intent) } catch (_: Exception) { }
+            }) { Icon(Icons.Default.Mic, contentDescription = "Dicter un message", tint = Gold) }
+            OutlinedTextField(value = draft, onValueChange = { draft = it }, modifier = Modifier.weight(1f),
+                placeholder = { Text("Écris à Chama…") }, singleLine = false, maxLines = 4)
+            IconButton(enabled = !sending, onClick = {
+                val text = draft.trim()
+                if (text.isNotEmpty() && !sending) {
+                    addMessage("Toi", text)
+                    draft = ""
+                    sending = true
+                    scope.launch {
+                        try {
+                            val requestedMemory = extractExplicitMemory(text)
+                            if (requestedMemory != null && memoryStore.load().none { it.text.equals(requestedMemory, ignoreCase = true) }) {
+                                memoryStore.add(requestedMemory)
+                            }
+                            val savedMemories = memoryStore.load()
+                            val memories = savedMemories.map { it.text }
+                            val aiMemories = savedMemories.map { "${it.category}: ${it.text}" }
+                            online.value = NetworkStatus.isOnline(context)
+                            val history = store.load().dropLast(1).takeLast(20).map { it.author to it.text }
+                            val answer = if (online.value && preferences.remoteAiEnabled && preferences.remoteAccessToken.isNotBlank()) {
+                                AiGateway.reply(text, preferences.languageTag, aiMemories, history, preferences.remoteAccessToken)
+                            } else null
+                            val fallback = if (requestedMemory != null) {
+                                if (preferences.languageTag == "ht-HT") "Mwen anrejistre sa nan memwa mwen sou telefòn sa a. M ap sonje l nan pwochen konvèsasyon nou yo."
+                                else "Souvenir enregistré sur cet appareil. Je pourrai le retrouver dans nos prochaines conversations."
+                            } else localReply(text, memories, preferences.languageTag)
+                            val finalReply = answer ?: fallback
+                            addMessage("Chama", finalReply)
+                            if (preferences.voiceEnabled) speakChama(finalReply)
+                        } catch (_: Exception) {
+                            addMessage(
+                                "Chama",
+                                if (preferences.languageTag == "ht-HT") "Gen yon pwoblèm teknik. Eseye ankò nan yon ti moman."
+                                else "Une difficulté technique est survenue. Tes messages restent enregistrés ; tu peux réessayer dans un instant."
+                            )
+                        } finally {
+                            sending = false
+                        }
+                    }
+                }
+            }) {
+                if (sending) CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Gold, strokeWidth = 2.dp)
+                else Icon(Icons.Default.Send, contentDescription = "Envoyer", tint = Gold)
+            }
+        }
+    }
+    if (showClearHistoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearHistoryDialog = false },
+            title = { Text("Effacer la conversation ?") },
+            text = { Text("Tous les messages enregistrés localement sur cet appareil seront supprimés. Cette action est irréversible.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    store.clear()
+                    messages = emptyList()
+                    showClearHistoryDialog = false
+                }) { Text("Effacer", color = Gold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearHistoryDialog = false }) { Text("Annuler") }
+            }
+        )
+    }
+}
+
+@Composable
+private fun GalleryScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    val store = remember { PhotoStore(context) }
+    val slots = remember { mutableStateListOf<Uri?>(store.get(0), store.get(1), store.get(2)) }
+    var pendingSlot by remember { mutableIntStateOf(0) }
+    var galleryStatus by remember { mutableStateOf("") }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            val persisted = try {
+                context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                true
+            } catch (_: SecurityException) {
+                false
+            } catch (_: IllegalArgumentException) {
+                false
+            }
+            if (persisted) {
+                store.set(pendingSlot, uri)
+                slots[pendingSlot] = uri
+                galleryStatus = "Photo ajoutée à la galerie locale."
+            } else {
+                galleryStatus = "Ce fournisseur ne permet pas de conserver l'accès à cette photo. Choisis une autre image depuis la galerie du téléphone."
+            }
+        }
+    }
+    val labels = listOf("Portrait principal — pull blanc avec cœurs rouges", "Photo de galerie 2", "Photo de galerie 3")
+    Column(modifier.fillMaxSize().background(Ink)) {
+        BrandHeader()
+        Text("Galerie de Chama", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
+        Text("Sélectionne les photos originales depuis ton téléphone. RELIVE les conserve sans retoucher leur apparence.", color = Muted, modifier = Modifier.padding(20.dp))
+        if (galleryStatus.isNotBlank()) {
+            Text(galleryStatus, color = Gold, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+        }
+        slots.forEachIndexed { index, uri ->
+            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 7.dp).background(Panel, RoundedCornerShape(14.dp)).padding(12.dp)) {
+                if (uri != null || index == 0) {
+                    AsyncImage(
+                        model = uri ?: R.drawable.chama_portrait,
+                        contentDescription = labels[index],
+                        modifier = Modifier.fillMaxWidth().height(190.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    if (uri == null && index == 0) {
+                        Text("Portrait principal intégré à RELIVE", color = Gold, fontSize = 11.sp,
+                            modifier = Modifier.padding(top = 6.dp))
+                    }
+                } else {
+                    Box(Modifier.fillMaxWidth().height(90.dp).background(ChamaRose, RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = Gold, modifier = Modifier.size(34.dp))
+                    }
+                }
+                Text(labels[index], color = Cream, modifier = Modifier.padding(top = 10.dp))
+                if (index == 0) {
+                    Text("Portrait principal protégé : cette image intégrée ne peut pas être remplacée.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp))
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = { pendingSlot = index; picker.launch(arrayOf("image/*")) }) { Text(if (uri == null) "Choisir une photo" else "Remplacer", color = Gold) }
+                        if (uri != null) TextButton(onClick = { store.clear(index); slots[index] = null }) { Text("Retirer", color = Muted) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun memoryCategoryLabel(category: String): String = when (category) {
+    MemoryCategories.IDENTITY -> "Identité"
+    MemoryCategories.PREFERENCES -> "Préférences"
+    MemoryCategories.PROJECTS -> "Projets"
+    MemoryCategories.IMPORTANT -> "Événements importants"
+    else -> "Général"
+}
+
+@Composable
+private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -> Unit) {
+    val context = LocalContext.current
+    val preferences = remember { PreferenceStore(context) }
+    val memoryStore = remember { MemoryStore(context) }
+    var memories by remember { mutableStateOf(memoryStore.load()) }
+    var showClearMemoriesDialog by remember { mutableStateOf(false) }
+    var memoryDraft by remember { mutableStateOf("") }
+    var memoryCategory by remember { mutableStateOf(MemoryCategories.GENERAL) }
+    var displayName by remember { mutableStateOf(preferences.displayName) }
+    var language by remember { mutableStateOf(preferences.languageTag) }
+    var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
+    var remoteAiEnabled by remember { mutableStateOf(preferences.remoteAiEnabled) }
+    var personalizedVoiceEnabled by remember { mutableStateOf(preferences.personalizedVoiceEnabled) }
+    var remoteAccessToken by remember { mutableStateOf(preferences.remoteAccessToken) }
+    var themeMode by remember { mutableStateOf(preferences.themeMode) }
+    var themePreset by remember { mutableStateOf(preferences.themePreset) }
+    var savedMessage by remember { mutableStateOf("") }
+    Column(modifier.fillMaxSize().background(Ink).verticalScroll(rememberScrollState())) {
+        BrandHeader()
+        Text("Profil et préférences", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(20.dp))
+        OutlinedTextField(value = displayName, onValueChange = { displayName = it },
+            label = { Text("Nom affiché de Chama") },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), singleLine = true)
+        Text("Apparence de RELIVE", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 20.dp, top = 20.dp))
+        Text("Mode de couleurs", color = Cream, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = themeMode == "outfit", onClick = { themeMode = "outfit"; preferences.themeMode = themeMode; onThemeChanged(themeMode, themePreset) }, label = { Text("Suivre la tenue") })
+            FilterChip(selected = themeMode == "manual", onClick = { themeMode = "manual"; preferences.themeMode = themeMode; onThemeChanged(themeMode, themePreset) }, label = { Text("Thème fixe") })
+        }
+        if (themeMode == "manual") {
+            Text("Palette préférée", color = Cream, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                listOf("chama" to "Crème & cœur rouge", "rose" to "Rose tendre", "midnight" to "Noir & or").forEach { (key, label) ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(selected = themePreset == key, onClick = { themePreset = key; preferences.themePreset = key; onThemeChanged(themeMode, key) })
+                        Text(label, color = Cream)
+                    }
+                }
+            }
+        } else {
+            Text("La palette suit actuellement les couleurs de la tenue principale. La détection automatique des nouvelles tenues sera ajoutée séparément.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+        }
+        Text("Langue de la voix", color = Gold, modifier = Modifier.padding(start = 20.dp, top = 18.dp))
+        Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+            FilterChip(selected = language == "fr-FR", onClick = { language = "fr-FR" }, label = { Text("Français") })
+            Spacer(Modifier.width(10.dp))
+            FilterChip(selected = language == "ht-HT", onClick = { language = "ht-HT"; personalizedVoiceEnabled = false }, label = { Text("Kreyòl ayisyen") })
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("Activer la lecture vocale", color = Cream, modifier = Modifier.weight(1f))
+            Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it })
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Autoriser l'IA distante", color = Cream)
+                Text("Envoie ton message, les 20 derniers échanges et jusqu’à 20 souvenirs au serveur HTTPS configuré. Active uniquement si tu acceptes ce transfert.", color = Muted, fontSize = 11.sp)
+            }
+            Switch(checked = remoteAiEnabled, onCheckedChange = { remoteAiEnabled = it })
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Voix personnalisée de Chama (français)", color = Cream)
+                Text("Option désactivée par défaut. Si tu l'actives, le texte des réponses sera envoyé au fournisseur vocal via le Worker sécurisé. Nécessite Internet, le code serveur et une voix créée avec l'autorisation explicite de sa locutrice. Le créole conserve la synthèse Android.", color = Muted, fontSize = 11.sp)
+            }
+            Switch(
+                checked = personalizedVoiceEnabled,
+                enabled = language == "fr-FR",
+                onCheckedChange = { personalizedVoiceEnabled = it }
+            )
+        }
+        OutlinedTextField(
+            value = remoteAccessToken,
+            onValueChange = { remoteAccessToken = it },
+            label = { Text("Code d'accès privé du serveur") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            singleLine = true
+        )
+        Text("Ce code doit aussi être enregistré dans Cloudflare sous le secret RELIVE_ACCESS_TOKEN.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+        Button(onClick = {
+            if (displayName.isBlank() || displayName.length > 40) {
+                savedMessage = "Le nom doit contenir entre 1 et 40 caractères."
+            } else if (remoteAccessToken.length > 512) {
+                savedMessage = "Le code d'accès est trop long (512 caractères maximum)."
+            } else if ((remoteAiEnabled || personalizedVoiceEnabled) && remoteAccessToken.isBlank()) {
+                savedMessage = "Ajoute le code d'accès du serveur avant d'activer l'IA distante ou la voix personnalisée."
+            } else {
+                preferences.displayName = displayName
+                preferences.languageTag = language.takeIf { it == "fr-FR" || it == "ht-HT" } ?: "fr-FR"
+                preferences.voiceEnabled = voiceEnabled
+                preferences.remoteAiEnabled = remoteAiEnabled
+                preferences.personalizedVoiceEnabled = personalizedVoiceEnabled && language == "fr-FR"
+                preferences.remoteAccessToken = remoteAccessToken.trim()
+                preferences.themeMode = themeMode
+                preferences.themePreset = themePreset
+                onThemeChanged(themeMode, themePreset)
+                savedMessage = "Préférences enregistrées sur cet appareil."
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
+            Text("Enregistrer les préférences", color = Ink, fontWeight = FontWeight.Bold)
+        }
+        Text(savedMessage, color = Gold, modifier = Modifier.padding(20.dp))
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Souvenirs à conserver (${memories.size}/500)", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            if (memories.isNotEmpty()) {
+                TextButton(onClick = { showClearMemoriesDialog = true }) {
+                    Text("Tout effacer", color = Muted, fontSize = 11.sp)
+                }
+            }
+        }
+        OutlinedTextField(value = memoryDraft, onValueChange = { memoryDraft = it },
+            label = { Text("Un détail important à mémoriser") },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), minLines = 2)
+        Row(
+            Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            listOf(
+                MemoryCategories.IDENTITY to "Identité",
+                MemoryCategories.PREFERENCES to "Préférences",
+                MemoryCategories.PROJECTS to "Projets",
+                MemoryCategories.IMPORTANT to "Important",
+                MemoryCategories.GENERAL to "Général"
+            ).forEach { (key, label) ->
+                FilterChip(
+                    selected = memoryCategory == key,
+                    onClick = { memoryCategory = key },
+                    label = { Text(label) }
+                )
+            }
+        }
+        Button(onClick = {
+            if (memoryDraft.isNotBlank()) {
+                memoryStore.add(memoryDraft, memoryCategory)
+                memories = memoryStore.load()
+                memoryDraft = ""
+                memoryCategory = MemoryCategories.GENERAL
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
+            Text("Enregistrer ce souvenir", color = Ink)
+        }
+        if (memories.isEmpty()) {
+            Text("Aucun souvenir enregistré.", color = Muted, modifier = Modifier.padding(20.dp))
+        } else {
+            memories.forEach { memory ->
+                Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 5.dp)
+                    .background(Panel, RoundedCornerShape(12.dp)).padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(memoryCategoryLabel(memory.category), color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(memory.text, color = Cream, modifier = Modifier.padding(top = 3.dp))
+                    }
+                    IconButton(onClick = {
+                        memoryStore.delete(memory.id)
+                        memories = memoryStore.load()
+                    }) { Icon(Icons.Default.DeleteOutline, contentDescription = "Supprimer ce souvenir", tint = Muted) }
+                }
+            }
+        }
+        listOf("Identité : ESPÉRANCE RUCHAMA KEFORA", "Conversation : sauvegardée localement",
+            "Photos : stockage local des originaux", "IA distante : backend sécurisé à connecter").forEach {
+            Text(it, color = Cream, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
+                .background(Panel, RoundedCornerShape(12.dp)).padding(16.dp))
+        }
+    }
+    if (showClearMemoriesDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearMemoriesDialog = false },
+            title = { Text("Effacer tous les souvenirs ?") },
+            text = { Text("Les ${memories.size} souvenirs enregistrés sur cet appareil seront supprimés. Cette action est irréversible.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    memoryStore.clear()
+                    memories = emptyList()
+                    showClearMemoriesDialog = false
+                }) { Text("Tout effacer", color = Gold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearMemoriesDialog = false }) { Text("Annuler") }
+            }
+        )
+    }
+}
+
+@Composable
+private fun RemindersScreen(modifier: Modifier) {
+    val context = LocalContext.current
+    var title by remember { mutableStateOf("Mon rappel RELIVE") }
+    var message by remember { mutableStateOf("Prends un moment pour toi.") }
+    var minutes by remember { mutableStateOf("30") }
+    var status by remember { mutableStateOf("Programme un rappel local sur cet appareil.") }
+    var pendingReminder by remember { mutableStateOf<Triple<String, String, Long>?>(null) }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        val pending = pendingReminder
+        pendingReminder = null
+        if (granted && pending != null) {
+            try {
+                ReminderScheduler.schedule(context, pending.first, pending.second, pending.third)
+                status = "Autorisation accordée. Rappel programmé dans ${pending.third} minute(s)."
+            } catch (error: Exception) {
+                status = "Erreur de programmation : " + (error.localizedMessage ?: "inconnue")
+            }
+        } else {
+            status = "Notifications refusées : aucun rappel n'a été programmé. Autorise-les dans les paramètres Android pour réessayer."
+        }
+    }
+    Column(modifier.fillMaxSize().background(Ink)) {
+        BrandHeader()
+        Text("Rappels personnels", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 20.dp))
+        Text("Les rappels sont planifiés localement et fonctionnent sans connexion Internet.", color = Muted, modifier = Modifier.padding(20.dp))
+        OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Titre du rappel") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), singleLine = true)
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(value = message, onValueChange = { message = it }, label = { Text("Message") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), minLines = 2)
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(value = minutes, onValueChange = { minutes = it.filter(Char::isDigit).take(5) }, label = { Text("Dans combien de minutes ?") }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), singleLine = true)
+        Spacer(Modifier.height(18.dp))
+        Button(onClick = {
+            val delay = minutes.toLongOrNull()
+            if (title.isBlank() || message.isBlank() || delay == null || delay <= 0L) {
+                status = "Vérifie les champs et indique un délai supérieur à zéro."
+            } else {
+                if (Build.VERSION.SDK_INT >= 33 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    pendingReminder = Triple(title.trim(), message.trim(), delay)
+                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    try {
+                        ReminderScheduler.schedule(context, title.trim(), message.trim(), delay)
+                        status = "Rappel programmé dans " + delay + " minute(s)."
+                    } catch (error: Exception) {
+                        status = "Erreur de programmation : " + (error.localizedMessage ?: "inconnue")
+                    }
+                }
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(52.dp), colors = ButtonDefaults.buttonColors(containerColor = Gold)) {
+            Icon(Icons.Default.Alarm, contentDescription = null, tint = Ink)
+            Spacer(Modifier.width(8.dp))
+            Text("Programmer le rappel", color = Ink, fontWeight = FontWeight.Bold)
+        }
+        OutlinedButton(onClick = {
+            val begin = System.currentTimeMillis() + 60L * 60L * 1000L
+            val end = begin + 30L * 60L * 1000L
+            val calendarIntent = Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.Events.TITLE, title.ifBlank { "Rendez-vous RELIVE" })
+                .putExtra(CalendarContract.Events.DESCRIPTION, message)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, begin)
+                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, end)
+            try {
+                context.startActivity(calendarIntent)
+                status = "Ouvre ton calendrier pour confirmer et enregistrer l'événement."
+            } catch (_: Exception) {
+                status = "Aucune application de calendrier compatible n'a été trouvée."
+            }
+        }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+            Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Gold)
+            Spacer(Modifier.width(8.dp))
+            Text("Ajouter au calendrier", color = Gold)
+        }
+        OutlinedButton(onClick = { ReminderScheduler.cancelAll(context); status = "Rappels en attente annulés." }, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+            Text("Annuler les rappels en attente", color = Gold)
+        }
+        Text(status, color = Gold, modifier = Modifier.padding(20.dp))
+    }
+}

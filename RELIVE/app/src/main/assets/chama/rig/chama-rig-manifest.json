@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 2,
+  "character": "ESPÉRANCE RUCHAMA KEFORA",
+  "nickname": "Chama",
+  "target": "RELIVE – KAL-SU",
+  "identityPolicy": {
+    "originalPortraitIsImmutable": true,
+    "portraitPixelsMustRemainIdentical": true,
+    "portraitMayNotBeCroppedRetouchedWarpedReconstructedOrRepainted": true,
+    "portraitMustBeRenderedAsIndependentStaticOverlay": true,
+    "noHeadRotation": true,
+    "noEyeMouthJawFacialAnimation": true,
+    "noLipSync": true
+  },
+  "assetStatus": "procedural_room_and_body_blockout_available; production_rig_assets_not_yet_available",
+  "bodyLayersBackToFront": [
+    "torso_back",
+    "body_front",
+    "arm_left_upper",
+    "arm_left_forearm",
+    "hand_left",
+    "arm_right_upper",
+    "arm_right_forearm",
+    "hand_right"
+  ],
+  "bodyJoints": [
+    "root",
+    "torso",
+    "hip_left",
+    "knee_left",
+    "ankle_left",
+    "hip_right",
+    "knee_right",
+    "ankle_right",
+    "shoulder_left",
+    "elbow_left",
+    "wrist_left",
+    "hand_left",
+    "shoulder_right",
+    "elbow_right",
+    "wrist_right",
+    "hand_right"
+  ],
+  "excludedJoints": [
+    "head",
+    "neck",
+    "eye_left",
+    "eye_right",
+    "brow_left",
+    "brow_right",
+    "jaw",
+    "mouth"
+  ],
+  "animationClips": {
+    "idle": [
+      "subtle_body_breathing"
+    ],
+    "listening": [
+      "body_stillness",
+      "arms_relaxed"
+    ],
+    "wave": [
+      "shoulder_right",
+      "elbow_right",
+      "wrist_right",
+      "hand_right",
+      "independent_palm_rotation",
+      "finger_spread_following_palm"
+    ],
+    "dance": [
+      "torso",
+      "hip_left",
+      "knee_left",
+      "ankle_left",
+      "hip_right",
+      "knee_right",
+      "ankle_right",
+      "shoulder_left",
+      "elbow_left",
+      "shoulder_right",
+      "elbow_right",
+      "wrist_left",
+      "wrist_right",
+      "palm_orientation"
+    ]
+  },
+  "overlayContract": {
+    "source": "app/src/main/res/drawable-nodpi/chama_portrait.png",
+    "layerName": "immutable_original_portrait",
+    "allowTransform": false,
+    "allowCrop": false,
+    "allowColorAdjustment": false,
+    "allowFaceDetectionDrivenEdits": false,
+    "bodyMustAnimateBehindOrBesidePortrait": true
+  },
+  "alignment": {
+    "requireConsistentAnchors": true,
+    "includeHiddenOverlapUnderBodyJoints": true,
+    "avoidGapsDuringBodyMotion": true
+  },
+  "runtimeNotes": {
+    "currentImplementation": "procedural SceneView headless body blockout with calculated shoulder-elbow-wrist and hip-knee-ankle chains; limb segment axes are aligned to their pivot-to-pivot vectors; dance includes a subtle lateral torso-flex approximation through coordinated upper-torso and waist offsets, not a true skeletal rotation; the original portrait remains a static independent overlay; production-grade mesh, inverse-kinematics solver and imported GLB asset are not available; wrist flex is approximated with independent palm-angle offsets, and simplified finger capsules follow each palm orientation; this is not anatomical hand skinning or detailed finger articulation",
+    "futureBodyRenderer": "refine the geometric body-only blockout with detailed separate body geometry and production skinning while keeping the original portrait overlay byte-for-byte unchanged; no head, neck, face or hair geometry belongs to this body reference",
+    "speech": "Android TTS is audio-only and must never drive facial animation"
+  }
+}

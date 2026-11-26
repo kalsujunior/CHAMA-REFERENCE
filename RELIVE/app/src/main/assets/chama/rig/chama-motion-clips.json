@@ -1,0 +1,416 @@
+{
+  "schemaVersion": 2,
+  "units": {
+    "time": "milliseconds",
+    "rotation": "degrees",
+    "translation": "normalized_body_units"
+  },
+  "coordinateSystem": {
+    "origin": "body_joint_pivot",
+    "positiveRotation": "clockwise"
+  },
+  "portraitSafety": {
+    "originalPortraitImmutable": true,
+    "noFaceOrHeadTracks": true,
+    "bodyOnlyGeometryExcludesHeadNeckFaceAndHair": true,
+    "allMotionMustBeConfinedToSeparateBodyLayers": true
+  },
+  "clips": {
+    "idle": {
+      "loop": true,
+      "durationMs": 3200,
+      "tracks": [
+        {
+          "joint": "torso",
+          "property": "translationY",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 1600,
+              "v": -0.006
+            },
+            {
+              "t": 3200,
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "wave": {
+      "loop": false,
+      "durationMs": 1250,
+      "tracks": [
+        {
+          "joint": "shoulder_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 250,
+              "v": -14
+            },
+            {
+              "t": 1250,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "elbow_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 250,
+              "v": -78
+            },
+            {
+              "t": 1250,
+              "v": -78
+            }
+          ]
+        },
+        {
+          "joint": "wrist_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 350,
+              "v": -12
+            },
+            {
+              "t": 550,
+              "v": 12
+            },
+            {
+              "t": 750,
+              "v": -12
+            },
+            {
+              "t": 950,
+              "v": 12
+            },
+            {
+              "t": 1250,
+              "v": 0
+            }
+          ],
+          "description": "Alternating palm rotation for a restrained wave"
+        }
+      ]
+    },
+    "dance": {
+      "loop": false,
+      "durationMs": 2400,
+      "tracks": [
+        {
+          "joint": "torso",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -3
+            },
+            {
+              "t": 1200,
+              "v": 3
+            },
+            {
+              "t": 1800,
+              "v": -3
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "shoulder_left",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": 12
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": 12
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "shoulder_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -12
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": -12
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "hip_left",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -3
+            },
+            {
+              "t": 1200,
+              "v": 3
+            },
+            {
+              "t": 1800,
+              "v": -3
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "hip_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": 3
+            },
+            {
+              "t": 1200,
+              "v": -3
+            },
+            {
+              "t": 1800,
+              "v": 3
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "knee_left",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -8
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": -8
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "knee_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": 8
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": 8
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "ankle_left",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": 5
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": 5
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "ankle_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -5
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": -5
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "wrist_left",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": -8
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": -8
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        },
+        {
+          "joint": "wrist_right",
+          "property": "rotation",
+          "keys": [
+            {
+              "t": 0,
+              "v": 0
+            },
+            {
+              "t": 600,
+              "v": 12
+            },
+            {
+              "t": 1200,
+              "v": 0
+            },
+            {
+              "t": 1800,
+              "v": 12
+            },
+            {
+              "t": 2400,
+              "v": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "constraints": {
+    "easing": "smoothstep_or_cubic",
+    "no_head_rotation": true,
+    "no_facial_motion": true,
+    "doNotApplyTransformsToOriginalPhoto": true,
+    "bodyMotionMustNotAlterPortraitPixels": true
+  }
+}
