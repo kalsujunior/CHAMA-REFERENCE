@@ -61,11 +61,12 @@ object ChamaRoomCollisionMap {
     }
 
     /**
-     * Exact swept-disc pre-check in the floor plane.
+     * Conservative swept-volume pre-check in the floor plane.
      *
-     * The avatar disc is conservatively represented by expanding each furniture
-     * AABB by its radius and safety margin, then testing the complete movement
-     * segment against each expanded rectangle with a slab intersection test.
+     * The avatar disc is conservatively represented by a square clearance envelope:
+     * each furniture AABB is expanded by the avatar radius and safety margin.
+     * The complete movement segment is then tested against each expanded
+     * rectangle with a slab intersection test.
      * Unlike fixed-step sampling, this cannot skip a thin obstacle between samples.
      */
     fun isSegmentWalkable(
