@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kalsu.relive.data.PreferenceStore
+import com.kalsu.relive.avatar.ChamaBodyGesture
 import com.kalsu.relive.voice.ChamaSpeech
 
 private val RoomGold: Color @Composable get() = LocalRelivePalette.current.primary
@@ -92,13 +93,15 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     val speech = remember { ChamaSpeech(context) }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
     var speaking by remember { mutableStateOf(false) }
+    var bodyGesture by remember { mutableStateOf(ChamaBodyGesture.IDLE) }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
     }
 
-    fun act(line: String) {
+    fun act(line: String, gesture: ChamaBodyGesture) {
         status = line
+        bodyGesture = gesture
         if (!preferences.voiceEnabled) {
             speaking = false
             return
@@ -149,7 +152,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 ) {
                     Column(Modifier.fillMaxSize()) {
                         Box(Modifier.weight(1.15f).fillMaxWidth()) {
-                            ChamaBody3D(modifier = Modifier.fillMaxSize())
+                            ChamaBody3D(modifier = Modifier.fillMaxSize(), gesture = bodyGesture)
                         }
                         Divider(color = palette.secondary.copy(alpha = 0.55f))
                         Box(Modifier.weight(0.85f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -179,7 +182,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     horizontalArrangement = Arrangement.spacedBy(7.dp)
                 ) {
                     FilledTonalButton(
-                        onClick = { act("Coucou ! Je suis heureuse de te retrouver. ❤️") },
+                        onClick = { act("Coucou ! Je suis heureuse de te retrouver. ❤️", ChamaBodyGesture.WAVE) },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.filledTonalButtonColors(containerColor = palette.secondary, contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
@@ -197,7 +200,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         Spacer(Modifier.width(4.dp)); Text("Écouter", fontSize = 11.sp)
                     }
                     FilledTonalButton(
-                        onClick = { act("Un petit moment de joie rien que pour nous !") },
+                        onClick = { act("Un petit moment de joie rien que pour nous !", ChamaBodyGesture.DANCE) },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.filledTonalButtonColors(containerColor = palette.secondary, contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
@@ -222,7 +225,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Portrait original protégé — visage inchangé. Pièce 3D procédurale et corps 3D indépendant en première étape ; portrait original protégé.",
+            "Portrait original protégé — visage inchangé. Pièce et corps 3D procéduraux — gestes corporels pilotés par interaction ; portrait original protégé.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
