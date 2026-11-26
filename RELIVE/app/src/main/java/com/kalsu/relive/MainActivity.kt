@@ -46,8 +46,6 @@ import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.data.MemoryStore
 import com.kalsu.relive.data.MemoryCategories
 import com.kalsu.relive.voice.ChamaSpeech
-import com.kalsu.relive.voice.ChamaVoiceGateway
-import com.kalsu.relive.voice.ChamaVoicePlayer
 import com.kalsu.relive.notifications.ReminderScheduler
 import kotlinx.coroutines.launch
 
@@ -242,7 +240,6 @@ private fun ChatScreen(modifier: Modifier) {
     val chamaAvatar = remember { PhotoStore(context).get(0) }
     val scope = rememberCoroutineScope()
     val speech = remember { ChamaSpeech(context) }
-    val voicePlayer = remember { ChamaVoicePlayer(context) }
     var sending by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(store.load()) }
@@ -253,32 +250,16 @@ private fun ChatScreen(modifier: Modifier) {
         if (!recognized.isNullOrBlank()) draft = recognized
     }
 
-    DisposableEffect(speech, voicePlayer) {
-        onDispose {
-            speech.release()
-            voicePlayer.stop()
-        }
+    DisposableEffect(speech) {
+        onDispose { speech.release() }
     }
 
+    // The deployed Worker currently exposes /chat but not /speech.
+    // Keep voice playback local until a real, authenticated speech endpoint
+    // and its provider credentials are configured; never upload reply text to
+    // an endpoint that cannot serve audio.
     fun speakChama(text: String) {
-        val usePersonalVoice = preferences.personalizedVoiceEnabled &&
-            preferences.languageTag == "fr-FR" &&
-            online.value &&
-            preferences.remoteAccessToken.isNotBlank()
-        if (!usePersonalVoice) {
-            speech.speak(text, preferences.languageTag)
-            return
-        }
-        speech.stop()
-        scope.launch {
-            val audio = ChamaVoiceGateway.generate(
-                text,
-                preferences.remoteAccessToken,
-                preferences.languageTag
-            )
-            if (audio != null) voicePlayer.play(audio)
-            else speech.speak(text, preferences.languageTag)
-        }
+        speech.speak(text, preferences.languageTag)
     }
 
     fun addMessage(author: String, text: String) {
@@ -490,7 +471,8 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
     var language by remember { mutableStateOf(preferences.languageTag) }
     var voiceEnabled by remember { mutableStateOf(preferences.voiceEnabled) }
     var remoteAiEnabled by remember { mutableStateOf(preferences.remoteAiEnabled) }
-    var personalizedVoiceEnabled by remember { mutableStateOf(preferences.personalizedVoiceEnabled) }
+    // Remote personalized speech is deliberately disabled until /speech is deployed.
+    var personalizedVoiceEnabled by remember { mutableStateOf(false) }
     var remoteAccessToken by remember { mutableStateOf(preferences.remoteAccessToken) }
     var themeMode by remember { mutableStateOf(preferences.themeMode) }
     var themePreset by remember { mutableStateOf(preferences.themePreset) }
@@ -540,12 +522,12 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("Voix personnalisée de Chama (français)", color = Cream)
-                Text("Option désactivée par défaut. Si tu l'actives, le texte des réponses sera envoyé au fournisseur vocal via le Worker sécurisé. Nécessite Internet, le code serveur et une voix créée avec l'autorisation explicite de sa locutrice. Le créole conserve la synthèse Android.", color = Muted, fontSize = 11.sp)
+                Text("Indisponible pour le moment : le serveur RELIVE ne possède pas encore de route audio /speech ni de fournisseur vocal configuré. Chama utilise actuellement la synthèse vocale Android ; aucun texte ne sera envoyé à un service vocal non opérationnel.", color = Muted, fontSize = 11.sp)
             }
             Switch(
-                checked = personalizedVoiceEnabled,
-                enabled = language == "fr-FR",
-                onCheckedChange = { personalizedVoiceEnabled = it }
+                checked = false,
+                enabled = false,
+                onCheckedChange = { }
             )
         }
         OutlinedTextField(
