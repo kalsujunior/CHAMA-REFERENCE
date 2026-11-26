@@ -74,6 +74,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             Column {
                 Text("L'ESPACE DE CHAMA", color = RoomGold, fontSize = 18.sp, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp)
                 Text("Un lieu calme pour vous retrouver", color = palette.muted, fontSize = 11.sp)
+                Text("Fais glisser la pièce pour en changer l'angle", color = palette.muted, fontSize = 9.sp)
             }
             Surface(color = palette.surface, shape = CircleShape) {
                 Text("KS", color = RoomGold, fontWeight = FontWeight.Bold, modifier = Modifier.padding(14.dp))
@@ -179,7 +180,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Salon 3D interactif et corps 3D animé. Le portrait original reste indépendant, intact et non animé.",
+            "Salon 3D manipulable, éclairage interactif et corps animé. Le portrait original reste indépendant, intact et non animé.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
