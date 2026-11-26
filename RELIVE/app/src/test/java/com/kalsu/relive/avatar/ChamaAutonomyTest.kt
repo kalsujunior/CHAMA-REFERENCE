@@ -183,6 +183,14 @@ class ChamaAutonomyTest {
             point
         )
         assertTrue("Chama should face toward the flower vase", flowerHeading in 90f..180f)
+        assertEquals(
+            0f,
+            ChamaRoomNavigation.facingDegreesAt(
+                ChamaAutonomyTarget.ROOM_CENTER,
+                ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER)
+            ),
+            0.001f
+        )
 
         val route = ChamaRoomNavigation.findRoute(
             ChamaRoomWaypoint.ROOM_CENTER,
