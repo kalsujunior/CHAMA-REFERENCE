@@ -13,7 +13,8 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Un quatrième contrôle met en valeur le bouquet en éclaircissant visuellement les roses ; l'action peut être annulée pour retrouver leur teinte initiale.
 - Un mode léger désactive le rendu 3D de la pièce pour réduire la charge graphique sur les appareils modestes ; le bloc corporel et le portrait restent affichés.
 - Un médaillon mural 3D RELIVE-KAL-SU a été ajouté au mur : panneau sombre, cœur rouge en relief, bordures dorées et accents floraux. Il s'agit d'une composition géométrique indépendante inspirée de l'illustration de référence, et non de l'image raster directement plaquée sur le mur.
-- Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse et oscillation des deux tresses géométriques.
+- Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse, oscillation des deux tresses géométriques et pas alternés pendant la danse.
+- Le mode léger désactive aussi les animations corporelles procédurales, en plus du décor de pièce, pour réduire le travail de rendu.
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
 - Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
 - Les deux SceneView (pièce et corps) sont actuellement séparées. Leur coût mémoire/GPU doit être mesuré sur le téléphone cible avant validation.
@@ -43,18 +44,18 @@ Ces fichiers restent des spécifications et ne doivent pas être présentés com
 - Jusqu'à 500 souvenirs, avec ajout, affichage et suppression. Les demandes explicites « Souviens-toi… », « N'oublie pas… », « Mémorise… » et quelques formulations créoles sont détectées et enregistrées localement ; les autres messages ne sont pas mémorisés automatiquement.
 - Stockage chiffré des préférences, conversations, souvenirs et URI de photos via Android Keystore.
 - Migration des anciennes préférences et sauvegarde Android désactivée.
-- Synthèse vocale Android en français ou créole selon les voix installées.
+- Synthèse vocale Android en français ou créole selon les voix installées ; les demandes vocales faites pendant l'initialisation du moteur sont mises en attente et la dernière est prononcée lorsque le moteur est prêt.
 - Dictée vocale via le service de reconnaissance disponible sur Android.
 - Portrait principal intégré et immuable ; deux emplacements secondaires de galerie utilisant les photos originales choisies dans le sélecteur Android.
-- Rappels locaux via WorkManager et ajout d'événement au calendrier.
-- Consentement explicite avant tout envoi au backend IA distant ; l'enregistrement du profil refuse l'activation distante si le code d'accès est vide.
-- L'historique transmis au backend exclut le message courant du contexte précédent afin d'éviter de le répéter deux fois dans la requête.
+- Rappels locaux via WorkManager et ajout d'événement au calendrier ; les délais sont limités à 30 jours et les notifications bloquées par Android ne sont pas déclarées comme délivrées.
+- Consentement explicite avant tout envoi au backend IA distant ; l'enregistrement du profil refuse l'activation distante si le code d'accès est vide. Les champs de profil sont bornés et la langue est limitée au français ou au créole haïtien.
+- L'historique transmis au backend exclut le message courant du contexte précédent afin d'éviter de le répéter deux fois dans la requête. Le client refuse les URL non HTTPS, les jetons vides, limite les entrées et borne la taille de réponse.
 - Identifiants de messages et de souvenirs rendus uniques même lorsque plusieurs éléments sont enregistrés dans la même milliseconde.
 - Commandes de mobilier et d'ambiance regroupées sur une rangée défilante pour limiter la hauteur occupée sur les petits écrans.
 - Sur Android 13 et versions ultérieures, un rappel n'est désormais planifié qu'après accord à la permission de notification ; en cas de refus, aucun rappel silencieusement inutilisable n'est créé.
 - Les autorisations persistantes de lecture des anciennes photos de galerie sont libérées lorsqu'une photo est remplacée ou retirée.
 - Une confirmation est demandée avant l'effacement complet de l'historique de conversation ou de tous les souvenirs, afin de réduire les suppressions accidentelles.
-- La commande d'envoi de conversation libère toujours son état de chargement même si une opération locale échoue ; l'effacement de l'historique est désactivé pendant l'envoi.
+- La commande d'envoi de conversation libère toujours son état de chargement même si une opération locale échoue et affiche un message de reprise ; l'effacement de l'historique est désactivé pendant l'envoi.
 - Code d'accès du backend conservé dans le stockage chiffré de l'application.
 
 ## Backend IA
