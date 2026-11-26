@@ -92,6 +92,12 @@ internal fun SceneScope.ChamaBodyNodes(
         animationSpec = infiniteRepeatable(tween(1450), RepeatMode.Reverse),
         label = "body_sway"
     )
+    val glance by motion.animateFloat(
+        initialValue = -7f,
+        targetValue = if (motionEnabled && gesture == ChamaBodyGesture.LISTEN) 7f else -7f,
+        animationSpec = infiniteRepeatable(tween(1600), RepeatMode.Reverse),
+        label = "gentle_look_around"
+    )
     val step by motion.animateFloat(
         initialValue = 0f,
         targetValue = if (motionEnabled && gesture == ChamaBodyGesture.DANCE) 0.075f else 0f,
@@ -206,7 +212,7 @@ internal fun SceneScope.ChamaBodyNodes(
 
     Node(
         position = Position(rootPosition.x, 0f, rootPosition.z),
-        rotation = Rotation(y = headingDegrees)
+        rotation = Rotation(y = headingDegrees + if (gesture == ChamaBodyGesture.LISTEN) glance else 0f)
     ) {
     // Layered torso silhouette: upper chest, tapered waist and pelvis
         // are separate volumes so the waist does not keep the chest width.
