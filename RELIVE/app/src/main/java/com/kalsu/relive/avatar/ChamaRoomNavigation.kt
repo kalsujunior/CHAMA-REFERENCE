@@ -129,6 +129,19 @@ object ChamaRoomNavigation {
     fun waypointOf(target: ChamaAutonomyTarget): ChamaRoomWaypoint =
         targetWaypoints.getValue(target)
 
+    /**
+     * Finds the closest waypoint connected to the live position by a clear
+     * segment. Used to safely re-anchor the planner after an interrupted walk.
+     */
+    fun nearestReachableWaypoint(point: ChamaRoomPoint): ChamaRoomWaypoint? =
+        positions.entries
+            .filter { (waypoint, waypointPoint) ->
+                waypointPoint.x.isFinite() && waypointPoint.z.isFinite() &&
+                    ChamaRoomCollisionMap.isSegmentWalkable(point, waypointPoint)
+            }
+            .minByOrNull { (_, waypointPoint) -> distance(point, waypointPoint) }
+            ?.key
+
     private fun distance(a: ChamaRoomPoint, b: ChamaRoomPoint): Float {
         val dx = a.x - b.x
         val dz = a.z - b.z
