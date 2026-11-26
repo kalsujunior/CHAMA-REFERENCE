@@ -256,6 +256,7 @@ private fun ChatScreen(modifier: Modifier) {
     var sending by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf(store.load()) }
+    var showClearHistoryDialog by remember { mutableStateOf(false) }
     val online = remember { mutableStateOf(NetworkStatus.isOnline(context)) }
     val speechInput = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val recognized = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
@@ -277,10 +278,9 @@ private fun ChatScreen(modifier: Modifier) {
             Text("Conversation", color = Cream, fontSize = 23.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             Text(if (online.value) "Réseau disponible" else "Mode hors ligne",
                 color = if (online.value) Gold else Muted, fontSize = 11.sp)
-            IconButton(onClick = {
-                store.clear()
-                messages = emptyList()
-            }) { Icon(Icons.Default.DeleteOutline, contentDescription = "Effacer l'historique", tint = Muted) }
+            IconButton(onClick = { showClearHistoryDialog = true }) {
+                Icon(Icons.Default.DeleteOutline, contentDescription = "Effacer l'historique", tint = Muted)
+            }
         }
         if (messages.isEmpty()) {
             Text("Votre conversation commencera ici. Les messages seront conservés sur cet appareil.",
@@ -357,6 +357,23 @@ private fun ChatScreen(modifier: Modifier) {
             }
         }
     }
+    if (showClearHistoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearHistoryDialog = false },
+            title = { Text("Effacer la conversation ?") },
+            text = { Text("Tous les messages enregistrés localement sur cet appareil seront supprimés. Cette action est irréversible.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    store.clear()
+                    messages = emptyList()
+                    showClearHistoryDialog = false
+                }) { Text("Effacer", color = Gold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearHistoryDialog = false }) { Text("Annuler") }
+            }
+        )
+    }
 }
 
 @Composable
@@ -415,6 +432,7 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
     val preferences = remember { PreferenceStore(context) }
     val memoryStore = remember { MemoryStore(context) }
     var memories by remember { mutableStateOf(memoryStore.load()) }
+    var showClearMemoriesDialog by remember { mutableStateOf(false) }
     var memoryDraft by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf(preferences.displayName) }
     var language by remember { mutableStateOf(preferences.languageTag) }
@@ -496,8 +514,17 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
             Text("Enregistrer les préférences", color = Ink, fontWeight = FontWeight.Bold)
         }
         Text(savedMessage, color = Gold, modifier = Modifier.padding(20.dp))
-        Text("Souvenirs à conserver (${memories.size}/500)", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Souvenirs à conserver (${memories.size}/500)", color = Gold, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            if (memories.isNotEmpty()) {
+                TextButton(onClick = { showClearMemoriesDialog = true }) {
+                    Text("Tout effacer", color = Muted, fontSize = 11.sp)
+                }
+            }
+        }
         OutlinedTextField(value = memoryDraft, onValueChange = { memoryDraft = it },
             label = { Text("Un détail important à mémoriser") },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), minLines = 2)
@@ -531,6 +558,23 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
             Text(it, color = Cream, modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)
                 .background(Panel, RoundedCornerShape(12.dp)).padding(16.dp))
         }
+    }
+    if (showClearMemoriesDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearMemoriesDialog = false },
+            title = { Text("Effacer tous les souvenirs ?") },
+            text = { Text("Les ${memories.size} souvenirs enregistrés sur cet appareil seront supprimés. Cette action est irréversible.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    memoryStore.clear()
+                    memories = emptyList()
+                    showClearMemoriesDialog = false
+                }) { Text("Tout effacer", color = Gold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearMemoriesDialog = false }) { Text("Annuler") }
+            }
+        )
     }
 }
 
