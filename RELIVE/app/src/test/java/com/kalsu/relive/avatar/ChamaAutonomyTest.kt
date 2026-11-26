@@ -535,6 +535,25 @@ class ChamaAutonomyTest {
         assertEquals(safeApproach, held.locomotion.position)
         assertEquals(ChamaLocomotionStatus.ARRIVED, held.locomotion.status)
         assertEquals(ChamaBodyGesture.SIT, held.bodyGesture)
+
+        val resumed = runtime.tick(
+            ChamaAutonomyRuntimeInput(
+                enabled = true,
+                virtualSpaceVisible = true,
+                userInteracting = false,
+                lowPowerMode = false,
+                energy = 0.82f,
+                curiosity = 0.5f,
+                nowElapsedRealtimeMs = 36_050L,
+                holdMovementForSeatTransition = false
+            )
+        )
+        assertNull(resumed.routeError)
+        assertTrue(
+            resumed.locomotion.status == ChamaLocomotionStatus.TURNING ||
+                resumed.locomotion.status == ChamaLocomotionStatus.WALKING ||
+                resumed.locomotion.status == ChamaLocomotionStatus.ARRIVED
+        )
     }
 
     private fun input(
