@@ -72,7 +72,8 @@ class MemoryStore(context: Context) {
     fun delete(id: Long) {
         val array = JSONArray()
         load().filterNot { it.id == id }.forEach { memory ->
-            array.put(JSONObject().put("id", memory.id).put("text", memory.text).put("createdAt", memory.createdAt))
+            array.put(JSONObject().put("id", memory.id).put("text", memory.text)
+                .put("createdAt", memory.createdAt).put("category", memory.category))
         }
         prefs.edit().putString(KEY, array.toString()).apply()
     }
