@@ -45,6 +45,7 @@ class ChamaAutonomyRuntime(
     private var currentWaypoint = initialWaypoint
     private var currentDecision: ChamaAutonomyDecision? = null
     private var destinationWaypoint: ChamaRoomWaypoint? = null
+    private var destinationTarget: ChamaAutonomyTarget? = null
     private var lastFrame = ChamaLocomotionFrame(
         position = ChamaRoomNavigation.pointOf(initialWaypoint),
         headingDegrees = initialHeadingDegrees,
@@ -76,6 +77,7 @@ class ChamaAutonomyRuntime(
                 lowPowerMode = input.lowPowerMode
             )
             destinationWaypoint = null
+            destinationTarget = null
             ChamaRoomNavigation.nearestReachableWaypoint(lastFrame.position)?.let {
                 currentWaypoint = it
             }
@@ -94,8 +96,10 @@ class ChamaAutonomyRuntime(
                     routeError = "Aucun itinéraire entièrement validé n'est disponible vers $target."
                     lastFrame = locomotion.cancel()
                     destinationWaypoint = null
+                    destinationTarget = null
                 } else {
                     destinationWaypoint = ChamaRoomNavigation.waypointOf(target)
+                    destinationTarget = target
                     lastFrame = locomotion.begin(
                         route = route,
                         currentPosition = lastFrame.position,
@@ -106,6 +110,7 @@ class ChamaAutonomyRuntime(
             } else {
                 lastFrame = locomotion.cancel()
                 destinationWaypoint = null
+                destinationTarget = null
             }
             currentDecision = decision
         }
@@ -121,6 +126,7 @@ class ChamaAutonomyRuntime(
         if (!ChamaRoomCollisionMap.isSegmentWalkable(lastSafePose.position, candidateFrame.position)) {
             lastFrame = locomotion.holdAt(lastSafePose.position, lastSafePose.headingDegrees)
             destinationWaypoint = null
+            destinationTarget = null
             ChamaRoomNavigation.nearestReachableWaypoint(lastSafePose.position)?.let {
                 currentWaypoint = it
             }
@@ -130,7 +136,13 @@ class ChamaAutonomyRuntime(
         }
         if (lastFrame.status == ChamaLocomotionStatus.ARRIVED) {
             destinationWaypoint?.let { currentWaypoint = it }
+            destinationTarget?.let { target ->
+                lastFrame = locomotion.orientAtArrival(
+                    ChamaRoomNavigation.facingDegreesAt(target, lastFrame.position)
+                )
+            }
             destinationWaypoint = null
+            destinationTarget = null
         }
         return ChamaAutonomyRuntimeFrame(decision, lastFrame, currentWaypoint, routeError)
     }
@@ -140,6 +152,7 @@ class ChamaAutonomyRuntime(
         planner.reset()
         currentDecision = null
         destinationWaypoint = null
+        destinationTarget = null
         lastFrame = locomotion.cancel()
         ChamaRoomNavigation.nearestReachableWaypoint(lastFrame.position)?.let {
             currentWaypoint = it
