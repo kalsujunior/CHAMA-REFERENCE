@@ -18,7 +18,7 @@ import io.github.sceneview.math.Size
  * Chama's protected portrait is not loaded, mapped, or modified here.
  */
 @Composable
-internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette) {
+internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
 
@@ -57,6 +57,13 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette) 
     }
     val rose = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFFB52C4A), roughness = 0.72f)
+    }
+    val lampMaterial = remember(materialLoader, lampOn) {
+        materialLoader.createColorInstance(
+            if (lampOn) Color(0xFFFFD98A) else Color(0xFF786C69),
+            metallic = if (lampOn) 0.08f else 0.0f,
+            roughness = 0.42f
+        )
     }
 
     SceneView(
@@ -144,8 +151,12 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette) 
             position = Position(1.72f, 0.25f, -0.78f))
         CylinderNode(radius = 0.035f, height = 0.72f, materialInstance = gold,
             position = Position(1.72f, 0.83f, -0.78f))
-        SphereNode(radius = 0.22f, materialInstance = sofaAccent,
+        SphereNode(radius = 0.22f, materialInstance = lampMaterial,
             position = Position(1.72f, 1.28f, -0.78f))
+        if (lampOn) {
+            SphereNode(radius = 0.075f, materialInstance = paper,
+                position = Position(1.72f, 1.24f, -0.76f))
+        }
 
         // Étagère murale et livres décoratifs.
         CubeNode(size = Size(0.72f, 0.08f, 0.24f), materialInstance = wood,
