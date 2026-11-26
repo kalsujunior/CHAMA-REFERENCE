@@ -13,9 +13,19 @@ class ChamaSpeech(context: Context) : TextToSpeech.OnInitListener {
     private var ready = false
     private var onFinished: (() -> Unit)? = null
     private var activeUtteranceId: String? = null
+    private var pendingText: String? = null
+    private var pendingLanguageTag: String = "fr-FR"
+    private var pendingCallback: (() -> Unit)? = null
+    private var released = false
+    private var utteranceSequence = 0L
     private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onInit(status: Int) {
+        if (released) {
+            engine?.shutdown()
+            engine = null
+            return
+        }
         ready = status == TextToSpeech.SUCCESS
         if (ready) {
             engine?.language = Locale.FRENCH
@@ -33,6 +43,22 @@ class ChamaSpeech(context: Context) : TextToSpeech.OnInitListener {
                     mainHandler.post { finishUtterance(utteranceId) }
                 }
             })
+            val queuedText = pendingText
+            if (queuedText != null) {
+                val queuedLanguage = pendingLanguageTag
+                val queuedCallback = pendingCallback
+                pendingText = null
+                pendingCallback = null
+                startSpeaking(queuedText, queuedLanguage, queuedCallback)
+            } else {
+                pendingCallback?.invoke()
+                pendingCallback = null
+            }
+        } else {
+            pendingText = null
+            val callback = pendingCallback
+            pendingCallback = null
+            callback?.invoke()
         }
     }
 
@@ -41,12 +67,25 @@ class ChamaSpeech(context: Context) : TextToSpeech.OnInitListener {
         languageTag: String = "fr-FR",
         onDone: (() -> Unit)? = null
     ) {
-        if (!ready || text.isBlank()) {
+        if (text.isBlank() || released) {
             onDone?.invoke()
             return
         }
+        if (!ready) {
+            // Keep the latest requested line until Android finishes TTS initialization.
+            pendingText = text
+            pendingLanguageTag = languageTag
+            pendingCallback = onDone
+            return
+        }
+        startSpeaking(text, languageTag, onDone)
+    }
+
+    private fun startSpeaking(text: String, languageTag: String, onDone: (() -> Unit)?) {
+        onFinished?.invoke()
         onFinished = onDone
-        val utteranceId = "relive-chama-${System.currentTimeMillis()}"
+        utteranceSequence += 1
+        val utteranceId = "relive-chama-$utteranceSequence"
         activeUtteranceId = utteranceId
         engine?.language = Locale.forLanguageTag(languageTag)
         val result = engine?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
@@ -62,11 +101,18 @@ class ChamaSpeech(context: Context) : TextToSpeech.OnInitListener {
     }
 
     fun stop() {
+        pendingText = null
+        val queuedCallback = pendingCallback
+        pendingCallback = null
+        queuedCallback?.invoke()
         engine?.stop()
         finishUtterance(activeUtteranceId)
     }
 
     fun release() {
+        released = true
+        pendingText = null
+        pendingCallback = null
         engine?.stop()
         engine?.shutdown()
         engine = null
