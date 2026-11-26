@@ -49,6 +49,9 @@ internal fun ChamaBody3D(
     val cuff = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFFE8D9D0), roughness = 0.9f)
     }
+    val braidHair = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFF35231F), roughness = 0.92f)
+    }
 
     val motion = rememberInfiniteTransition(label = "chama_body_motion")
     val wave by motion.animateFloat(
@@ -72,6 +75,17 @@ internal fun ChamaBody3D(
         },
         animationSpec = infiniteRepeatable(tween(1250), RepeatMode.Reverse),
         label = "left_arm_motion"
+    )
+    val braidSwing by motion.animateFloat(
+        initialValue = -4f,
+        targetValue = when (gesture) {
+            ChamaBodyGesture.IDLE -> 4f
+            ChamaBodyGesture.WAVE -> 8f
+            ChamaBodyGesture.LISTEN -> -2f
+            ChamaBodyGesture.DANCE -> 15f
+        },
+        animationSpec = infiniteRepeatable(tween(1650), RepeatMode.Reverse),
+        label = "braid_swing"
     )
     val breathe by motion.animateFloat(
         initialValue = 0.0f,
@@ -106,6 +120,33 @@ internal fun ChamaBody3D(
             materialInstance = trousers,
             position = Position(sway, 0.88f, 0f)
         )
+
+        // Two independent hair braids: they are separate body accessories,
+        // not a head mesh and never touch or alter the protected portrait.
+        CapsuleNode(radius = 0.065f, height = 0.78f, materialInstance = braidHair,
+            position = Position(-0.39f, 1.76f, -0.13f), rotation = Rotation(z = -7f + braidSwing))
+        CapsuleNode(radius = 0.065f, height = 0.78f, materialInstance = braidHair,
+            position = Position(0.39f, 1.76f, -0.13f), rotation = Rotation(z = 7f - braidSwing))
+        SphereNode(radius = 0.052f, materialInstance = braidHair,
+            position = Position(-0.39f, 1.99f, -0.13f))
+        SphereNode(radius = 0.052f, materialInstance = braidHair,
+            position = Position(0.39f, 1.99f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(-0.42f, 1.66f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(-0.36f, 1.55f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(-0.42f, 1.44f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(-0.36f, 1.33f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(0.42f, 1.66f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(0.36f, 1.55f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(0.42f, 1.44f, -0.13f))
+        SphereNode(radius = 0.048f, materialInstance = braidHair,
+            position = Position(0.36f, 1.33f, -0.13f))
 
         // Small red heart-like sweater details are geometric decorations,
         // not a texture of the protected portrait.
