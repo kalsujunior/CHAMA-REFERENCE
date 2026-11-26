@@ -22,6 +22,13 @@ L'option d'autonomie doit rester désactivée par défaut jusqu'à ce qu'un cont
 
 **Limite actuelle :** le planificateur ne déplace pas encore le personnage. Dans la version existante, le salon et le corps de Chama sont rendus dans deux SceneView distinctes. Il faut d'abord réunir ou synchroniser ces scènes dans un même repère spatial avant de prétendre que Chama marche physiquement jusqu'aux meubles.
 
+
+## Graphe de navigation du salon
+
+`avatar/ChamaRoomNavigation.kt` ajoute un premier graphe de points de passage au sol : centre, couloir gauche, arrêt près de la fenêtre, arrêt près du canapé, couloir droit et arrêt près des fleurs. Un calcul de plus court chemin relie ces points en contournant le canapé et la table basse. Les coordonnées sont exprimées dans le repère X/Z du salon actuel.
+
+Ce graphe est une carte de navigation initiale, pas encore un moteur de marche. Le contrôleur devra interpoler les positions, orienter le corps, produire les pas, vérifier les collisions et interrompre le déplacement à tout instant sur interaction utilisateur. Les segments devront être validés visuellement et sur appareil avant d'être activés.
+
 ## Étapes techniques suivantes
 
 1. Créer un état de monde partagé et un repère de coordonnées unique pour le salon et le corps.
