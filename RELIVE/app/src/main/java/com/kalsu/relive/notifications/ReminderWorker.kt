@@ -34,7 +34,8 @@ class ReminderWorker(context: Context, params: WorkerParameters) : Worker(contex
                 .notify(System.currentTimeMillis().toInt(), notification)
             Result.success()
         } catch (_: SecurityException) {
-            Result.success()
+            // Do not report a reminder as delivered when Android blocks its notification.
+            Result.failure()
         }
     }
 
