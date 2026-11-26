@@ -18,7 +18,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
 - Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
 - Les deux SceneView (pièce et corps) sont actuellement séparées. Leur coût mémoire/GPU doit être mesuré sur le téléphone cible avant validation.
-- Les tresses actuelles sont des volumes géométriques provisoires ; leur maillage détaillé, les vêtements finalisés, les animations avancées, l'intégration visuelle du portrait avec le corps et les interactions complètes de la pièce restent à réaliser.
+- La géométrie corporelle est strictement limitée aux épaules jusqu'aux pieds : aucune tête, aucun cou, aucun visage et aucun cheveu n'est généré dans ce blocage. Les segments des membres sont orientés à partir des vecteurs entre pivots calculés ; les volumes de hanches et de chevilles renforcent la continuité visuelle des articulations. Le maillage anatomique détaillé, les vêtements finalisés, les animations avancées et l'intégration visuelle précise du portrait avec le corps restent à réaliser.
 
 ## Références corporelles vidéo de Chama
 
@@ -35,7 +35,7 @@ Son identifiant d'objet Git (blob SHA-1) de référence est :
 
 Le workflow GitHub Actions vérifie automatiquement cet identifiant pour `shama.png` et pour la copie intégrée à l'application. Le contrôle `RELIVE/scripts/verify-chama-portrait.sh` valide aussi les verrous du manifeste ; la compilation échoue si l'image de référence change ou si une règle protégeant le visage est affaiblie.
 
-Toute future représentation animée devra garder cette image dans une couche indépendante et immuable. Aucun recadrage, recoloration, déformation, reconstruction, mouvement de tête, clignement, mouvement des yeux, de la bouche ou de la mâchoire n'est autorisé. Les animations concernent exclusivement le corps et les éléments séparés qui ne modifient pas la photographie.
+Toute future représentation animée devra garder cette image dans une couche indépendante et immuable. Aucun recadrage, recoloration, déformation, reconstruction, mouvement de tête, clignement, mouvement des yeux, de la bouche ou de la mâchoire n'est autorisé. Les animations concernent exclusivement les volumes corporels séparés et ne modifient jamais la photographie.
 
 La spécification du rig corporel est limitée aux articulations du corps :
 - `app/src/main/assets/chama/rig/chama-rig-manifest.json`
