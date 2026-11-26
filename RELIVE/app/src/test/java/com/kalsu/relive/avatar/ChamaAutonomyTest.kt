@@ -109,11 +109,16 @@ class ChamaAutonomyTest {
         assertTrue(flowers.pickUp())
         assertEquals(ChamaFlowerLocation.IN_HAND, flowers.location)
         assertFalse(flowers.pickUp())
+        assertFalse(flowers.returnToVase())
         assertTrue(flowers.placeOnTable())
         assertEquals(ChamaFlowerLocation.COFFEE_TABLE, flowers.location)
         assertFalse(flowers.placeOnTable())
         assertTrue(flowers.returnToVase())
         assertEquals(ChamaFlowerLocation.VASE, flowers.location)
+        assertTrue("A returned bouquet can be picked up again", flowers.pickUp())
+        assertEquals(ChamaFlowerLocation.IN_HAND, flowers.location)
+        assertTrue(flowers.dropOnTableIfHeld())
+        assertEquals(ChamaFlowerLocation.COFFEE_TABLE, flowers.location)
     }
 
     @Test
