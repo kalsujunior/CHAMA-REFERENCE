@@ -1,6 +1,5 @@
 package com.kalsu.relive.avatar
 
-import kotlin.math.ceil
 
 /** Axis-aligned furniture footprint on the salon floor plane. */
 data class ChamaRoomObstacle(
@@ -62,8 +61,12 @@ object ChamaRoomCollisionMap {
     }
 
     /**
-     * Samples a segment at no more than [sampleSpacingMeters] intervals.
-     * Final runtime movement must still use swept-volume collision checks.
+     * Exact swept-disc pre-check in the floor plane.
+     *
+     * The avatar disc is conservatively represented by expanding each furniture
+     * AABB by its radius and safety margin, then testing the complete movement
+     * segment against each expanded rectangle with a slab intersection test.
+     * Unlike fixed-step sampling, this cannot skip a thin obstacle between samples.
      */
     fun isSegmentWalkable(
         start: ChamaRoomPoint,
@@ -72,21 +75,56 @@ object ChamaRoomCollisionMap {
         safetyMarginMeters: Float = DEFAULT_SAFETY_MARGIN_METERS,
         sampleSpacingMeters: Float = 0.05f
     ): Boolean {
+        // Retained for source compatibility; exact segment intersection no longer
+        // depends on a sampling interval.
         if (!sampleSpacingMeters.isFinite() || sampleSpacingMeters <= 0f) return false
+        if (!avatarRadiusMeters.isFinite() || !safetyMarginMeters.isFinite() ||
+            avatarRadiusMeters < 0f || safetyMarginMeters < 0f
+        ) return false
         if (!isPointWalkable(start, avatarRadiusMeters, safetyMarginMeters) ||
             !isPointWalkable(end, avatarRadiusMeters, safetyMarginMeters)
         ) return false
 
+        val clearance = avatarRadiusMeters + safetyMarginMeters
+        return obstacles.none { obstacle ->
+            segmentIntersectsExpandedObstacle(start, end, obstacle, clearance)
+        }
+    }
+
+    private fun segmentIntersectsExpandedObstacle(
+        start: ChamaRoomPoint,
+        end: ChamaRoomPoint,
+        obstacle: ChamaRoomObstacle,
+        clearance: Float
+    ): Boolean {
+        val minX = obstacle.minX - clearance
+        val maxX = obstacle.maxX + clearance
+        val minZ = obstacle.minZ - clearance
+        val maxZ = obstacle.maxZ + clearance
         val dx = end.x - start.x
         val dz = end.z - start.z
-        val length = kotlin.math.sqrt(dx * dx + dz * dz)
-        val steps = ceil(length / sampleSpacingMeters).toInt().coerceAtLeast(1)
-        for (step in 1 until steps) {
-            val fraction = step.toFloat() / steps.toFloat()
-            val sample = ChamaRoomPoint(start.x + dx * fraction, start.z + dz * fraction)
-            if (!isPointWalkable(sample, avatarRadiusMeters, safetyMarginMeters)) return false
+        var tMin = 0f
+        var tMax = 1f
+
+        fun clip(origin: Float, delta: Float, minimum: Float, maximum: Float): Boolean {
+            if (kotlin.math.abs(delta) < 1e-7f) {
+                return origin >= minimum && origin <= maximum
+            }
+            var near = (minimum - origin) / delta
+            var far = (maximum - origin) / delta
+            if (near > far) {
+                val swap = near
+                near = far
+                far = swap
+            }
+            tMin = maxOf(tMin, near)
+            tMax = minOf(tMax, far)
+            return tMin <= tMax
         }
-        return true
+
+        if (!clip(start.x, dx, minX, maxX)) return false
+        if (!clip(start.z, dz, minZ, maxZ)) return false
+        return tMax >= 0f && tMin <= 1f
     }
 
     fun validateRoute(route: ChamaRoomRoute): Boolean {
