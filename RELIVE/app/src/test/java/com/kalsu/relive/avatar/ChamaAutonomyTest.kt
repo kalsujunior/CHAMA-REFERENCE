@@ -407,6 +407,49 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun capsuleEulerRotationsAlignWithArmAndLegJointVectors() {
+        fun assertAligned(start: ChamaLimbPoint3D, end: ChamaLimbPoint3D) {
+            val rotation = ChamaBodyPoseMath.segmentRotation(start, end)
+            val x = Math.toRadians(rotation.xDegrees.toDouble())
+            val z = Math.toRadians(rotation.zDegrees.toDouble())
+            // SceneView applies the Z rotation to local +Y, then the X rotation.
+            val actual = ChamaLimbPoint3D(
+                -kotlin.math.sin(z).toFloat(),
+                (kotlin.math.cos(x) * kotlin.math.cos(z)).toFloat(),
+                (kotlin.math.sin(x) * kotlin.math.cos(z)).toFloat()
+            )
+            val dx = end.x - start.x
+            val dy = end.y - start.y
+            val dz = end.z - start.z
+            val length = kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+            assertEquals(dx / length, actual.x, 0.001f)
+            assertEquals(dy / length, actual.y, 0.001f)
+            assertEquals(dz / length, actual.z, 0.001f)
+        }
+
+        val shoulder = ChamaLimbPoint3D(0.31f, 1.70f, 0f)
+        val arm = ChamaBodyPoseMath.reachingArm(
+            shoulder = shoulder,
+            lateralAngleDegrees = -35f,
+            upperForwardTiltDegrees = 55f,
+            forearmForwardTiltDegrees = 60f
+        )
+        assertAligned(shoulder, arm.elbow)
+        assertAligned(arm.elbow, arm.wrist)
+
+        val hip = ChamaLimbPoint3D(-0.15f, 0.78f, 0f)
+        val leg = ChamaBodyPoseMath.blendLegToSeat(
+            hipX = hip.x,
+            hipY = hip.y,
+            standingKnee = ChamaLimbPoint3D(-0.15f, 0.42f, 0f),
+            standingAnkle = ChamaLimbPoint3D(-0.15f, 0.08f, 0f),
+            blend = 1f
+        )
+        assertAligned(hip, leg.knee)
+        assertAligned(leg.knee, leg.ankle)
+    }
+
+    @Test
     fun sofaSeatTransitionStartsAtSafeApproachAndEndsOnCushion() {
         val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.SOFA_SEAT)
         val start = ChamaSeatTransitionMath.pose(approach, progress = 0f)
