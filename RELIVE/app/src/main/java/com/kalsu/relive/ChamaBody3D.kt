@@ -62,6 +62,11 @@ internal fun SceneScope.ChamaBodyNodes(
         animationSpec = tween(700),
         label = "sit_stand_transition"
     )
+    val reachShoulder by animateFloatAsState(
+        targetValue = if (gesture == ChamaBodyGesture.REACH) 52f else 0f,
+        animationSpec = tween(500),
+        label = "flower_reach_transition"
+    )
     val wave by motion.animateFloat(
         initialValue = -8f,
         targetValue = if (!motionEnabled) -8f else when (gesture) {
@@ -69,7 +74,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WALK -> 5f
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
-            ChamaBodyGesture.REACH -> 42f
+            ChamaBodyGesture.REACH -> -8f
             ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> 48f
         },
@@ -160,7 +165,7 @@ internal fun SceneScope.ChamaBodyNodes(
     val shoulderY = 1.70f + breathe
     val upperArmLength = 0.42f
     val forearmLength = 0.36f
-    val rightShoulderAngle = wave
+    val rightShoulderAngle = if (gesture == ChamaBodyGesture.REACH) reachShoulder else wave
     val leftShoulderAngle = leftWave
     val rightElbowBend = when (gesture) {
         ChamaBodyGesture.WAVE -> -112f
