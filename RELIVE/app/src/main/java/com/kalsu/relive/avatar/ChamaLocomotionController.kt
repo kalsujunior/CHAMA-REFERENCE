@@ -199,6 +199,21 @@ class ChamaLocomotionController(
         return frame()
     }
 
+    /** Rolls back to the last known safe pose after a failed runtime guard. */
+    @Synchronized
+    fun holdAt(safePosition: ChamaRoomPoint, safeHeadingDegrees: Float): ChamaLocomotionFrame {
+        require(safePosition.x.isFinite() && safePosition.z.isFinite())
+        require(safeHeadingDegrees.isFinite())
+        routePoints = emptyList()
+        nextPointIndex = 0
+        position = safePosition
+        heading = normalizeAngle(safeHeadingDegrees)
+        speed = 0f
+        status = ChamaLocomotionStatus.IDLE
+        lastUpdateMs = null
+        return frame()
+    }
+
     private fun frame(pause: ChamaLocomotionPauseReason? = null) = ChamaLocomotionFrame(
         position = position,
         headingDegrees = heading,
