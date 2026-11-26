@@ -153,7 +153,7 @@ class ChamaAutonomyPlanner(
                 ChamaBodyGesture.LISTEN, "Je prends un instant pour observer mon espace.")
         )
 
-        if (energy > 0.78f && curiosity > 0.72f && sequence % 4 == 3) {
+        if (energy > 0.68f && curiosity > 0.72f && sequence % 4 == 3) {
             return Candidate(
                 ChamaAutonomyActivity.DANCE_IN_PLACE, ChamaAutonomyTarget.ROOM_CENTER,
                 ChamaBodyGesture.DANCE, "J'ai envie de danser un petit peu !"
