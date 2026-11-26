@@ -138,7 +138,7 @@ class ChamaAutonomyPlanner(
         if (energy < 0.22f) {
             return Candidate(
                 ChamaAutonomyActivity.REST, ChamaAutonomyTarget.SOFA,
-                ChamaBodyGesture.IDLE, "Je vais prendre un petit moment de repos."
+                ChamaBodyGesture.SIT, "Je vais prendre un petit moment de repos."
             )
         }
 
@@ -146,7 +146,7 @@ class ChamaAutonomyPlanner(
             Candidate(ChamaAutonomyActivity.WALK_TO_WINDOW, ChamaAutonomyTarget.WINDOW,
                 ChamaBodyGesture.IDLE, "Je vais regarder un peu par la fenêtre."),
             Candidate(ChamaAutonomyActivity.WALK_TO_FLOWERS, ChamaAutonomyTarget.FLOWERS,
-                ChamaBodyGesture.IDLE, "Je vais aller admirer les fleurs."),
+                ChamaBodyGesture.REACH, "Je vais aller admirer les fleurs."),
             Candidate(ChamaAutonomyActivity.WALK_TO_SOFA, ChamaAutonomyTarget.SOFA,
                 ChamaBodyGesture.IDLE, "Je vais me rapprocher du canapé."),
             Candidate(ChamaAutonomyActivity.LOOK_AROUND, ChamaAutonomyTarget.ROOM_CENTER,
