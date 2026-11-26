@@ -17,6 +17,7 @@ enum class ChamaRoomWaypoint {
     LEFT_AISLE,
     WINDOW_STOP,
     SOFA_STOP,
+    SOFA_SEAT,
     RIGHT_AISLE,
     FLOWERS_STOP
 }
@@ -42,6 +43,8 @@ object ChamaRoomNavigation {
         ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomPoint(-1.95f, 1.10f),
         ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.95f, -1.50f),
         ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.95f, -0.15f),
+        // Safe side-seat position beside the sofa, outside its expanded footprint.
+        ChamaRoomWaypoint.SOFA_SEAT to ChamaRoomPoint(-1.75f, -0.25f),
         // The right aisle stays in front of the coffee table and away from the console.
         ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.55f, 1.10f),
         ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.30f, 0.15f)
@@ -51,6 +54,7 @@ object ChamaRoomNavigation {
         ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomWaypoint.LEFT_AISLE,
         ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomWaypoint.WINDOW_STOP,
         ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomWaypoint.SOFA_STOP,
+        ChamaRoomWaypoint.SOFA_STOP to ChamaRoomWaypoint.SOFA_SEAT,
         ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomWaypoint.RIGHT_AISLE,
         ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomWaypoint.FLOWERS_STOP
     )
@@ -58,7 +62,7 @@ object ChamaRoomNavigation {
     private val targetWaypoints = mapOf(
         ChamaAutonomyTarget.ROOM_CENTER to ChamaRoomWaypoint.ROOM_CENTER,
         ChamaAutonomyTarget.WINDOW to ChamaRoomWaypoint.WINDOW_STOP,
-        ChamaAutonomyTarget.SOFA to ChamaRoomWaypoint.SOFA_STOP,
+        ChamaAutonomyTarget.SOFA to ChamaRoomWaypoint.SOFA_SEAT,
         ChamaAutonomyTarget.FLOWERS to ChamaRoomWaypoint.FLOWERS_STOP
     )
 
