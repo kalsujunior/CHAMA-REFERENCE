@@ -93,7 +93,13 @@ class ChamaAutonomyRuntime(
             currentDecision = null
             destinationWaypoint = null
             destinationTarget = null
-            lastFrame = locomotion.cancel()
+            // The controller has already arrived and has no active route.
+            // Preserve ARRIVED so the needs model continues to recognize a rest.
+            lastFrame = lastFrame.copy(
+                speedMetersPerSecond = 0f,
+                status = ChamaLocomotionStatus.ARRIVED,
+                pauseReason = null
+            )
             return ChamaAutonomyRuntimeFrame(decision, lastFrame, currentWaypoint)
         }
 
