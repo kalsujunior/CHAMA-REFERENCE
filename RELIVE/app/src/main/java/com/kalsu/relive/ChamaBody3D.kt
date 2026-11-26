@@ -311,32 +311,32 @@ internal fun SceneScope.ChamaBodyNodes(
             position = Position(rightShoulderX, shoulderY, 0f))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
-            position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, 0f),
-            rotation = Rotation(z = leftShoulderAngle + 180f))
+            position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, leftElbowZ / 2f),
+            rotation = Rotation(x = if (sitting) -16f else 0f, z = leftShoulderAngle + 180f))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
-            position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, 0f),
-            rotation = Rotation(z = rightShoulderAngle + 180f))
+            position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, rightElbowZ / 2f),
+            rotation = Rotation(x = if (reaching) -25f else if (sitting) -16f else 0f, z = rightShoulderAngle + 180f))
         SphereNode(radius = 0.092f, materialInstance = sweater,
-            position = Position(leftElbowX, leftElbowY, 0f))
+            position = Position(leftElbowX, leftElbowY, leftElbowZ))
         SphereNode(radius = 0.092f, materialInstance = sweater,
-            position = Position(rightElbowX, rightElbowY, 0f))
+            position = Position(rightElbowX, rightElbowY, rightElbowZ))
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
-            position = Position((leftElbowX + leftWristX) / 2f, (leftElbowY + leftWristY) / 2f, 0f),
-            rotation = Rotation(z = leftForearmAngle + 180f))
+            position = Position((leftElbowX + leftWristX) / 2f, (leftElbowY + leftWristY) / 2f, (leftElbowZ + leftWristZ) / 2f),
+            rotation = Rotation(x = if (sitting) -16f else 0f, z = leftForearmAngle + 180f))
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
-            position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, 0f),
-            rotation = Rotation(z = rightForearmAngle + 180f))
+            position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, (rightElbowZ + rightWristZ) / 2f),
+            rotation = Rotation(x = if (reaching) -35f else if (sitting) -16f else 0f, z = rightForearmAngle + 180f))
         SphereNode(radius = 0.075f, materialInstance = cuff,
-            position = Position(leftWristX, leftWristY, 0f))
+            position = Position(leftWristX, leftWristY, leftWristZ))
         SphereNode(radius = 0.075f, materialInstance = cuff,
-            position = Position(rightWristX, rightWristY, 0f))
+            position = Position(rightWristX, rightWristY, rightWristZ))
         SphereNode(radius = 0.105f, materialInstance = skin,
-            position = Position(leftHandX, leftHandY, 0.015f))
+            position = Position(leftHandX, leftHandY, leftHandZ))
         SphereNode(radius = 0.105f, materialInstance = skin,
-            position = Position(rightHandX, rightHandY, 0.015f))
+            position = Position(rightHandX, rightHandY, rightHandZ))
 
         // Four simplified finger capsules per palm. Their spread axis and
         // direction rotate with the wrist; this remains a stylized blockout.
@@ -348,7 +348,7 @@ internal fun SceneScope.ChamaBodyNodes(
             val fingerY = leftHandY + chamaSinDeg(leftHandAngle) * spread -
                 chamaCosDeg(leftHandAngle) * 0.055f
             CapsuleNode(radius = 0.024f, height = if (index == 0 || index == 3) 0.11f else 0.12f,
-                materialInstance = skin, position = Position(fingerX, fingerY, 0.03f),
+                materialInstance = skin, position = Position(fingerX, fingerY, leftHandZ + 0.03f),
                 rotation = Rotation(z = leftHandAngle + angleOffset))
         }
         val rightFingerOffsets = listOf(-0.075f, -0.025f, 0.025f, 0.075f)
@@ -359,7 +359,7 @@ internal fun SceneScope.ChamaBodyNodes(
             val fingerY = rightHandY + chamaSinDeg(rightHandAngle) * spread -
                 chamaCosDeg(rightHandAngle) * 0.055f
             CapsuleNode(radius = 0.024f, height = if (index == 0 || index == 3) 0.11f else 0.12f,
-                materialInstance = skin, position = Position(fingerX, fingerY, 0.03f),
+                materialInstance = skin, position = Position(fingerX, fingerY, rightHandZ + 0.03f),
                 rotation = Rotation(z = rightHandAngle + angleOffset))
         }
 
@@ -379,25 +379,25 @@ internal fun SceneScope.ChamaBodyNodes(
         SphereNode(radius = 0.14f, materialInstance = trousers,
             position = Position(rightHipX, hipY, 0f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
-            position = Position((leftHipX + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, 0f),
-            rotation = Rotation(z = leftThighAngle + 180f))
+            position = Position((leftHipX + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, leftKneeZ / 2f),
+            rotation = if (sitting) Rotation(x = -sitThighTilt) else Rotation(z = leftThighAngle + 180f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
-            position = Position((rightHipX + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, 0f),
-            rotation = Rotation(z = rightThighAngle + 180f))
+            position = Position((rightHipX + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, rightKneeZ / 2f),
+            rotation = if (sitting) Rotation(x = -sitThighTilt) else Rotation(z = rightThighAngle + 180f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(leftKneeX, leftKneeY, 0f))
+            position = Position(leftKneeX, leftKneeY, leftKneeZ))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(rightKneeX, rightKneeY, 0f))
+            position = Position(rightKneeX, rightKneeY, rightKneeZ))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
-            position = Position((leftKneeX + leftAnkleX) / 2f, (leftKneeY + leftAnkleY) / 2f, 0f),
-            rotation = Rotation(z = leftCalfAngle + 180f))
+            position = Position((leftKneeX + leftAnkleX) / 2f, (leftKneeY + leftAnkleY) / 2f, (leftKneeZ + leftAnkleZ) / 2f),
+            rotation = if (sitting) Rotation(x = -sitCalfTilt) else Rotation(z = leftCalfAngle + 180f))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
-            position = Position((rightKneeX + rightAnkleX) / 2f, (rightKneeY + rightAnkleY) / 2f, 0f),
-            rotation = Rotation(z = rightCalfAngle + 180f))
+            position = Position((rightKneeX + rightAnkleX) / 2f, (rightKneeY + rightAnkleY) / 2f, (rightKneeZ + rightAnkleZ) / 2f),
+            rotation = if (sitting) Rotation(x = -sitCalfTilt) else Rotation(z = rightCalfAngle + 180f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(leftAnkleX, leftAnkleY, 0f))
+            position = Position(leftAnkleX, leftAnkleY, leftAnkleZ))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(rightAnkleX, rightAnkleY, 0f))
+            position = Position(rightAnkleX, rightAnkleY, rightAnkleZ))
         // Denim waistband and outer seams clarify the pelvis and leg silhouette.
         CubeNode(size = Size(0.48f, 0.055f, 0.34f), materialInstance = denimSeam,
             position = Position(bodyCenterX, 1.055f, 0.015f))
@@ -419,9 +419,9 @@ internal fun SceneScope.ChamaBodyNodes(
         CapsuleNode(radius = 0.018f, height = 0.62f, materialInstance = denimSeam,
             position = Position(rightHipX + 0.105f, 0.49f, 0.13f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(leftAnkleX, leftAnkleY - 0.055f, 0.09f))
+            position = Position(leftAnkleX, leftAnkleY - 0.055f, leftAnkleZ + 0.09f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(rightAnkleX, rightAnkleY - 0.055f, 0.09f))
+            position = Position(rightAnkleX, rightAnkleY - 0.055f, rightAnkleZ + 0.09f))
 
         }
     }
