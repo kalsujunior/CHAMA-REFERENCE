@@ -152,6 +152,9 @@ object ChamaRoomNavigation {
 
     /** Heading for the body to face the semantic object after arriving. */
     fun facingDegreesAt(target: ChamaAutonomyTarget, from: ChamaRoomPoint): Float {
+        // The seated pose projects both feet toward the open front of the
+        // room (positive Z), not toward the sofa backrest.
+        if (target == ChamaAutonomyTarget.SOFA) return 0f
         val focus = when (target) {
             ChamaAutonomyTarget.WINDOW -> ChamaRoomPoint(-1.15f, -2.29f)
             ChamaAutonomyTarget.FLOWERS -> ChamaRoomPoint(1.72f, -0.78f)
