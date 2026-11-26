@@ -14,13 +14,13 @@ Préparer une autonomie locale, progressive et contrôlable pour Chama dans son 
 - interrompt immédiatement la décision lorsque l'autonomie est désactivée, que l'espace virtuel n'est plus visible, que l'utilisateur interagit ou que le mode économie d'énergie est actif ;
 - ne déclenche ni voix, ni microphone, ni réseau, ni action hors de l'espace virtuel.
 
-L'option d'autonomie doit rester désactivée par défaut jusqu'à ce qu'un contrôle utilisateur et les mécanismes de déplacement soient intégrés.
+L'option d'autonomie reste désactivée par défaut. Le bouton « Autonomie libre » permet de l'activer explicitement dans l'espace de Chama.
 
 ## Contrat avec le moteur 3D
 
 `ChamaAutonomyTarget` est sémantique : WINDOW, FLOWERS, SOFA et ROOM_CENTER. Le moteur 3D doit résoudre ces cibles vers des coordonnées réellement présentes dans la scène et construire un chemin navigable.
 
-**Limite actuelle :** le planificateur ne déplace pas encore le personnage. Dans la version existante, le salon et le corps de Chama sont rendus dans deux SceneView distinctes. Il faut d'abord réunir ou synchroniser ces scènes dans un même repère spatial avant de prétendre que Chama marche physiquement jusqu'aux meubles.
+`ChamaBody3D.kt` expose maintenant `SceneScope.ChamaBodyNodes`. Le corps sans tête est placé sous un `Node` racine dont la position X/Z et le cap Y proviennent du contrôleur. `ChamaRoom3D.kt` déclare ce corps dans le même bloc `SceneView` que les murs et les meubles : le salon et le personnage partagent donc désormais le même graphe de scène et le même repère spatial. Le portrait original demeure un calque Compose indépendant.
 
 
 ## Graphe de navigation du salon
@@ -38,19 +38,18 @@ L'option d'autonomie doit rester désactivée par défaut jusqu'à ce qu'un cont
 - plafonne le temps simulé par mise à jour pour éviter les téléportations après un ralentissement de l'interface ;
 - annule immédiatement le trajet lorsque l'autonomie est désactivée, qu'une interaction utilisateur commence ou que l'économie d'énergie est activée.
 
-`avatar/ChamaAutonomyRuntime.kt` relie maintenant le planificateur, le graphe de navigation et le contrôleur : une décision devient un itinéraire, l'arrivée met à jour le dernier point de passage connu, et une interruption annule le trajet. Le geste du corps reste neutre pendant la marche et ne reprend le geste demandé qu'à l'arrêt.
+`avatar/ChamaAutonomyRuntime.kt` relie le planificateur, le graphe et le contrôleur : une décision devient un itinéraire, l'arrivée met à jour le dernier point de passage connu, et une interruption annule le trajet. `VirtualSpaceScreen.kt` appelle le runtime à 20 Hz lorsque l'autonomie est activée, puis transmet la position et l'orientation au `Node` racine du corps. Le geste `WALK` anime les bras et les jambes pendant le déplacement. L'utilisateur peut arrêter l'autonomie par le bouton dédié, par une interaction avec la scène ou par les commandes manuelles. Le mode économie d'énergie Android suspend aussi la locomotion. L'autonomie reste désactivée à l'ouverture de l'écran.
 
-**Limite importante :** le contrôleur calcule des trames de position et d'orientation ; il n'applique pas encore ces trames aux nœuds SceneView. Le salon et le corps sont toujours deux SceneView distinctes dans `VirtualSpaceScreen.kt`. Le mouvement visible exige donc encore un repère commun, un adaptateur de rendu et une validation des collisions sur l'appareil.
+**Limites importantes :** la carte de collision est un préfiltre statique et le contrôleur suit des segments géométriquement validés ; il n'existe pas encore de physique dynamique ni de détection continue des volumes articulés du personnage à chaque frame. Le corps reste un blockout de primitives, pas un squelette skinné. La danse sur place est disponible, mais s'asseoir, se lever et manipuler physiquement les objets ne sont pas encore implémentés. La validation visuelle et les collisions réelles restent à effectuer sur téléphone.
 
 ## Étapes techniques suivantes
 
-1. Créer un état de monde partagé et un repère de coordonnées unique pour le salon et le corps.
-2. Remplacer les cibles symboliques par des points d'ancrage validés dans la pièce.
-3. Connecter `ChamaLocomotionController` à un repère commun et à un adaptateur SceneView ; ajouter validation des volumes, collisions et évitement dynamique des meubles.
-4. Ajouter les interactions de proximité : regarder les fleurs, s'approcher du canapé et s'arrêter à une distance sûre.
-5. Ajouter l'assise et le lever uniquement lorsque les articulations du bassin, des genoux et des chevilles sont pilotées par le même contrôleur.
-6. Ajouter la persistance des préférences d'autonomie et une commande Pause/Reprendre visible.
-7. Mesurer la mémoire, la température et les images par seconde sur le téléphone cible ; suspendre les calculs lorsque l'écran est masqué ou que l'application passe en arrière-plan.
+1. Valider visuellement sur téléphone les proportions du personnage, les distances de marche et le cadrage de la caméra ; recalibrer les empreintes du mobilier si nécessaire.
+2. Ajouter une détection continue de collision tenant compte du volume du corps et des bras, puis des obstacles dynamiques.
+3. Ajouter les interactions de proximité : s'arrêter devant la fenêtre, regarder les fleurs et s'approcher du canapé sans le traverser.
+4. Ajouter l'assise et le lever lorsque le bassin, les genoux et les chevilles seront pilotés par un rig cohérent.
+5. Ajouter des activités autonomes supplémentaires et une mémoire locale des préférences/activités, sans autoriser d'action hors du salon.
+6. Mesurer la mémoire, la température et les images par seconde sur le Mhorse S22 Max ; adapter la fréquence et suspendre le travail lorsque l'écran est masqué ou l'application en arrière-plan.
 
 ## Règles de sécurité et de contrôle
 
@@ -64,4 +63,4 @@ L'option d'autonomie doit rester désactivée par défaut jusqu'à ce qu'un cont
 
 ## Validation
 
-Le planificateur, le graphe, la carte de collision, le contrôleur de locomotion et le coordinateur sont écrits en Kotlin pur et n'ajoutent aucune dépendance Android ou réseau. Un harnais Kotlin indépendant a validé le calcul des itinéraires depuis le centre vers les quatre cibles, les marges de collision des segments, l'arrivée du contrôleur, l'interruption utilisateur et l'arrêt explicite. Ce contrôle ne remplace pas les tests du module Android : les sources n'ont pas encore été compilées dans l'application ni validées sur appareil. La compilation Android finale reste réservée à la fin de l'intégration des fonctionnalités.
+Le planificateur, le graphe, la carte de collision, le contrôleur et le coordinateur restent en Kotlin pur. `ChamaAutonomyTest.kt` ajoute six tests JUnit couvrant les itinéraires, les obstacles, le point de reprise, l'arrivée, l'interruption utilisateur et la replanification. Ces tests ont été ajoutés mais ne sont pas encore exécutés. Aucune compilation Android ni validation sur appareil n'a été lancée ; la validation finale devra vérifier la scène partagée, les performances et les collisions sur le téléphone.
