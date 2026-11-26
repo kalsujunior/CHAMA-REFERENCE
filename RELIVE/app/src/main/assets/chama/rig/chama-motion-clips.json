@@ -12,7 +12,8 @@
   "portraitSafety": {
     "originalPortraitImmutable": true,
     "noFaceOrHeadTracks": true,
-    "allMotionMustBeConfinedToSeparateBodyAndHairLayers": true
+    "allMotionMustBeConfinedToSeparateBodyAndHairLayers": false,
+    "bodyOnlyGeometryExcludesHeadNeckFaceAndHair": true
   },
   "clips": {
     "idle": {
@@ -30,50 +31,6 @@
             {
               "t": 1600,
               "v": -0.006
-            },
-            {
-              "t": 3200,
-              "v": 0
-            }
-          ]
-        },
-        {
-          "joint": "braid_left",
-          "property": "rotation",
-          "keys": [
-            {
-              "t": 0,
-              "v": 0
-            },
-            {
-              "t": 900,
-              "v": 1.8
-            },
-            {
-              "t": 1900,
-              "v": -1.2
-            },
-            {
-              "t": 3200,
-              "v": 0
-            }
-          ]
-        },
-        {
-          "joint": "braid_right",
-          "property": "rotation",
-          "keys": [
-            {
-              "t": 0,
-              "v": 0
-            },
-            {
-              "t": 1100,
-              "v": -1.5
-            },
-            {
-              "t": 2100,
-              "v": 1.1
             },
             {
               "t": 3200,
