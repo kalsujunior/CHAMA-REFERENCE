@@ -261,8 +261,6 @@ internal fun SceneScope.ChamaBodyNodes(
     }
     val leftHipX = bodyCenterX - 0.15f
     val rightHipX = bodyCenterX + 0.15f
-    val sitThighTilt = 55f * sitBlend
-    val sitCalfTilt = 45f * sitBlend
     val leftStandingKneeX = leftHipX + chamaSinDeg(leftThighAngle) * thighLength
     val leftStandingKneeY = hipY - chamaCosDeg(leftThighAngle) * thighLength
     val rightStandingKneeX = rightHipX + chamaSinDeg(rightThighAngle) * thighLength
@@ -298,6 +296,27 @@ internal fun SceneScope.ChamaBodyNodes(
     val rightAnkleY = rightLegPose.ankle.y
     val rightAnkleZ = rightLegPose.ankle.z
 
+    val rightShoulderPoint = ChamaLimbPoint3D(rightShoulderX, shoulderY, 0f)
+    val leftShoulderPoint = ChamaLimbPoint3D(leftShoulderX, shoulderY, 0f)
+    val rightElbowPoint = ChamaLimbPoint3D(rightElbowX, rightElbowY, rightElbowZ)
+    val leftElbowPoint = ChamaLimbPoint3D(leftElbowX, leftElbowY, leftElbowZ)
+    val rightWristPoint = ChamaLimbPoint3D(rightWristX, rightWristY, rightWristZ)
+    val leftWristPoint = ChamaLimbPoint3D(leftWristX, leftWristY, leftWristZ)
+    val rightUpperRotation = ChamaBodyPoseMath.segmentRotation(rightShoulderPoint, rightElbowPoint)
+    val leftUpperRotation = ChamaBodyPoseMath.segmentRotation(leftShoulderPoint, leftElbowPoint)
+    val rightForearmRotation = ChamaBodyPoseMath.segmentRotation(rightElbowPoint, rightWristPoint)
+    val leftForearmRotation = ChamaBodyPoseMath.segmentRotation(leftElbowPoint, leftWristPoint)
+
+    val leftHipPoint = ChamaLimbPoint3D(leftHipX, hipY, 0f)
+    val rightHipPoint = ChamaLimbPoint3D(rightHipX, hipY, 0f)
+    val leftKneePoint = ChamaLimbPoint3D(leftKneeX, leftKneeY, leftKneeZ)
+    val rightKneePoint = ChamaLimbPoint3D(rightKneeX, rightKneeY, rightKneeZ)
+    val leftAnklePoint = ChamaLimbPoint3D(leftAnkleX, leftAnkleY, leftAnkleZ)
+    val rightAnklePoint = ChamaLimbPoint3D(rightAnkleX, rightAnkleY, rightAnkleZ)
+    val leftThighRotation = ChamaBodyPoseMath.segmentRotation(leftHipPoint, leftKneePoint)
+    val rightThighRotation = ChamaBodyPoseMath.segmentRotation(rightHipPoint, rightKneePoint)
+    val leftCalfRotation = ChamaBodyPoseMath.segmentRotation(leftKneePoint, leftAnklePoint)
+    val rightCalfRotation = ChamaBodyPoseMath.segmentRotation(rightKneePoint, rightAnklePoint)
 
     Node(
         position = Position(rootPosition.x, rootHeight, rootPosition.z),
@@ -345,14 +364,11 @@ internal fun SceneScope.ChamaBodyNodes(
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, leftElbowZ / 2f),
-            rotation = Rotation(x = if (sitting) -16f else 0f, z = leftShoulderAngle + 180f))
+            rotation = Rotation(x = leftUpperRotation.xDegrees, z = leftUpperRotation.zDegrees))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, rightElbowZ / 2f),
-            rotation = Rotation(
-                x = if (reaching) -60f else if (sitting) -16f else 0f,
-                z = if (reaching) 161f else rightShoulderAngle + 180f
-            ))
+            rotation = Rotation(x = rightUpperRotation.xDegrees, z = rightUpperRotation.zDegrees))
         SphereNode(radius = 0.092f, materialInstance = sweater,
             position = Position(leftElbowX, leftElbowY, leftElbowZ))
         SphereNode(radius = 0.092f, materialInstance = sweater,
@@ -360,14 +376,11 @@ internal fun SceneScope.ChamaBodyNodes(
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
             position = Position((leftElbowX + leftWristX) / 2f, (leftElbowY + leftWristY) / 2f, (leftElbowZ + leftWristZ) / 2f),
-            rotation = Rotation(x = if (sitting) -16f else 0f, z = leftForearmAngle + 180f))
+            rotation = Rotation(x = leftForearmRotation.xDegrees, z = leftForearmRotation.zDegrees))
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
             position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, (rightElbowZ + rightWristZ) / 2f),
-            rotation = Rotation(
-                x = if (reaching) -62f else if (sitting) -16f else 0f,
-                z = if (reaching) 163f else rightForearmAngle + 180f
-            ))
+            rotation = Rotation(x = rightForearmRotation.xDegrees, z = rightForearmRotation.zDegrees))
         SphereNode(radius = 0.075f, materialInstance = cuff,
             position = Position(leftWristX, leftWristY, leftWristZ))
         SphereNode(radius = 0.075f, materialInstance = cuff,
@@ -419,20 +432,20 @@ internal fun SceneScope.ChamaBodyNodes(
             position = Position(rightHipX, hipY, 0f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
             position = Position((leftHipX + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, leftKneeZ / 2f),
-            rotation = Rotation(x = -sitThighTilt, z = (leftThighAngle + 180f) * (1f - sitBlend)))
+            rotation = Rotation(x = leftThighRotation.xDegrees, z = leftThighRotation.zDegrees))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
             position = Position((rightHipX + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, rightKneeZ / 2f),
-            rotation = Rotation(x = -sitThighTilt, z = (rightThighAngle + 180f) * (1f - sitBlend)))
+            rotation = Rotation(x = rightThighRotation.xDegrees, z = rightThighRotation.zDegrees))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(leftKneeX, leftKneeY, leftKneeZ))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(rightKneeX, rightKneeY, rightKneeZ))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
             position = Position((leftKneeX + leftAnkleX) / 2f, (leftKneeY + leftAnkleY) / 2f, (leftKneeZ + leftAnkleZ) / 2f),
-            rotation = Rotation(x = -sitCalfTilt, z = (leftCalfAngle + 180f) * (1f - sitBlend)))
+            rotation = Rotation(x = leftCalfRotation.xDegrees, z = leftCalfRotation.zDegrees))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
             position = Position((rightKneeX + rightAnkleX) / 2f, (rightKneeY + rightAnkleY) / 2f, (rightKneeZ + rightAnkleZ) / 2f),
-            rotation = Rotation(x = -sitCalfTilt, z = (rightCalfAngle + 180f) * (1f - sitBlend)))
+            rotation = Rotation(x = rightCalfRotation.xDegrees, z = rightCalfRotation.zDegrees))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(leftAnkleX, leftAnkleY, leftAnkleZ))
         SphereNode(radius = 0.105f, materialInstance = trousers,
