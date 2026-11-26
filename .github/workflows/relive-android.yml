@@ -2,17 +2,7 @@ name: RELIVE Android build
 # Rebuild latest RELIVE app features and version 0.4.0
 
 on:
-  push:
-    branches: [relive-app]
-    paths:
-      - "RELIVE/**"
-      - ".github/workflows/relive-android.yml"
-  pull_request:
-    branches: [main, relive-app]
-    paths:
-      - "RELIVE/**"
-      - ".github/workflows/relive-android.yml"
-  workflow_dispatch:
+  workflow_dispatch::
 
 concurrency:
   group: relive-android-${{ github.ref }}
