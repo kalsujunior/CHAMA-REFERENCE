@@ -202,7 +202,7 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
 private fun extractExplicitMemory(message: String): String? {
     val patterns = listOf(
         Regex("""(?i)^\s*(?:s'il te plaît[, ]*)?(?:souviens[- ]toi(?: bien)?|n'oublie pas|mémorise|enregistre)(?:\s+(?:que|ceci|cela|ça))?\s*[:,-]?\s+(.+?)\s*$"""),
-        Regex("""(?i)^\s*(?:sonje sa|sonje sa pou mwen|pa bliye)\s*[:,-]?\s+(.+?)\s*$""")
+        Regex("""(?i)^\s*(?:sonje sa pou mwen|sonje sa|pa bliye)\s*[:,-]?\s+(.+?)\s*$""")
     )
     val detail = patterns.firstNotNullOfOrNull { it.find(message)?.groupValues?.getOrNull(1) }
         ?.trim()?.trim('"', '“', '”', '«', '»', ' ', '.', '!')
@@ -478,6 +478,8 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
         Button(onClick = {
             if (displayName.isBlank()) {
                 savedMessage = "Le nom ne peut pas être vide."
+            } else if (remoteAiEnabled && remoteAccessToken.isBlank()) {
+                savedMessage = "Ajoute le code d'accès du serveur avant d'activer l'IA distante."
             } else {
                 preferences.displayName = displayName
                 preferences.languageTag = language
