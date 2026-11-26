@@ -41,6 +41,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var speaking by remember { mutableStateOf(false) }
     var bodyGesture by remember { mutableStateOf(ChamaBodyGesture.IDLE) }
     var lampOn by remember { mutableStateOf(true) }
+    var eveningAmbience by remember { mutableStateOf(false) }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -86,7 +87,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 .clip(RoundedCornerShape(30.dp))
                 .background(Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.36f), palette.surface, palette.background)))
         ) {
-            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn)
+            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn, evening = eveningAmbience)
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(16.dp))
                 Text("Bienvenue dans mon univers", color = RoomCream, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
@@ -130,6 +131,14 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
                 ) {
                     Text(if (lampOn) "Éteindre la lampe" else "Allumer la lampe", fontSize = 11.sp)
+                }
+
+                OutlinedButton(
+                    onClick = { eveningAmbience = !eveningAmbience },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
+                ) {
+                    Text(if (eveningAmbience) "Passer en ambiance jour" else "Passer en ambiance soir", fontSize = 11.sp)
                 }
 
                 Row(
