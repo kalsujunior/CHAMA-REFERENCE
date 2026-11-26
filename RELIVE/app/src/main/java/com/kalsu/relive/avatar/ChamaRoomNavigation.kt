@@ -1,0 +1,124 @@
+package com.kalsu.relive.avatar
+
+import kotlin.math.sqrt
+
+/**
+ * Walkable waypoint graph for the current RELIVE salon blockout.
+ *
+ * Coordinates use the room's X/Z floor plane in metres. The graph deliberately
+ * routes around the sofa and coffee table rather than drawing straight lines
+ * through furniture. A locomotion controller must still validate each segment
+ * against the live scene before moving the avatar.
+ */
+enum class ChamaRoomWaypoint {
+    ROOM_CENTER,
+    LEFT_AISLE,
+    WINDOW_STOP,
+    SOFA_STOP,
+    RIGHT_AISLE,
+    FLOWERS_STOP
+}
+
+data class ChamaRoomPoint(val x: Float, val z: Float)
+
+data class ChamaRoomRoute(
+    val waypoints: List<ChamaRoomWaypoint>,
+    val points: List<ChamaRoomPoint>,
+    val lengthMeters: Float
+) {
+    init {
+        require(waypoints.isNotEmpty())
+        require(waypoints.size == points.size)
+        require(lengthMeters >= 0f)
+    }
+}
+
+object ChamaRoomNavigation {
+    private val positions = mapOf(
+        ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomPoint(0.0f, 0.85f),
+        ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomPoint(-1.35f, 0.85f),
+        ChamaRoomWaypoint.WINDOW_STOP to ChamaRoomPoint(-1.35f, -1.82f),
+        ChamaRoomWaypoint.SOFA_STOP to ChamaRoomPoint(-1.30f, -0.90f),
+        ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomPoint(1.35f, 0.85f),
+        ChamaRoomWaypoint.FLOWERS_STOP to ChamaRoomPoint(1.25f, -0.75f)
+    )
+
+    private val edges = listOf(
+        ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomWaypoint.LEFT_AISLE,
+        ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomWaypoint.WINDOW_STOP,
+        ChamaRoomWaypoint.LEFT_AISLE to ChamaRoomWaypoint.SOFA_STOP,
+        ChamaRoomWaypoint.ROOM_CENTER to ChamaRoomWaypoint.RIGHT_AISLE,
+        ChamaRoomWaypoint.RIGHT_AISLE to ChamaRoomWaypoint.FLOWERS_STOP
+    )
+
+    private val targetWaypoints = mapOf(
+        ChamaAutonomyTarget.ROOM_CENTER to ChamaRoomWaypoint.ROOM_CENTER,
+        ChamaAutonomyTarget.WINDOW to ChamaRoomWaypoint.WINDOW_STOP,
+        ChamaAutonomyTarget.SOFA to ChamaRoomWaypoint.SOFA_STOP,
+        ChamaAutonomyTarget.FLOWERS to ChamaRoomWaypoint.FLOWERS_STOP
+    )
+
+    /** Returns a shortest waypoint route, or null if a target is not mapped. */
+    fun findRoute(
+        start: ChamaRoomWaypoint,
+        target: ChamaAutonomyTarget
+    ): ChamaRoomRoute? {
+        val destination = targetWaypoints[target] ?: return null
+        if (start == destination) {
+            val point = positions.getValue(start)
+            return ChamaRoomRoute(listOf(start), listOf(point), 0f)
+        }
+
+        val distances = ChamaRoomWaypoint.values().associateWith { Float.POSITIVE_INFINITY }.toMutableMap()
+        val previous = mutableMapOf<ChamaRoomWaypoint, ChamaRoomWaypoint>()
+        val unvisited = ChamaRoomWaypoint.values().toMutableSet()
+        distances[start] = 0f
+
+        while (unvisited.isNotEmpty()) {
+            val current = unvisited.minByOrNull { distances.getValue(it) } ?: break
+            val currentDistance = distances.getValue(current)
+            if (!currentDistance.isFinite()) break
+            unvisited.remove(current)
+            if (current == destination) break
+
+            edges.forEach { (a, b) ->
+                val neighbour = when (current) {
+                    a -> b
+                    b -> a
+                    else -> null
+                } ?: return@forEach
+                if (neighbour !in unvisited) return@forEach
+                val candidate = currentDistance + distance(
+                    positions.getValue(current), positions.getValue(neighbour)
+                )
+                if (candidate < distances.getValue(neighbour)) {
+                    distances[neighbour] = candidate
+                    previous[neighbour] = current
+                }
+            }
+        }
+
+        if (!distances.getValue(destination).isFinite()) return null
+        val reversed = mutableListOf(destination)
+        var cursor = destination
+        while (cursor != start) {
+            cursor = previous[cursor] ?: return null
+            reversed += cursor
+        }
+        val route = reversed.asReversed()
+        return ChamaRoomRoute(
+            waypoints = route,
+            points = route.map { positions.getValue(it) },
+            lengthMeters = distances.getValue(destination)
+        )
+    }
+
+    fun pointOf(waypoint: ChamaRoomWaypoint): ChamaRoomPoint =
+        positions.getValue(waypoint)
+
+    private fun distance(a: ChamaRoomPoint, b: ChamaRoomPoint): Float {
+        val dx = a.x - b.x
+        val dz = a.z - b.z
+        return sqrt(dx * dx + dz * dz)
+    }
+}
