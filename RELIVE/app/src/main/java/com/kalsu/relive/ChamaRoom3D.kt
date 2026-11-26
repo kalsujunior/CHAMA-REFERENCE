@@ -75,6 +75,20 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
         )
     }
 
+    // Palette du médaillon mural RELIVE-KAL-SU, inspiré de l'illustration de référence.
+    val muralPanel = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFF5A302B), roughness = 0.82f)
+    }
+    val muralGold = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFE2B84F), metallic = 0.78f, roughness = 0.24f)
+    }
+    val muralRed = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFB51232), metallic = 0.18f, roughness = 0.28f)
+    }
+    val muralPink = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFE99AA8), roughness = 0.55f)
+    }
+
     SceneView(
         modifier = modifier,
         engine = engine,
@@ -177,11 +191,33 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
         CubeNode(size = Size(0.13f, 0.24f, 0.16f), materialInstance = gold,
             position = Position(-2.00f, 1.25f, -1.31f))
 
-        // Petit cadre mural doré.
-        CubeNode(size = Size(0.62f, 0.48f, 0.045f), materialInstance = gold,
-            position = Position(1.45f, 1.86f, -2.27f))
-        CubeNode(size = Size(0.52f, 0.38f, 0.025f), materialInstance = sofaAccent,
-            position = Position(1.45f, 1.86f, -2.235f))
+        // Médaillon mural sculptural RELIVE-KAL-SU : panneau, cœur rouge et accents floraux.
+        CubeNode(size = Size(1.22f, 0.92f, 0.075f), materialInstance = muralGold,
+            position = Position(1.42f, 1.88f, -2.285f))
+        CubeNode(size = Size(1.14f, 0.84f, 0.045f), materialInstance = muralPanel,
+            position = Position(1.42f, 1.88f, -2.235f))
+        // Cœur stylisé en relief : deux lobes arrondis et une pointe en losange.
+        CubeNode(size = Size(0.48f, 0.48f, 0.085f), materialInstance = muralGold,
+            position = Position(1.42f, 1.91f, -2.185f),
+            rotation = io.github.sceneview.math.Rotation(z = 45f))
+        CubeNode(size = Size(0.42f, 0.42f, 0.095f), materialInstance = muralRed,
+            position = Position(1.42f, 1.91f, -2.125f),
+            rotation = io.github.sceneview.math.Rotation(z = 45f))
+        SphereNode(radius = 0.205f, materialInstance = muralRed,
+            position = Position(1.28f, 2.075f, -2.12f))
+        SphereNode(radius = 0.205f, materialInstance = muralRed,
+            position = Position(1.56f, 2.075f, -2.12f))
+        // Petites roses et ornements dorés de chaque côté.
+        SphereNode(radius = 0.105f, materialInstance = rose,
+            position = Position(0.98f, 1.88f, -2.13f))
+        SphereNode(radius = 0.105f, materialInstance = muralPink,
+            position = Position(1.86f, 1.88f, -2.13f))
+        SphereNode(radius = 0.055f, materialInstance = muralGold,
+            position = Position(1.05f, 2.18f, -2.13f))
+        SphereNode(radius = 0.055f, materialInstance = muralGold,
+            position = Position(1.79f, 2.18f, -2.13f))
+        CubeNode(size = Size(0.025f, 0.42f, 0.035f), materialInstance = muralGold,
+            position = Position(1.42f, 1.88f, -2.105f))
 
         // Suspension et pampille lumineuse décorative.
         CylinderNode(radius = 0.025f, height = 0.58f, materialInstance = gold,
