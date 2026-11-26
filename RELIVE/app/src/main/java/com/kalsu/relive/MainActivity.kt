@@ -351,6 +351,12 @@ private fun ChatScreen(modifier: Modifier) {
                             val finalReply = answer ?: fallback
                             addMessage("Chama", finalReply)
                             if (preferences.voiceEnabled) speech.speak(finalReply, preferences.languageTag)
+                        } catch (_: Exception) {
+                            addMessage(
+                                "Chama",
+                                if (preferences.languageTag == "ht-HT") "Gen yon pwoblèm teknik. Eseye ankò nan yon ti moman."
+                                else "Une difficulté technique est survenue. Tes messages restent enregistrés ; tu peux réessayer dans un instant."
+                            )
                         } finally {
                             sending = false
                         }
@@ -499,13 +505,15 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
         )
         Text("Ce code doit aussi être enregistré dans Cloudflare sous le secret RELIVE_ACCESS_TOKEN.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
         Button(onClick = {
-            if (displayName.isBlank()) {
-                savedMessage = "Le nom ne peut pas être vide."
+            if (displayName.isBlank() || displayName.length > 40) {
+                savedMessage = "Le nom doit contenir entre 1 et 40 caractères."
+            } else if (remoteAccessToken.length > 512) {
+                savedMessage = "Le code d'accès est trop long (512 caractères maximum)."
             } else if (remoteAiEnabled && remoteAccessToken.isBlank()) {
                 savedMessage = "Ajoute le code d'accès du serveur avant d'activer l'IA distante."
             } else {
                 preferences.displayName = displayName
-                preferences.languageTag = language
+                preferences.languageTag = language.takeIf { it == "fr-FR" || it == "ht-HT" } ?: "fr-FR"
                 preferences.voiceEnabled = voiceEnabled
                 preferences.remoteAiEnabled = remoteAiEnabled
                 preferences.remoteAccessToken = remoteAccessToken.trim()
