@@ -4,14 +4,14 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 
 ## État actuel de l'espace virtuel
 
-- Une première pièce 3D procédurale SceneView/Filament est intégrée : sol, murs, fenêtre, canapé, coussins, table, lampe et plante.
+- Une pièce 3D procédurale SceneView/Filament est intégrée : sol, murs, fenêtre panoramique, rideaux, canapé, coussins, tapis, table, lampe, suspension, étagère, livres, cadre mural, vase de roses et plante.
 - Un premier blocage géométrique 3D du corps indépendant est intégré : torse, bassin, bras, avant-bras, mains simplifiées, jambes, chaussures et détails géométriques du pull.
 - Les interactions Bonjour, Écouter et Partager sélectionnent respectivement les gestes corporels WAVE, LISTEN et DANCE.
-- Le corps possède des animations procédurales simples : mouvement des bras, respiration et balancement du torse.
+- Le corps possède des animations procédurales simples : mouvement indépendant des bras, respiration, balancement du torse et oscillation des deux tresses géométriques.
 - Le portrait d'origine reste une image Compose distincte, affichée sans texture 3D, retouche ni animation.
 - Le modèle corporel actuel est un blocage géométrique de développement. Ce n'est pas encore un personnage humain réaliste, un maillage final, un rig squelettique complet ni un fichier GLB/FBX.
 - Les deux SceneView (pièce et corps) sont actuellement séparées. Leur coût mémoire/GPU doit être mesuré sur le téléphone cible avant validation.
-- Les tresses détaillées, les vêtements finalisés, les animations avancées, l'intégration visuelle du portrait avec le corps et les interactions complètes de la pièce restent à réaliser.
+- Les tresses actuelles sont des volumes géométriques provisoires ; leur maillage détaillé, les vêtements finalisés, les animations avancées, l'intégration visuelle du portrait avec le corps et les interactions complètes de la pièce restent à réaliser.
 
 ## Protection obligatoire du portrait
 
