@@ -294,6 +294,19 @@ internal fun ChamaBody3D(
         // Denim waistband and outer seams clarify the pelvis and leg silhouette.
         CubeNode(size = Size(0.48f, 0.055f, 0.34f), materialInstance = denimSeam,
             position = Position(bodyCenterX, 1.055f, 0.015f))
+        // Front fly, pocket openings and belt loops add restrained denim construction detail.
+        CapsuleNode(radius = 0.009f, height = 0.13f, materialInstance = denimSeam,
+            position = Position(bodyCenterX, 0.925f, 0.192f))
+        CapsuleNode(radius = 0.009f, height = 0.17f, materialInstance = denimSeam,
+            position = Position(bodyCenterX - 0.145f, 0.925f, 0.19f),
+            rotation = Rotation(z = 32f))
+        CapsuleNode(radius = 0.009f, height = 0.17f, materialInstance = denimSeam,
+            position = Position(bodyCenterX + 0.145f, 0.925f, 0.19f),
+            rotation = Rotation(z = -32f))
+        CubeNode(size = Size(0.035f, 0.085f, 0.025f), materialInstance = denimSeam,
+            position = Position(bodyCenterX - 0.16f, 1.055f, 0.19f))
+        CubeNode(size = Size(0.035f, 0.085f, 0.025f), materialInstance = denimSeam,
+            position = Position(bodyCenterX + 0.16f, 1.055f, 0.19f))
         CapsuleNode(radius = 0.018f, height = 0.62f, materialInstance = denimSeam,
             position = Position(leftHipX - 0.105f, 0.49f, 0.13f))
         CapsuleNode(radius = 0.018f, height = 0.62f, materialInstance = denimSeam,
