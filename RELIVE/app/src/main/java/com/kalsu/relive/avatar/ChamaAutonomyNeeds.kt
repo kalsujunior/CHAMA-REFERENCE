@@ -59,6 +59,7 @@ class ChamaAutonomyNeeds(
         val curiosityRate = when (activity) {
             ChamaAutonomyActivity.WALK_TO_WINDOW,
             ChamaAutonomyActivity.WALK_TO_FLOWERS,
+            ChamaAutonomyActivity.WALK_TO_LAMP,
             ChamaAutonomyActivity.WALK_TO_SOFA -> 0.0012f
             ChamaAutonomyActivity.REST -> 0.003f
             ChamaAutonomyActivity.LOOK_AROUND -> 0.0018f
