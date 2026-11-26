@@ -304,8 +304,14 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                             autonomyFrame.locomotion.status == ChamaLocomotionStatus.ARRIVED
                     ),
                     bodyGesture = if (autonomyEnabled) {
-                        if (seatProgress > 0.001f && autonomyFrame.decision.bodyGesture != ChamaBodyGesture.SIT) ChamaBodyGesture.IDLE
-                        else autonomyFrame.bodyGesture
+                        when {
+                            seatProgress > 0.001f && autonomyFrame.decision.bodyGesture != ChamaBodyGesture.SIT ->
+                                ChamaBodyGesture.IDLE
+                            autonomyFrame.decision.activity == com.kalsu.relive.avatar.ChamaAutonomyActivity.WALK_TO_FLOWERS &&
+                                flowerLocation == ChamaFlowerLocation.COFFEE_TABLE ->
+                                ChamaBodyGesture.IDLE
+                            else -> autonomyFrame.bodyGesture
+                        }
                     } else bodyGesture,
                     bodyPosition = renderedBodyPosition,
                     bodyHeadingDegrees = autonomyFrame.locomotion.headingDegrees,
