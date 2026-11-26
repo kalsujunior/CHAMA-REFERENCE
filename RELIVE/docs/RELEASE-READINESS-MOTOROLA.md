@@ -36,7 +36,7 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 - Accueil, conversation locale, galerie, profil, rappels et espace 3D.
 - Conversation distante facultative, désactivée par défaut, via le Worker RELIVE.
 - Synthèse vocale Android disponible.
-- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse, transition animée vers le coussin du canapé, posture assise simplifiée avec semelles au sol et dégagement de la table basse ; approche des fleurs, bras abaissé, prise visuelle du bouquet, dépôt animé sur la table basse et remise en place dans le vase.
+- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse, transition animée vers le coussin du canapé, posture assise simplifiée avec semelles au sol et dégagement de la table basse ; approche des fleurs, bras abaissé, prise visuelle du bouquet, dépôt animé sur la table basse et remise en place dans le vase ; visite autonome de la console et bascule de la lampe virtuelle après vérification de l'arrivée au waypoint sûr.
 - Préfiltre de collision au sol : test exact de chaque segment contre les rectangles de meubles élargis, sans dépendre d'un pas d'échantillonnage fixe ; cela reste une approximation statique du volume du personnage. Elle reste désactivée par défaut et s'arrête lors d'une interaction, en mode économie d'énergie ou lorsque l'écran quitte l'état actif.
 - Portrait principal intégré séparément, sans modification.
 
@@ -49,7 +49,7 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 
 ## Vérifications et éléments bloquants
 
-- vingt-huit tests JUnit d'autonomie, de cinématique, de collision segmentaire et d'interaction du bouquet sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
+- trente tests JUnit d'autonomie, de cinématique, de collision segmentaire, d'interaction du bouquet et de visite de la lampe virtuelle sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
 - Une vérification Kotlin/JVM isolée des formules de collision, des sept waypoints et six arêtes, du contact main/rose et de l'état du bouquet a réussi ; elle ne remplace pas l'exécution JUnit ni la compilation Android.
 - Le module pur Kotlin `ChamaBodyPoseMath.kt` a été compilé séparément avec Kotlin/JVM 1.9 et vérifié sur les longueurs des bras, l'avancée des jambes, la hauteur des pieds, la transition vers le coussin et l'orientation assise et l'alignement géométrique des capsules articulaires. Cette vérification ciblée ne constitue ni l'exécution des tests JUnit ni une compilation Android.
 - Aucune compilation Android n'a été exécutée sur cette branche pendant cet audit.
