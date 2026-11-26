@@ -119,6 +119,9 @@ object ChamaRoomNavigation {
     fun pointOf(waypoint: ChamaRoomWaypoint): ChamaRoomPoint =
         positions.getValue(waypoint)
 
+    fun waypointOf(target: ChamaAutonomyTarget): ChamaRoomWaypoint =
+        targetWaypoints.getValue(target)
+
     private fun distance(a: ChamaRoomPoint, b: ChamaRoomPoint): Float {
         val dx = a.x - b.x
         val dz = a.z - b.z
