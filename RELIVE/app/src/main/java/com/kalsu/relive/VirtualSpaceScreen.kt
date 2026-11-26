@@ -43,6 +43,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var lampOn by remember { mutableStateOf(true) }
     var eveningAmbience by remember { mutableStateOf(false) }
     var sofaWelcoming by remember { mutableStateOf(false) }
+    var bouquetHighlighted by remember { mutableStateOf(false) }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -88,7 +89,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 .clip(RoundedCornerShape(30.dp))
                 .background(Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.36f), palette.surface, palette.background)))
         ) {
-            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn, evening = eveningAmbience, sofaWelcoming = sofaWelcoming)
+            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn, evening = eveningAmbience, sofaWelcoming = sofaWelcoming, bouquetHighlighted = bouquetHighlighted)
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(16.dp))
                 Text("Bienvenue dans mon univers", color = RoomCream, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
@@ -154,6 +155,17 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     Text(if (sofaWelcoming) "Ranger les coussins" else "Préparer le canapé", fontSize = 11.sp)
                 }
 
+                OutlinedButton(
+                    onClick = {
+                        bouquetHighlighted = !bouquetHighlighted
+                        status = if (bouquetHighlighted) "J'ai mis mes roses préférées en valeur. 🌹" else "Les roses retrouvent leur teinte naturelle."
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.dp)
+                ) {
+                    Text(if (bouquetHighlighted) "Rétablir les roses" else "Mettre les roses en valeur", fontSize = 11.sp)
+                }
+
                 Row(
                     Modifier.fillMaxWidth().padding(horizontal = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(7.dp)
@@ -202,7 +214,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Salon 3D manipulable, lampe, ambiance jour/soir et coussins du canapé interactifs, corps animé. Le portrait original reste indépendant, intact et non animé.",
+            "Salon 3D manipulable, lampe, ambiance jour/soir et coussins du canapé et bouquet interactifs, corps animé. Le portrait original reste indépendant, intact et non animé.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
