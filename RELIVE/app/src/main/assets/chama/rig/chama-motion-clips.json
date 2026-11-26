@@ -12,8 +12,8 @@
   "portraitSafety": {
     "originalPortraitImmutable": true,
     "noFaceOrHeadTracks": true,
-    "allMotionMustBeConfinedToSeparateBodyAndHairLayers": false,
-    "bodyOnlyGeometryExcludesHeadNeckFaceAndHair": true
+    "bodyOnlyGeometryExcludesHeadNeckFaceAndHair": true,
+    "allMotionMustBeConfinedToSeparateBodyLayers": true
   },
   "clips": {
     "idle": {
