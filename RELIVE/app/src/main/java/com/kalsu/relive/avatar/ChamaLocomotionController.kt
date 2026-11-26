@@ -8,8 +8,9 @@ import kotlin.math.sqrt
  * Time-based, renderer-independent locomotion simulation for Chama.
  *
  * This class only produces a proposed root position and heading in the salon's
- * X/Z plane. A SceneView adapter must apply the frame, validate collisions and
- * keep the body-only rig aligned. It does not move SceneView nodes itself.
+ * X/Z plane. VirtualSpaceScreen applies the resulting frame to the body root
+ * Node in the shared salon SceneView. The controller itself remains renderer-
+ * independent; ChamaAutonomyRuntime validates static room clearance.
  */
 enum class ChamaLocomotionStatus {
     IDLE,
