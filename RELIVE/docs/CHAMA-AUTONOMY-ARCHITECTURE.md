@@ -25,9 +25,9 @@ L'option d'autonomie doit rester désactivée par défaut jusqu'à ce qu'un cont
 
 ## Graphe de navigation du salon
 
-`avatar/ChamaRoomNavigation.kt` ajoute un premier graphe de points de passage au sol : centre, couloir gauche, arrêt près de la fenêtre, arrêt près du canapé, couloir droit et arrêt près des fleurs. Un calcul de plus court chemin relie ces points en contournant le canapé et la table basse. Les coordonnées sont exprimées dans le repère X/Z du salon actuel.
+`avatar/ChamaRoomNavigation.kt` ajoute un premier graphe de points de passage au sol : centre, couloir gauche, arrêt près de la fenêtre, arrêt près du canapé, couloir droit et arrêt près des fleurs. Un calcul de plus court chemin relie ces points en contournant le canapé et la table basse. Les coordonnées sont exprimées dans le repère X/Z du salon actuel. Chaque arête proposée est maintenant filtrée par la carte de collision statique.
 
-Les points ont été recalés à partir des dimensions et positions visibles dans `ChamaRoom3D.kt` : le couloir gauche passe à l'extérieur de l'accoudoir du canapé, le couloir droit reste devant la table basse et l'approche des fleurs évite la console. Ces marges restent des estimations géométriques du blockout ; elles ne remplacent pas une validation de collision avec le volume réel du personnage.
+`avatar/ChamaRoomCollisionMap.kt` décrit les empreintes du canapé, de la table basse, de la console et du pot de plante. Elle agrandit ces obstacles du rayon estimé du personnage (0,30 m) et d'une marge (0,05 m), puis échantillonne les segments de trajet tous les 5 cm. Les points ont été recalés à partir des dimensions et positions visibles dans `ChamaRoom3D.kt` : le couloir gauche passe à l'extérieur de l'accoudoir du canapé, le couloir droit reste devant la table basse et l'approche des fleurs évite la console. Une vérification géométrique des cinq segments du graphe confirme qu'ils restent dans la zone marchable modélisée. Ces marges restent des estimations du blockout ; elles ne remplacent pas une validation de collision continue avec le volume réel du personnage.
 
 `avatar/ChamaLocomotionController.kt` ajoute maintenant une simulation de déplacement indépendante du rendu :
 
@@ -64,4 +64,4 @@ Les points ont été recalés à partir des dimensions et positions visibles dan
 
 ## Validation
 
-Le planificateur, le graphe, le contrôleur de locomotion et le coordinateur sont écrits en Kotlin pur et n'ajoutent aucune dépendance Android ou réseau. Ils n'ont pas encore été compilés dans l'application ni validés sur appareil. La compilation Android finale reste réservée à la fin de l'intégration des fonctionnalités.
+Le planificateur, le graphe, la carte de collision, le contrôleur de locomotion et le coordinateur sont écrits en Kotlin pur et n'ajoutent aucune dépendance Android ou réseau. Ils n'ont pas encore été compilés dans l'application ni validés sur appareil. La compilation Android finale reste réservée à la fin de l'intégration des fonctionnalités.
