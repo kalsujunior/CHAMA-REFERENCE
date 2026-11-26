@@ -78,7 +78,7 @@ Voir `backend/cloudflare-worker/README.md` pour les détails de configuration.
 ## Limites et prochaines intégrations
 
 - Remplacer progressivement le blocage géométrique par un corps 3D détaillé et réellement articulé, sans toucher au portrait.
-- Ajouter les tresses et les vêtements comme éléments séparés, puis leurs mouvements corporels.
+- Remplacer les volumes provisoires des tresses et les formes simplifiées des vêtements par des maillages détaillés séparés, avec des mouvements corporels mieux articulés.
 - Fusionner ou optimiser les deux scènes 3D si les mesures de mémoire/GPU le nécessitent.
 - Étendre les interactions avec le mobilier (assise réelle, autres objets décoratifs, éclairage complémentaire) et les déplacements dans la pièce. Le canapé et le bouquet disposent déjà de commandes visuelles simples. Le contrôle actuel du canapé ne simule pas encore une véritable animation d'assise.
 - Évaluer les performances et la stabilité sur le Motorola Moto G Stylus 5G avant de considérer l'espace 3D comme validé.
@@ -95,9 +95,9 @@ Configuration du projet :
 - compileSdk 37
 - minSdk 24
 - Java / Kotlin JVM target 21
-- Gradle 9.6.0 ou supérieur compatible avec AGP 9.4
+- Gradle 9.9.2 (version utilisée par le workflow de compilation)
 
-Prérequis recommandés : JDK 21, Android SDK Platform 37 et Build Tools 36.0.0.
+Prérequis recommandés : JDK 21, Android SDK Platform 37 et Android Build Tools 37.0.0.
 
 Depuis le dossier `RELIVE` :
 
