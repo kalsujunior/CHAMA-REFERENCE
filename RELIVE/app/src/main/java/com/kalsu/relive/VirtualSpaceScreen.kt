@@ -191,7 +191,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         Spacer(Modifier.width(4.dp)); Text("Bonjour", fontSize = 11.sp)
                     }
                     FilledTonalButton(
-                        onClick = { act("Je t'écoute. Raconte-moi ce que tu as sur le cœur.") },
+                        onClick = { act("Je t'écoute. Raconte-moi ce que tu as sur le cœur.", ChamaBodyGesture.LISTEN) },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.filledTonalButtonColors(containerColor = palette.secondary, contentColor = RoomInk),
                         contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp)
