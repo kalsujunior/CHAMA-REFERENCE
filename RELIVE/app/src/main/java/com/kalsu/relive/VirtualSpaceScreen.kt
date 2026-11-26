@@ -46,6 +46,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var eveningAmbience by remember { mutableStateOf(false) }
     var sofaWelcoming by remember { mutableStateOf(false) }
     var bouquetHighlighted by remember { mutableStateOf(false) }
+    var lightMode by remember { mutableStateOf(false) }
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -91,7 +92,23 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 .clip(RoundedCornerShape(30.dp))
                 .background(Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.36f), palette.surface, palette.background)))
         ) {
-            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn, evening = eveningAmbience, sofaWelcoming = sofaWelcoming, bouquetHighlighted = bouquetHighlighted)
+            if (!lightMode) {
+                ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn, evening = eveningAmbience, sofaWelcoming = sofaWelcoming, bouquetHighlighted = bouquetHighlighted)
+            } else {
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.24f), palette.background, palette.surface))
+                    ),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Text(
+                        "Mode léger : décor 3D désactivé pour économiser les ressources.",
+                        color = palette.muted,
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(16.dp))
                 Text("Bienvenue dans mon univers", color = RoomCream, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
@@ -164,6 +181,12 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
                     ) { Text(if (bouquetHighlighted) "Rétablir les roses" else "Valoriser les roses", fontSize = 10.sp) }
+
+                    OutlinedButton(
+                        onClick = { lightMode = !lightMode },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
+                    ) { Text(if (lightMode) "Activer le salon 3D" else "Mode léger", fontSize = 10.sp) }
                 }
 
                 Row(
@@ -214,7 +237,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Salon 3D manipulable, lampe, ambiance jour/soir et coussins du canapé et bouquet interactifs, corps animé. Le portrait original reste indépendant, intact et non animé.",
+            "Salon 3D manipulable avec mode léger, lampe, ambiance jour/soir, coussins et bouquet interactifs ; corps animé. Le portrait original reste indépendant, intact et non animé. Le portrait original reste indépendant, intact et non animé.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
