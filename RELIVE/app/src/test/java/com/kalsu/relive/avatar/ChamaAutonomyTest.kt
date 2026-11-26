@@ -401,6 +401,15 @@ class ChamaAutonomyTest {
         assertEquals(0f, left.knee.z, 0.001f)
         assertEquals(0.3194f, left.ankle.z, 0.002f)
         assertEquals(0.3194f, right.ankle.z, 0.002f)
+        fun distance(a: ChamaLimbPoint3D, b: ChamaLimbPoint3D): Float {
+            val dx = b.x - a.x
+            val dy = b.y - a.y
+            val dz = b.z - a.z
+            return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+        }
+        val leftHip = ChamaLimbPoint3D(-0.15f, 0.78f, 0f)
+        assertEquals(0.36f, distance(leftHip, left.knee), 0.001f)
+        assertEquals(0.34f, distance(left.knee, left.ankle), 0.001f)
         // The rig root lowers by 0.31 m; the ankle remains at floor level.
         assertEquals(-0.006f, left.ankle.y - 0.31f, 0.015f)
         assertEquals(-0.006f, right.ankle.y - 0.31f, 0.015f)
