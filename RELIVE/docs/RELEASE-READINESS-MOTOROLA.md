@@ -36,7 +36,7 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 - Accueil, conversation locale, galerie, profil, rappels et espace 3D.
 - Conversation distante facultative, désactivée par défaut, via le Worker RELIVE.
 - Synthèse vocale Android disponible.
-- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse et repos logique. Elle reste désactivée par défaut et s'arrête lors d'une interaction, en mode économie d'énergie ou lorsque l'écran quitte l'état actif.
+- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse, posture assise simplifiée et geste de bras tendu vers les fleurs. Elle reste désactivée par défaut et s'arrête lors d'une interaction, en mode économie d'énergie ou lorsque l'écran quitte l'état actif.
 - Portrait principal intégré séparément, sans modification.
 
 ## État du serveur RELIVE
@@ -48,10 +48,10 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 
 ## Vérifications et éléments bloquants
 
-- Onze tests JUnit d'autonomie sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
+- Treize tests JUnit d'autonomie sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
 - Aucune compilation Android n'a été exécutée sur cette branche pendant cet audit.
 - Aucun APK n'a encore été installé ni testé sur le Motorola.
-- La collision dynamique du corps articulé, le rig 3D skinné, l'assise réelle et les manipulations physiques d'objets restent à réaliser.
+- La collision dynamique du corps articulé, le rig 3D skinné et les manipulations physiques d'objets restent à réaliser. L'assise actuelle est une pose géométrique simplifiée, pas une animation squelettique réaliste.
 - Les performances, le cadrage, les collisions et la température doivent être mesurés sur le téléphone réel.
 
 ## Contrôles de protection
