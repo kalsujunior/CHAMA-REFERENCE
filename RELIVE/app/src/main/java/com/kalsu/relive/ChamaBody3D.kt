@@ -317,6 +317,10 @@ internal fun SceneScope.ChamaBodyNodes(
     val rightThighRotation = ChamaBodyPoseMath.segmentRotation(rightHipPoint, rightKneePoint)
     val leftCalfRotation = ChamaBodyPoseMath.segmentRotation(leftKneePoint, leftAnklePoint)
     val rightCalfRotation = ChamaBodyPoseMath.segmentRotation(rightKneePoint, rightAnklePoint)
+    // Shoes stay grounded as the pelvis lowers: their seated center is 6 cm
+    // above the floor, while the ankle joints remain at floor level.
+    val leftShoeCenterY = (leftAnkleY - 0.055f) * (1f - sitBlend) + 0.37f * sitBlend
+    val rightShoeCenterY = (rightAnkleY - 0.055f) * (1f - sitBlend) + 0.37f * sitBlend
 
     Node(
         position = Position(rootPosition.x, rootHeight, rootPosition.z),
@@ -471,9 +475,9 @@ internal fun SceneScope.ChamaBodyNodes(
         CapsuleNode(radius = 0.018f, height = 0.62f, materialInstance = denimSeam,
             position = Position(rightHipX + 0.105f, 0.49f, 0.13f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(leftAnkleX, leftAnkleY - 0.055f, leftAnkleZ + 0.09f))
+            position = Position(leftAnkleX, leftShoeCenterY, leftAnkleZ + 0.09f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(rightAnkleX, rightAnkleY - 0.055f, rightAnkleZ + 0.09f))
+            position = Position(rightAnkleX, rightShoeCenterY, rightAnkleZ + 0.09f))
 
         }
     }
