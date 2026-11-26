@@ -60,7 +60,7 @@ internal fun SceneScope.ChamaBodyNodes(
         initialValue = -8f,
         targetValue = if (!motionEnabled) -8f else when (gesture) {
             ChamaBodyGesture.IDLE -> 6f
-            ChamaBodyGesture.WALK -> 12f
+            ChamaBodyGesture.WALK -> 5f
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
             ChamaBodyGesture.DANCE -> 48f
@@ -72,7 +72,7 @@ internal fun SceneScope.ChamaBodyNodes(
         initialValue = 7f,
         targetValue = if (!motionEnabled) 7f else when (gesture) {
             ChamaBodyGesture.IDLE -> -6f
-            ChamaBodyGesture.WALK -> -12f
+            ChamaBodyGesture.WALK -> -5f
             ChamaBodyGesture.WAVE -> -10f
             ChamaBodyGesture.LISTEN -> -8f
             ChamaBodyGesture.DANCE -> -42f
@@ -113,7 +113,7 @@ internal fun SceneScope.ChamaBodyNodes(
         initialValue = 0f,
         targetValue = if (!motionEnabled) 0f else when (gesture) {
             ChamaBodyGesture.IDLE -> 2f
-            ChamaBodyGesture.WALK -> 4f
+            ChamaBodyGesture.WALK -> 2f
             ChamaBodyGesture.WAVE -> 24f
             ChamaBodyGesture.LISTEN -> 7f
             ChamaBodyGesture.DANCE -> 18f
