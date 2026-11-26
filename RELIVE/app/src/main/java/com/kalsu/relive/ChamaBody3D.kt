@@ -204,7 +204,10 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyPoseMath.reachingArm(
             shoulder = ChamaLimbPoint3D(rightShoulderX, shoulderY, 0f),
             upperArmLength = upperArmLength,
-            forearmLength = forearmLength
+            forearmLength = forearmLength,
+            lateralAngleDegrees = -35f,
+            upperForwardTiltDegrees = 55f,
+            forearmForwardTiltDegrees = 60f
         )
     } else null
     val rightElbowZ = rightReachPose?.elbow?.z ?: if (sitting) 0.12f * sitBlend else 0f
@@ -345,7 +348,10 @@ internal fun SceneScope.ChamaBodyNodes(
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, rightElbowZ / 2f),
-            rotation = Rotation(x = if (reaching) -25f else if (sitting) -16f else 0f, z = rightShoulderAngle + 180f))
+            rotation = Rotation(
+                x = if (reaching) -60f else if (sitting) -16f else 0f,
+                z = if (reaching) 161f else rightShoulderAngle + 180f
+            ))
         SphereNode(radius = 0.092f, materialInstance = sweater,
             position = Position(leftElbowX, leftElbowY, leftElbowZ))
         SphereNode(radius = 0.092f, materialInstance = sweater,
@@ -357,7 +363,10 @@ internal fun SceneScope.ChamaBodyNodes(
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
             position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, (rightElbowZ + rightWristZ) / 2f),
-            rotation = Rotation(x = if (reaching) -35f else if (sitting) -16f else 0f, z = rightForearmAngle + 180f))
+            rotation = Rotation(
+                x = if (reaching) -62f else if (sitting) -16f else 0f,
+                z = if (reaching) 163f else rightForearmAngle + 180f
+            ))
         SphereNode(radius = 0.075f, materialInstance = cuff,
             position = Position(leftWristX, leftWristY, leftWristZ))
         SphereNode(radius = 0.075f, materialInstance = cuff,
