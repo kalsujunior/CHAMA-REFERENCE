@@ -46,6 +46,18 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette) 
     val leaf = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFF466B4D))
     }
+    val curtain = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFB86A78), roughness = 0.96f)
+    }
+    val rug = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFB94A5B), roughness = 0.98f)
+    }
+    val paper = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFE8D7C5), roughness = 0.9f)
+    }
+    val rose = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFB52C4A), roughness = 0.72f)
+    }
 
     SceneView(
         modifier = modifier,
@@ -93,6 +105,20 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette) 
         CubeNode(size = Size(0.035f, 1.28f, 0.06f), materialInstance = gold,
             position = Position(-1.15f, 1.78f, -2.20f))
 
+        // Rideaux encadrant la baie panoramique.
+        CubeNode(size = Size(0.22f, 1.48f, 0.10f), materialInstance = curtain,
+            position = Position(-2.13f, 1.78f, -2.12f))
+        CubeNode(size = Size(0.22f, 1.48f, 0.10f), materialInstance = curtain,
+            position = Position(-0.17f, 1.78f, -2.12f))
+        CylinderNode(radius = 0.025f, height = 2.08f, materialInstance = gold,
+            position = Position(-1.15f, 2.55f, -2.10f), rotation = io.github.sceneview.math.Rotation(z = 90f))
+
+        // Tapis rouge profond au centre du salon.
+        CubeNode(size = Size(2.70f, 0.025f, 1.55f), materialInstance = rug,
+            position = Position(0.0f, 0.005f, 0.35f))
+        CubeNode(size = Size(2.48f, 0.018f, 1.34f), materialInstance = sofa,
+            position = Position(0.0f, 0.025f, 0.35f))
+
         // Canapé crème/rose, coussins et accoudoirs.
         CubeNode(size = Size(2.05f, 0.42f, 0.78f), materialInstance = sofa,
             position = Position(0.05f, 0.36f, -0.92f))
@@ -120,6 +146,40 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette) 
             position = Position(1.72f, 0.83f, -0.78f))
         SphereNode(radius = 0.22f, materialInstance = sofaAccent,
             position = Position(1.72f, 1.28f, -0.78f))
+
+        // Étagère murale et livres décoratifs.
+        CubeNode(size = Size(0.72f, 0.08f, 0.24f), materialInstance = wood,
+            position = Position(-2.12f, 1.10f, -1.30f))
+        CubeNode(size = Size(0.13f, 0.27f, 0.16f), materialInstance = rose,
+            position = Position(-2.32f, 1.27f, -1.31f), rotation = io.github.sceneview.math.Rotation(z = -7f))
+        CubeNode(size = Size(0.13f, 0.31f, 0.16f), materialInstance = paper,
+            position = Position(-2.16f, 1.29f, -1.31f))
+        CubeNode(size = Size(0.13f, 0.24f, 0.16f), materialInstance = gold,
+            position = Position(-2.00f, 1.25f, -1.31f))
+
+        // Petit cadre mural doré.
+        CubeNode(size = Size(0.62f, 0.48f, 0.045f), materialInstance = gold,
+            position = Position(1.45f, 1.86f, -2.27f))
+        CubeNode(size = Size(0.52f, 0.38f, 0.025f), materialInstance = sofaAccent,
+            position = Position(1.45f, 1.86f, -2.235f))
+
+        // Suspension et pampille lumineuse décorative.
+        CylinderNode(radius = 0.025f, height = 0.58f, materialInstance = gold,
+            position = Position(0.55f, 2.55f, -0.45f))
+        SphereNode(radius = 0.16f, materialInstance = gold,
+            position = Position(0.55f, 2.25f, -0.45f))
+        SphereNode(radius = 0.10f, materialInstance = paper,
+            position = Position(0.55f, 2.20f, -0.45f))
+
+        // Vase de roses sur la console.
+        CylinderNode(radius = 0.11f, height = 0.22f, materialInstance = gold,
+            position = Position(1.72f, 0.60f, -0.78f))
+        SphereNode(radius = 0.075f, materialInstance = rose,
+            position = Position(1.65f, 0.82f, -0.78f))
+        SphereNode(radius = 0.075f, materialInstance = rose,
+            position = Position(1.78f, 0.84f, -0.78f))
+        SphereNode(radius = 0.07f, materialInstance = leaf,
+            position = Position(1.72f, 0.91f, -0.78f))
 
         // Plante décorative à droite.
         CylinderNode(radius = 0.18f, height = 0.34f, materialInstance = wood,
