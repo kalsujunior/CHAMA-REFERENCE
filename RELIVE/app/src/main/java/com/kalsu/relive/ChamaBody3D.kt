@@ -56,10 +56,6 @@ internal fun ChamaBody3D(
     val cuff = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFFE8D9D0), roughness = 0.9f)
     }
-    val braidHair = remember(materialLoader) {
-        materialLoader.createColorInstance(Color(0xFF35231F), roughness = 0.92f)
-    }
-
     val motion = rememberInfiniteTransition(label = "chama_body_motion")
     val wave by motion.animateFloat(
         initialValue = -8f,
@@ -82,17 +78,6 @@ internal fun ChamaBody3D(
         },
         animationSpec = infiniteRepeatable(tween(1250), RepeatMode.Reverse),
         label = "left_arm_motion"
-    )
-    val braidSwing by motion.animateFloat(
-        initialValue = -4f,
-        targetValue = if (!motionEnabled) -4f else when (gesture) {
-            ChamaBodyGesture.IDLE -> 4f
-            ChamaBodyGesture.WAVE -> 8f
-            ChamaBodyGesture.LISTEN -> -2f
-            ChamaBodyGesture.DANCE -> 15f
-        },
-        animationSpec = infiniteRepeatable(tween(1650), RepeatMode.Reverse),
-        label = "braid_swing"
     )
     val breathe by motion.animateFloat(
         initialValue = 0.0f,
@@ -192,33 +177,6 @@ internal fun ChamaBody3D(
             position = Position(sway, 0.88f, 0f)
         )
 
-        // Two independent hair braids: they are separate body accessories,
-        // not a head mesh and never touch or alter the protected portrait.
-        CapsuleNode(radius = 0.065f, height = 0.78f, materialInstance = braidHair,
-            position = Position(-0.39f, 1.76f, -0.13f), rotation = Rotation(z = -7f + braidSwing))
-        CapsuleNode(radius = 0.065f, height = 0.78f, materialInstance = braidHair,
-            position = Position(0.39f, 1.76f, -0.13f), rotation = Rotation(z = 7f - braidSwing))
-        SphereNode(radius = 0.052f, materialInstance = braidHair,
-            position = Position(-0.39f, 1.99f, -0.13f))
-        SphereNode(radius = 0.052f, materialInstance = braidHair,
-            position = Position(0.39f, 1.99f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(-0.42f, 1.66f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(-0.36f, 1.55f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(-0.42f, 1.44f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(-0.36f, 1.33f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(0.42f, 1.66f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(0.36f, 1.55f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(0.42f, 1.44f, -0.13f))
-        SphereNode(radius = 0.048f, materialInstance = braidHair,
-            position = Position(0.36f, 1.33f, -0.13f))
-
         // Small red heart-like sweater details are geometric decorations,
         // not a texture of the protected portrait.
         SphereNode(radius = 0.055f, materialInstance = heartRed,
@@ -238,11 +196,11 @@ internal fun ChamaBody3D(
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, 0f),
-            rotation = Rotation(z = leftShoulderAngle))
+            rotation = Rotation(z = leftShoulderAngle - 90f))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
             position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, 0f),
-            rotation = Rotation(z = rightShoulderAngle))
+            rotation = Rotation(z = rightShoulderAngle - 90f))
         SphereNode(radius = 0.092f, materialInstance = sweater,
             position = Position(leftElbowX, leftElbowY, 0f))
         SphereNode(radius = 0.092f, materialInstance = sweater,
@@ -250,11 +208,11 @@ internal fun ChamaBody3D(
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
             position = Position((leftElbowX + leftWristX) / 2f, (leftElbowY + leftWristY) / 2f, 0f),
-            rotation = Rotation(z = leftForearmAngle))
+            rotation = Rotation(z = leftForearmAngle - 90f))
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
             position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, 0f),
-            rotation = Rotation(z = rightForearmAngle))
+            rotation = Rotation(z = rightForearmAngle - 90f))
         SphereNode(radius = 0.075f, materialInstance = cuff,
             position = Position(leftWristX, leftWristY, 0f))
         SphereNode(radius = 0.075f, materialInstance = cuff,
@@ -292,23 +250,31 @@ internal fun ChamaBody3D(
         CubeNode(size = Size(0.42f, 0.035f, 0.035f), materialInstance = cuff,
             position = Position(0f, 0.99f + breathe, 0.22f))
 
-        // Separate thigh and calf segments follow hip, knee and ankle pivots.
+        // Hip pivots and leg segments follow the calculated hip-knee-ankle chain.
+        SphereNode(radius = 0.14f, materialInstance = trousers,
+            position = Position(-0.15f, hipY, 0f))
+        SphereNode(radius = 0.14f, materialInstance = trousers,
+            position = Position(0.15f, hipY, 0f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
             position = Position((-0.15f + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, 0f),
-            rotation = Rotation(z = leftThighAngle))
+            rotation = Rotation(z = leftThighAngle - 90f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
             position = Position((0.15f + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, 0f),
-            rotation = Rotation(z = rightThighAngle))
+            rotation = Rotation(z = rightThighAngle - 90f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(leftKneeX, leftKneeY, 0f))
         SphereNode(radius = 0.105f, materialInstance = trousers,
             position = Position(rightKneeX, rightKneeY, 0f))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
             position = Position((leftKneeX + leftAnkleX) / 2f, (leftKneeY + leftAnkleY) / 2f, 0f),
-            rotation = Rotation(z = leftCalfAngle))
+            rotation = Rotation(z = leftCalfAngle - 90f))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
             position = Position((rightKneeX + rightAnkleX) / 2f, (rightKneeY + rightAnkleY) / 2f, 0f),
-            rotation = Rotation(z = rightCalfAngle))
+            rotation = Rotation(z = rightCalfAngle - 90f))
+        SphereNode(radius = 0.105f, materialInstance = trousers,
+            position = Position(leftAnkleX, leftAnkleY, 0f))
+        SphereNode(radius = 0.105f, materialInstance = trousers,
+            position = Position(rightAnkleX, rightAnkleY, 0f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
             position = Position(leftAnkleX, leftAnkleY - 0.055f, 0.09f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
