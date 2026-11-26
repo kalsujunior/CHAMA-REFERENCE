@@ -16,7 +16,6 @@ enum class ChamaBodyJoint {
     HIP_RIGHT, KNEE_RIGHT, ANKLE_RIGHT,
     SHOULDER_LEFT, ELBOW_LEFT, WRIST_LEFT, HAND_LEFT,
     SHOULDER_RIGHT, ELBOW_RIGHT, WRIST_RIGHT, HAND_RIGHT,
-    BRAID_LEFT, BRAID_RIGHT
 }
 
 enum class ChamaBodyGesture {
@@ -30,6 +29,5 @@ data class ChamaBodyPose(
     val gesture: ChamaBodyGesture = ChamaBodyGesture.IDLE,
     val breathingAmount: Float = 0f,
     val leftArmAmount: Float = 0f,
-    val rightArmAmount: Float = 0f,
-    val braidSwingAmount: Float = 0f
+    val rightArmAmount: Float = 0f
 )
