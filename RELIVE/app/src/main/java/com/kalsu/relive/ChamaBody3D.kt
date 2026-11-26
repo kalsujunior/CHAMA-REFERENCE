@@ -57,13 +57,14 @@ internal fun SceneScope.ChamaBodyNodes(
         materialLoader.createColorInstance(Color(0xFFE8D9D0), roughness = 0.9f)
     }
     val motion = rememberInfiniteTransition(label = "chama_body_motion")
-    val postureDrop by animateFloatAsState(
-        targetValue = if (gesture == ChamaBodyGesture.SIT) -0.34f else 0f,
-        animationSpec = tween(700),
+    val sitBlend by animateFloatAsState(
+        targetValue = if (gesture == ChamaBodyGesture.SIT) 1f else 0f,
+        animationSpec = tween(760),
         label = "sit_stand_transition"
     )
+    val postureDrop = -0.31f * sitBlend
     val reachShoulder by animateFloatAsState(
-        targetValue = if (gesture == ChamaBodyGesture.REACH) 52f else 0f,
+        targetValue = if (gesture == ChamaBodyGesture.REACH) 6f else 0f,
         animationSpec = tween(500),
         label = "flower_reach_transition"
     )
@@ -171,7 +172,7 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.WAVE -> -112f
         ChamaBodyGesture.DANCE -> -28f
         ChamaBodyGesture.LISTEN -> 8f
-        ChamaBodyGesture.REACH -> -24f
+        ChamaBodyGesture.REACH -> 0f
         ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
         ChamaBodyGesture.WALK -> 4f
@@ -193,6 +194,14 @@ internal fun SceneScope.ChamaBodyNodes(
     val waistCenterX = bodyCenterX + torsoLean * 0.55f
     val rightShoulderX = upperTorsoX + 0.31f
     val leftShoulderX = upperTorsoX - 0.31f
+    val reaching = gesture == ChamaBodyGesture.REACH
+    val sitting = gesture == ChamaBodyGesture.SIT
+    // Forward reach is solved in the body-local Y/Z plane so the hand travels
+    // toward the flowers rather than sideways across the chest.
+    val rightElbowZ = if (reaching) 0.42f * chamaSinDeg(25f) else if (sitting) 0.12f * sitBlend else 0f
+    val rightWristZ = rightElbowZ + if (reaching) 0.36f * chamaSinDeg(35f) else if (sitting) 0.22f * sitBlend else 0f
+    val leftElbowZ = if (sitting) 0.12f * sitBlend else 0f
+    val leftWristZ = if (sitting) 0.30f * sitBlend else 0f
     val rightElbowX = rightShoulderX + chamaSinDeg(rightShoulderAngle) * upperArmLength
     val rightElbowY = shoulderY - chamaCosDeg(rightShoulderAngle) * upperArmLength
     val leftElbowX = leftShoulderX + chamaSinDeg(leftShoulderAngle) * upperArmLength
@@ -207,6 +216,8 @@ internal fun SceneScope.ChamaBodyNodes(
     val rightHandY = rightWristY - chamaCosDeg(rightHandAngle) * 0.09f
     val leftHandX = leftWristX + chamaSinDeg(leftHandAngle) * 0.09f
     val leftHandY = leftWristY - chamaCosDeg(leftHandAngle) * 0.09f
+    val rightHandZ = rightWristZ + if (reaching) 0.08f else if (sitting) 0.035f * sitBlend else 0f
+    val leftHandZ = leftWristZ + if (sitting) 0.035f * sitBlend else 0f
 
     // Hip -> knee -> ankle chain. The dance step shifts the two legs in
     // opposite phases while preserving a continuous thigh/calf connection.
@@ -218,13 +229,11 @@ internal fun SceneScope.ChamaBodyNodes(
     val leftThighAngle = when (gesture) {
         ChamaBodyGesture.DANCE -> step * 95f
         ChamaBodyGesture.WALK -> walkStep * 75f
-        ChamaBodyGesture.SIT -> 62f
         else -> 0f
     }
     val rightThighAngle = when (gesture) {
         ChamaBodyGesture.DANCE -> -step * 95f
         ChamaBodyGesture.WALK -> -walkStep * 75f
-        ChamaBodyGesture.SIT -> -62f
         else -> 0f
     }
     val leftKneeBend = when (gesture) {
@@ -239,16 +248,22 @@ internal fun SceneScope.ChamaBodyNodes(
     }
     val leftHipX = bodyCenterX - 0.15f
     val rightHipX = bodyCenterX + 0.15f
+    val sitThighTilt = 55f * sitBlend
+    val sitCalfTilt = 45f * sitBlend
     val leftKneeX = leftHipX + chamaSinDeg(leftThighAngle) * thighLength
-    val leftKneeY = hipY - chamaCosDeg(leftThighAngle) * thighLength
+    val leftKneeY = if (sitting) hipY - chamaCosDeg(55f) * thighLength else hipY - chamaCosDeg(leftThighAngle) * thighLength
     val rightKneeX = rightHipX + chamaSinDeg(rightThighAngle) * thighLength
-    val rightKneeY = hipY - chamaCosDeg(rightThighAngle) * thighLength
+    val rightKneeY = if (sitting) hipY - chamaCosDeg(55f) * thighLength else hipY - chamaCosDeg(rightThighAngle) * thighLength
+    val leftKneeZ = 0.30f * sitBlend
+    val rightKneeZ = 0.30f * sitBlend
     val leftCalfAngle = leftThighAngle + leftKneeBend
     val rightCalfAngle = rightThighAngle + rightKneeBend
-    val leftAnkleX = leftKneeX + chamaSinDeg(leftCalfAngle) * calfLength
-    val leftAnkleY = leftKneeY - chamaCosDeg(leftCalfAngle) * calfLength
-    val rightAnkleX = rightKneeX + chamaSinDeg(rightCalfAngle) * calfLength
-    val rightAnkleY = rightKneeY - chamaCosDeg(rightCalfAngle) * calfLength
+    val leftAnkleX = if (sitting) leftKneeX else leftKneeX + chamaSinDeg(leftCalfAngle) * calfLength
+    val leftAnkleY = if (sitting) leftKneeY - chamaCosDeg(45f) * calfLength else leftKneeY - chamaCosDeg(leftCalfAngle) * calfLength
+    val rightAnkleX = if (sitting) rightKneeX else rightKneeX + chamaSinDeg(rightCalfAngle) * calfLength
+    val rightAnkleY = if (sitting) rightKneeY - chamaCosDeg(45f) * calfLength else rightKneeY - chamaCosDeg(rightCalfAngle) * calfLength
+    val leftAnkleZ = 0.54f * sitBlend
+    val rightAnkleZ = 0.54f * sitBlend
 
 
     Node(
