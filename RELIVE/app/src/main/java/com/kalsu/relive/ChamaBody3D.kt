@@ -224,12 +224,12 @@ internal fun SceneScope.ChamaBodyNodes(
     }
     val leftKneeBend = when (gesture) {
         ChamaBodyGesture.DANCE, ChamaBodyGesture.WALK -> -8f
-        ChamaBodyGesture.SIT -> -62f
+        ChamaBodyGesture.SIT -> -6f
         else -> 0f
     }
     val rightKneeBend = when (gesture) {
         ChamaBodyGesture.DANCE, ChamaBodyGesture.WALK -> 8f
-        ChamaBodyGesture.SIT -> 62f
+        ChamaBodyGesture.SIT -> 6f
         else -> 0f
     }
     val leftHipX = bodyCenterX - 0.15f
