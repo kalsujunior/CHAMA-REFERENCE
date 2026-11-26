@@ -406,6 +406,78 @@ class ChamaAutonomyTest {
         assertEquals(0.023f, right.ankle.y - 0.31f, 0.015f)
     }
 
+    @Test
+    fun sofaSeatTransitionStartsAtSafeApproachAndEndsOnCushion() {
+        val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.SOFA_SEAT)
+        val start = ChamaSeatTransitionMath.pose(approach, progress = 0f)
+        val middle = ChamaSeatTransitionMath.pose(approach, progress = 0.5f)
+        val end = ChamaSeatTransitionMath.pose(approach, progress = 1f)
+
+        assertEquals(approach, start.position)
+        assertEquals(0f, start.rootHeight, 0.0001f)
+        assertEquals(ChamaSeatTransitionMath.SOFA_CUSHION_CENTER, end.position)
+        assertEquals(0f, end.rootHeight, 0.0001f)
+        assertTrue("The transition arc should clear the sofa edge", middle.rootHeight > 0.11f)
+        assertTrue(middle.position.x > approach.x)
+        assertTrue(middle.position.z < approach.z)
+    }
+
+    @Test
+    fun sofaSeatFacesIntoTheOpenRoom() {
+        val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.SOFA_SEAT)
+        assertEquals(
+            0f,
+            ChamaRoomNavigation.facingDegreesAt(ChamaAutonomyTarget.SOFA, approach),
+            0.001f
+        )
+    }
+
+    @Test
+    fun runtimeHoldsFloorNavigationDuringVisualSeatTransfer() {
+        val runtime = ChamaAutonomyRuntime()
+        var frame = runtime.tick(
+            ChamaAutonomyRuntimeInput(
+                enabled = true,
+                virtualSpaceVisible = true,
+                userInteracting = false,
+                lowPowerMode = false,
+                energy = 0.1f,
+                curiosity = 0.5f,
+                nowElapsedRealtimeMs = 0L
+            )
+        )
+        for (time in 50L..30_000L step 50L) {
+            frame = runtime.tick(
+                ChamaAutonomyRuntimeInput(
+                    enabled = true,
+                    virtualSpaceVisible = true,
+                    userInteracting = false,
+                    lowPowerMode = false,
+                    energy = 0.1f,
+                    curiosity = 0.5f,
+                    nowElapsedRealtimeMs = time
+                )
+            )
+            if (frame.locomotion.status == ChamaLocomotionStatus.ARRIVED) break
+        }
+        val safeApproach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.SOFA_SEAT)
+        val held = runtime.tick(
+            ChamaAutonomyRuntimeInput(
+                enabled = true,
+                virtualSpaceVisible = true,
+                userInteracting = false,
+                lowPowerMode = false,
+                energy = 0.1f,
+                curiosity = 0.5f,
+                nowElapsedRealtimeMs = 30_050L,
+                holdMovementForSeatTransition = true
+            )
+        )
+        assertEquals(ChamaRoomWaypoint.SOFA_SEAT, held.currentWaypoint)
+        assertEquals(safeApproach, held.locomotion.position)
+        assertEquals(ChamaBodyGesture.SIT, held.bodyGesture)
+    }
+
     private fun input(
         now: Long,
         userInteracting: Boolean = false
