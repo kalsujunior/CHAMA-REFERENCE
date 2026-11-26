@@ -14,7 +14,8 @@ data class ChamaAutonomyRuntimeInput(
     val lowPowerMode: Boolean,
     val energy: Float,
     val curiosity: Float,
-    val nowElapsedRealtimeMs: Long
+    val nowElapsedRealtimeMs: Long,
+    val holdMovementForSeatTransition: Boolean = false
 )
 
 data class ChamaAutonomyRuntimeFrame(
@@ -82,6 +83,17 @@ class ChamaAutonomyRuntime(
                 currentWaypoint = it
             }
             currentDecision = decision
+            return ChamaAutonomyRuntimeFrame(decision, lastFrame, currentWaypoint)
+        }
+
+        // Keep the floor locomotion at the safe sofa approach while the
+        // renderer animates the body onto/off the cushion. Clearing the cached
+        // decision makes the next unheld tick plan its route from this waypoint.
+        if (input.holdMovementForSeatTransition) {
+            currentDecision = null
+            destinationWaypoint = null
+            destinationTarget = null
+            lastFrame = locomotion.cancel()
             return ChamaAutonomyRuntimeFrame(decision, lastFrame, currentWaypoint)
         }
 
