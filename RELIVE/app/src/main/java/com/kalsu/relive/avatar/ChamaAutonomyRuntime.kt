@@ -76,6 +76,9 @@ class ChamaAutonomyRuntime(
                 lowPowerMode = input.lowPowerMode
             )
             destinationWaypoint = null
+            ChamaRoomNavigation.nearestReachableWaypoint(lastFrame.position)?.let {
+                currentWaypoint = it
+            }
             currentDecision = decision
             return ChamaAutonomyRuntimeFrame(decision, lastFrame, currentWaypoint)
         }
@@ -127,6 +130,9 @@ class ChamaAutonomyRuntime(
         currentDecision = null
         destinationWaypoint = null
         lastFrame = locomotion.cancel()
+        ChamaRoomNavigation.nearestReachableWaypoint(lastFrame.position)?.let {
+            currentWaypoint = it
+        }
         return ChamaAutonomyRuntimeFrame(
             decision = ChamaAutonomyDecision(
                 activity = null,
