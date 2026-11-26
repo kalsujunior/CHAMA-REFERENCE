@@ -1,93 +1,79 @@
-# CHAMA — spécification du rigging 2D
+# CHAMA — spécification du rig corporel et du portrait protégé
 
 ## Objectif
-Préparer un avatar 2D distinct de la photographie originale de Chama, destiné à RELIVE – KAL-SU. La photo originale reste intacte et reste disponible dans la galerie. Les planches générées servent de références artistiques ; elles ne constituent pas encore des calques animables.
 
-## Références visuelles
-- Identité visuelle : jeune femme à la peau brune, longues tresses brun foncé et mèches dorées, bandeau tressé sombre.
-- Tenue de référence : pull rose très clair/blanc avec grands cœurs rouges.
-- Conserver les proportions du visage, la forme des yeux, le nez, les lèvres et la coiffure de la référence fournie.
-- Ne pas remplacer la photographie principale par une illustration et ne pas retoucher la photographie originale.
+Faire évoluer la présence visuelle de Chama dans RELIVE sans jamais modifier son visage. L'avatar animé est un assemblage hybride : le portrait original est une image indépendante, statique et immuable ; les mouvements sont produits par des éléments corporels séparés, placés derrière ou à côté du portrait.
 
-## Structure de calques requise
-Chaque élément doit être livré sur calque transparent indépendant, à la même résolution et dans le même repère :
-1. arrière-plan transparent ;
-2. torse et vêtement ;
-3. cou ;
-4. tête/base du visage ;
-5. oreilles ;
-6. cheveux arrière ;
-7. tresses avant gauche et droite, divisées en mèches mobiles si nécessaire ;
-8. bandeau ;
-9. œil gauche et œil droit (blanc, iris/pupille, paupière supérieure et inférieure séparés) ;
-10. sourcils gauche et droit ;
-11. nez ;
-12. bouche et lèvres ;
-13. bras gauche et droit, avant-bras et mains séparés pour les gestes.
+Cette spécification remplace toute ancienne idée de rig facial, de visèmes ou de synchronisation labiale graphique. La règle de protection du portrait est prioritaire sur toute considération artistique ou technique.
 
-Prévoir des zones cachées sous les articulations afin d'éviter les trous pendant les rotations. Les calques doivent être nommés clairement et conserver exactement les mêmes dimensions.
+## Source faciale unique
 
-## Formes de bouche pour la synchronisation labiale
-Préparer au minimum les poses suivantes :
-- repos fermé ;
-- A / AH ;
-- E / EH ;
-- I / EE ;
-- O / OH ;
-- OU / OO ;
-- M / B / P (lèvres fermées) ;
-- F / V (lèvre inférieure contre les dents) ;
-- sourire parlé.
+- Fichier de référence du dépôt : `shama.png`.
+- Copie intégrée à l'application : `app/src/main/res/drawable-nodpi/chama_portrait.png`.
+- Identifiant Git blob SHA-1 attendu pour les deux fichiers : `ad9091b7ea61919de0bab0dd0921b7a164982f92`.
+- Composant Android d'affichage : `com.kalsu.relive.ChamaPortrait`.
 
-Les formes de bouche doivent partager le même contour facial et le même point d'ancrage. Ajouter des poses intermédiaires pour éviter les changements brusques.
+La photo est affichée directement depuis la ressource originale. Elle ne doit jamais être recadrée, recolorée, retouchée, restaurée par IA, reconstruite, déformée, inclinée, tournée, masquée par un effet facial ou remplacée par un visage synthétique.
 
-## États d'animation
-- repos : respiration discrète, micro-mouvement de tête ;
-- écoute : clignement naturel, regard léger vers l'utilisateur, inclinaison douce ;
-- parole : alternance des visèmes pilotée par le moteur vocal, clignements indépendants ;
-- salutation : mouvement de l'avant-bras et de la main ;
-- joie : sourire, légère inclinaison de la tête ;
-- danse : mouvement limité du torse et des bras, sans déformation du visage.
+## Interdictions absolues
 
-## Contraintes d'intégration Android
-- L'avatar animé doit être un composant distinct de l'écran affichant la photo originale.
-- Les animations doivent être suspendues lorsque l'écran n'est pas visible.
-- Prévoir une réduction des mouvements et un mode statique pour les appareils modestes.
-- Ne jamais bloquer la lecture TTS pendant une animation.
-- Les données de visèmes doivent suivre les événements temporels du moteur vocal ; ne pas utiliser un simple minuteur arbitraire pour prétendre à une synchronisation exacte.
-- Garder un comportement de secours : portrait original et animation de présentation si les ressources riggées ne sont pas installées.
+Aucun élément de rig ne doit être créé pour :
+- la tête ou le visage ;
+- les yeux, les paupières, les sourcils ou le regard ;
+- le nez, la bouche, les lèvres, la mâchoire ou les expressions ;
+- les visèmes, les blend shapes, les morph targets ou le lip-sync ;
+- la rotation ou l'inclinaison de la tête.
 
-## Critères d'acceptation
-- Les calques sont séparés, transparents, alignés et exploitables par un moteur d'animation.
-- Les rotations de tête ne créent pas de trous visibles.
-- Les clignements et mouvements de regard restent naturels.
-- Les visèmes sont synchronisés avec les événements de parole disponibles.
-- Les gestes n'altèrent pas l'identité du visage.
-- La version de secours existante reste fonctionnelle sans ressources additionnelles.
+Aucun clignement, mouvement des yeux, de la bouche ou de la mâchoire n'est autorisé. La photo doit conserver exactement ses pixels et son apparence d'origine. Ne jamais découper le visage en calques.
 
-## État actuel
-La version 0.4.0 possède une animation de présentation (flottement, respiration visuelle et inclinaison) et la synthèse vocale Android. Le rigging facial, les calques séparés, les visèmes et la synchronisation labiale réelle ne sont pas encore implémentés. Les planches de conception sont des références visuelles, pas des fichiers de rigging prêts à l'emploi.
+## Éléments corporels pouvant être animés
 
+Les éléments suivants peuvent être modélisés séparément, à condition de ne pas recouvrir, transformer ou altérer le portrait :
+1. torse et vêtements ;
+2. bassin et jambes, si le cadrage les montre ;
+3. épaules et bras supérieurs ;
+4. avant-bras, poignets et mains ;
+5. éléments de coiffure séparés, uniquement lorsqu'ils ne nécessitent aucune retouche des pixels du visage ;
+6. accessoires et vêtements indépendants.
 
-## VERROU ABSOLU — IDENTITÉ DU VISAGE DE CHAMA
+Prévoir des chevauchements suffisants entre les parties articulées pour éviter les trous visuels. Garder des points d'ancrage cohérents entre les poses. Le rig ne doit contenir que des articulations corporelles.
 
-Cette règle est prioritaire sur toute autre consigne artistique ou technique.
+## États et gestes autorisés
 
-1. La photographie originale fournie par l'utilisateur est l'unique référence autorisée pour le visage. Elle doit être conservée telle quelle, sans retouche, filtre, restauration générative, embellissement, remplacement ni reconstruction par IA.
-2. La planche de conception du personnage générée ultérieurement est une référence pour la silhouette, les vêtements, les cheveux, les accessoires et les gestes uniquement. Elle n'est jamais une référence faciale et ne doit pas servir à redessiner les traits.
-3. Interdiction de modifier la forme du visage, les proportions, les yeux, les sourcils, le nez, les lèvres, la bouche, la mâchoire, la couleur ou la texture de peau, l'expression de référence ou tout autre trait identitaire.
-4. Aucun morph target, blend shape, déformation de maillage, génération d'expression, lip-sync graphique ou animation procédurale ne doit altérer le visage original.
-5. Pour respecter littéralement cette contrainte, le visage reste une image source immuable. Les mouvements autorisés portent sur le corps, les bras, les mains, la posture, les vêtements et les cheveux, sans toucher aux pixels du visage. Toute animation qui nécessiterait de déformer ou de recréer le visage doit être désactivée.
-6. La tête ne doit pas être tournée en 3D si cela impose de reconstruire, compléter, déformer ou inventer des parties du visage. En cas de doute, conserver le portrait frontal original et animer le corps autour de lui.
-7. Si le rendu 3D réaliste ne peut pas être obtenu sans altérer le visage, il faut privilégier un avatar hybride avec le portrait original intact plutôt qu'un visage 3D approximatif.
-8. Toute ressource candidate doit être comparée à la photo source avant intégration. En cas de différence faciale, la ressource est rejetée.
+- **Repos :** respiration discrète du torse et mouvement corporel très léger.
+- **Écoute :** posture calme, bras détendus ; aucun mouvement de tête ou de regard.
+- **Salutation :** mouvement d'un bras, de l'avant-bras et de la main.
+- **Joie :** geste corporel positif, posture ouverte ; ne pas fabriquer de sourire sur la photo.
+- **Danse :** mouvements modérés du torse, des épaules, des bras et des jambes ; le portrait reste fixe.
 
-### Test d'acceptation obligatoire — visage inchangé
+La synthèse vocale peut déclencher un indicateur visuel « Chama parle » ou une animation corporelle discrète. Elle ne doit pas entraîner de mouvement de bouche ni prétendre à une synchronisation labiale.
 
-- La photo source reste accessible et inchangée dans l'application.
-- Aucun outil de génération ou de retouche n'est appliqué à cette photo.
-- Aucun mouvement ne déforme ni ne remplace la région faciale.
-- Le mode de secours affiche la photo originale, jamais un visage synthétique.
-- Si l'une de ces conditions n'est pas vérifiable, la fonctionnalité faciale reste désactivée.
+## Intégration Android
 
-**Décision produit : visage verrouillé, animation corporelle autorisée. Aucune exception sans autorisation explicite ultérieure de l'utilisateur.**
+- Le portrait et le rig corporel restent des composants indépendants.
+- Le portrait est rendu comme une image statique, sans transformation animée.
+- Les animations corporelles sont suspendues lorsque l'espace virtuel n'est pas visible.
+- Un mode léger doit désactiver les rendus et animations coûteux sur les appareils modestes.
+- La lecture TTS ne doit pas dépendre du moteur d'animation.
+- En cas de ressource manquante ou d'erreur 3D, afficher le portrait original et conserver les commandes de conversation disponibles.
+- Les deux scènes SceneView actuelles (pièce et corps) doivent faire l'objet de mesures mémoire/GPU sur l'appareil cible avant toute fusion ou complexification.
+
+## Critères d'acceptation obligatoires
+
+1. Le fichier `shama.png` et la ressource Android ont exactement l'identifiant Git blob SHA-1 attendu.
+2. Le manifeste maintient les verrous d'immuabilité du portrait.
+3. Le visage n'est ni découpé, ni animé, ni transformé.
+4. Les gestes n'agissent que sur le corps et les éléments indépendants.
+5. L'indicateur de parole fonctionne sans lip-sync facial.
+6. Le mode léger et le mode de secours préservent le portrait original.
+7. Toute ressource qui nécessite de redessiner ou de reconstruire le visage est rejetée.
+
+Le workflow GitHub Actions exécute `RELIVE/scripts/verify-chama-portrait.sh` avant la compilation Android. Ce contrôle bloque une modification accidentelle du portrait ou l'affaiblissement des règles d'identité dans le manifeste.
+
+## État d'implémentation connu
+
+La version suivie sur la branche `relive-app` comprend une pièce 3D procédurale, un blocage géométrique du corps avec des gestes simples, un portrait original indépendant et la synthèse vocale Android. Ce blocage géométrique n'est pas encore un modèle humain de production ni un rig squelettique détaillé.
+
+Le portrait reste statique. Les mouvements corporels sont provisoires. Il n'existe pas encore de modèle GLB/FBX de production, de rig corporel final, de clonage vocal intégré ni de lip-sync — ce dernier est volontairement interdit par la règle d'identité actuelle.
+
+**Décision produit : le visage d'Espérance Ruchama Kefora reste strictement identique à la photo de référence. Seul le corps séparé peut évoluer.**
