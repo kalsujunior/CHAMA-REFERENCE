@@ -27,7 +27,8 @@ import com.kalsu.relive.avatar.ChamaBodyGesture
 @Composable
 internal fun ChamaBody3D(
     modifier: Modifier = Modifier,
-    gesture: ChamaBodyGesture = ChamaBodyGesture.IDLE
+    gesture: ChamaBodyGesture = ChamaBodyGesture.IDLE,
+    motionEnabled: Boolean = true
 ) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
@@ -56,7 +57,7 @@ internal fun ChamaBody3D(
     val motion = rememberInfiniteTransition(label = "chama_body_motion")
     val wave by motion.animateFloat(
         initialValue = -8f,
-        targetValue = when (gesture) {
+        targetValue = if (!motionEnabled) -8f else when (gesture) {
             ChamaBodyGesture.IDLE -> 2f
             ChamaBodyGesture.WAVE -> 38f
             ChamaBodyGesture.LISTEN -> -12f
@@ -67,7 +68,7 @@ internal fun ChamaBody3D(
     )
     val leftWave by motion.animateFloat(
         initialValue = 7f,
-        targetValue = when (gesture) {
+        targetValue = if (!motionEnabled) 7f else when (gesture) {
             ChamaBodyGesture.IDLE -> 3f
             ChamaBodyGesture.WAVE -> -8f
             ChamaBodyGesture.LISTEN -> 14f
@@ -78,7 +79,7 @@ internal fun ChamaBody3D(
     )
     val braidSwing by motion.animateFloat(
         initialValue = -4f,
-        targetValue = when (gesture) {
+        targetValue = if (!motionEnabled) -4f else when (gesture) {
             ChamaBodyGesture.IDLE -> 4f
             ChamaBodyGesture.WAVE -> 8f
             ChamaBodyGesture.LISTEN -> -2f
@@ -89,19 +90,19 @@ internal fun ChamaBody3D(
     )
     val breathe by motion.animateFloat(
         initialValue = 0.0f,
-        targetValue = if (gesture == ChamaBodyGesture.DANCE) 0.032f else 0.018f,
+        targetValue = if (!motionEnabled) 0f else if (gesture == ChamaBodyGesture.DANCE) 0.032f else 0.018f,
         animationSpec = infiniteRepeatable(tween(2200), RepeatMode.Reverse),
         label = "body_breathing"
     )
     val sway by motion.animateFloat(
         initialValue = -0.012f,
-        targetValue = if (gesture == ChamaBodyGesture.DANCE) 0.045f else 0.012f,
+        targetValue = if (!motionEnabled) -0.012f else if (gesture == ChamaBodyGesture.DANCE) 0.045f else 0.012f,
         animationSpec = infiniteRepeatable(tween(1450), RepeatMode.Reverse),
         label = "body_sway"
     )
     val step by motion.animateFloat(
         initialValue = -0.035f,
-        targetValue = if (gesture == ChamaBodyGesture.DANCE) 0.075f else 0.012f,
+        targetValue = if (!motionEnabled) -0.035f else if (gesture == ChamaBodyGesture.DANCE) 0.075f else 0.012f,
         animationSpec = infiniteRepeatable(tween(if (gesture == ChamaBodyGesture.DANCE) 520 else 1800), RepeatMode.Reverse),
         label = "body_step"
     )
