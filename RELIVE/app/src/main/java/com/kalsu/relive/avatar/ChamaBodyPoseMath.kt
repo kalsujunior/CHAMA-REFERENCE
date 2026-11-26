@@ -29,8 +29,8 @@ data class ChamaSegmentRotation(
  * Kotlin makes the seated and reaching poses testable without starting Filament.
  */
 object ChamaBodyPoseMath {
-    private val seatedThighCos = cos(Math.toRadians(55.0)).toFloat()
-    private val seatedCalfCos = cos(Math.toRadians(45.0)).toFloat()
+    private val seatedThighCos = cos(Math.toRadians(0.0)).toFloat()
+    private val seatedCalfCos = cos(Math.toRadians(70.0)).toFloat()
 
     /**
      * Euler angles that align a vertical capsule's local +Y axis with a
@@ -107,10 +107,10 @@ object ChamaBodyPoseMath {
         blend: Float,
         thighLength: Float = 0.36f,
         calfLength: Float = 0.34f,
-        seatedThighAngleDegrees: Float = 55f,
-        seatedCalfAngleDegrees: Float = 45f,
-        seatedKneeForwardMeters: Float = 0.30f,
-        seatedFootForwardMeters: Float = 0.54f
+        seatedThighAngleDegrees: Float = 0f,
+        seatedCalfAngleDegrees: Float = 70f,
+        seatedKneeForwardMeters: Float = 0f,
+        seatedFootForwardMeters: Float = sin(Math.toRadians(70.0)).toFloat() * calfLength
     ): ChamaLegChainPose {
         require(blend.isFinite())
         require(thighLength > 0f && calfLength > 0f)
