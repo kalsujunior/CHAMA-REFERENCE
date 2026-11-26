@@ -29,10 +29,10 @@ object ChamaRoomCollisionMap {
     const val DEFAULT_AVATAR_RADIUS_METERS = 0.38f
     const val DEFAULT_SAFETY_MARGIN_METERS = 0.07f
 
-    private const val MIN_X = -2.20f
-    private const val MAX_X = 2.20f
-    private const val MIN_Z = -2.00f
-    private const val MAX_Z = 2.20f
+    private const val MIN_X = -2.55f
+    private const val MAX_X = 2.60f
+    private const val MIN_Z = -2.35f
+    private const val MAX_Z = 2.60f
 
     private val obstacles = listOf(
         // Sofa body plus both armrests.
