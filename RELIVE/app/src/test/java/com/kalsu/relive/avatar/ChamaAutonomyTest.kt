@@ -171,6 +171,37 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun plannerSchedulesRestAndOccasionalDance() {
+        val planner = ChamaAutonomyPlanner()
+        fun plannerInput(now: Long, energy: Float) = ChamaAutonomyInput(
+            enabled = true,
+            virtualSpaceVisible = true,
+            userInteracting = false,
+            lowPowerMode = false,
+            energy = energy,
+            curiosity = 0.90f,
+            nowElapsedRealtimeMs = now
+        )
+
+        assertEquals(
+            ChamaAutonomyActivity.WALK_TO_WINDOW,
+            planner.decide(plannerInput(0L, 0.75f)).activity
+        )
+        planner.decide(plannerInput(18_000L, 0.75f))
+        planner.decide(plannerInput(36_000L, 0.75f))
+        assertEquals(
+            ChamaAutonomyActivity.DANCE_IN_PLACE,
+            planner.decide(plannerInput(54_000L, 0.75f)).activity
+        )
+
+        val tiredPlanner = ChamaAutonomyPlanner()
+        assertEquals(
+            ChamaAutonomyActivity.REST,
+            tiredPlanner.decide(plannerInput(0L, 0.12f)).activity
+        )
+    }
+
+    @Test
     fun energyDecreasesDuringWalkingAndRecoversDuringRest() {
         val needs = ChamaAutonomyNeeds()
         needs.advance(0L, null, ChamaLocomotionStatus.IDLE)
