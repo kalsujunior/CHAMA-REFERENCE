@@ -152,6 +152,10 @@ class ChamaAutonomyTest {
                 visible.locomotion.status == ChamaLocomotionStatus.TURNING ||
                 visible.locomotion.status == ChamaLocomotionStatus.ARRIVED
         )
+
+        val powerSave = runtime.tick(input(now = 650L).copy(lowPowerMode = true))
+        assertEquals(ChamaAutonomyPauseReason.LOW_POWER, powerSave.decision.pauseReason)
+        assertEquals(ChamaLocomotionStatus.PAUSED, powerSave.locomotion.status)
     }
 
     @Test
