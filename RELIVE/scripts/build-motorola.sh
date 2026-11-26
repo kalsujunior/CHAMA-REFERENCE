@@ -21,8 +21,17 @@ fi
 if [[ -x "$ROOT/gradlew" ]]; then
   GRADLE="$ROOT/gradlew"
 elif command -v gradle >/dev/null 2>&1; then
-  echo "Wrapper absent : génération de Gradle Wrapper 9.6.0..."
-  gradle wrapper --gradle-version 9.6.0
+  echo "Wrapper absent : génération isolée de Gradle Wrapper 9.6.0..."
+  TMP_WRAPPER_DIR="$(mktemp -d)"
+  (
+    cd "$TMP_WRAPPER_DIR"
+    gradle wrapper --gradle-version 9.6.0
+  )
+  cp "$TMP_WRAPPER_DIR/gradlew" "$ROOT/gradlew"
+  cp "$TMP_WRAPPER_DIR/gradlew.bat" "$ROOT/gradlew.bat"
+  mkdir -p "$ROOT/gradle/wrapper"
+  cp "$TMP_WRAPPER_DIR/gradle/wrapper/"* "$ROOT/gradle/wrapper/"
+  rm -rf "$TMP_WRAPPER_DIR"
   chmod +x "$ROOT/gradlew"
   GRADLE="$ROOT/gradlew"
 else
