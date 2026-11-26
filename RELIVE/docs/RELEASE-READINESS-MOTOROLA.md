@@ -36,7 +36,7 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 - Accueil, conversation locale, galerie, profil, rappels et espace 3D.
 - Conversation distante facultative, désactivée par défaut, via le Worker RELIVE.
 - Synthèse vocale Android disponible.
-- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse, posture assise simplifiée et geste de bras tendu vers les fleurs. Elle reste désactivée par défaut et s'arrête lors d'une interaction, en mode économie d'énergie ou lorsque l'écran quitte l'état actif.
+- Autonomie locale dans le salon : marche vers des points d'intérêt, observation, danse, transition animée vers le coussin du canapé et posture assise simplifiée et geste de bras tendu vers les fleurs. Elle reste désactivée par défaut et s'arrête lors d'une interaction, en mode économie d'énergie ou lorsque l'écran quitte l'état actif.
 - Portrait principal intégré séparément, sans modification.
 
 ## État du serveur RELIVE
@@ -48,11 +48,11 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 
 ## Vérifications et éléments bloquants
 
-- dix-sept tests JUnit d'autonomie et de cinématique du corps sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
-- Le module pur Kotlin `ChamaBodyPoseMath.kt` a été compilé séparément avec Kotlin/JVM 1.9 et vérifié sur les longueurs des bras, l'avancée des jambes et la hauteur des pieds. Cette vérification ciblée ne constitue ni l'exécution des tests JUnit ni une compilation Android.
+- vingt tests JUnit d'autonomie et de cinématique du corps sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
+- Le module pur Kotlin `ChamaBodyPoseMath.kt` a été compilé séparément avec Kotlin/JVM 1.9 et vérifié sur les longueurs des bras, l'avancée des jambes, la hauteur des pieds, la transition vers le coussin et l'orientation assise. Cette vérification ciblée ne constitue ni l'exécution des tests JUnit ni une compilation Android.
 - Aucune compilation Android n'a été exécutée sur cette branche pendant cet audit.
 - Aucun APK n'a encore été installé ni testé sur le Motorola.
-- La collision dynamique du corps articulé, le rig 3D skinné, l'assise directement sur le coussin du canapé et les manipulations physiques d'objets restent à réaliser. Les poses assises et de portée sont des cinématiques géométriques testables, mais pas un rig squelettique.
+- La collision dynamique du corps articulé, le rig 3D skinné, la physique réelle de l'assise sur le coussin du canapé et les manipulations physiques d'objets restent à réaliser. Les poses assises et de portée sont des cinématiques géométriques testables, mais pas un rig squelettique.
 - Les performances, le cadrage, les collisions et la température doivent être mesurés sur le téléphone réel.
 
 ## Contrôles de protection
