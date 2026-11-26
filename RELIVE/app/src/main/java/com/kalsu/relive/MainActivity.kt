@@ -201,8 +201,8 @@ private fun HomeScreen(modifier: Modifier, onTalk: () -> Unit, onGallery: () -> 
  */
 private fun extractExplicitMemory(message: String): String? {
     val patterns = listOf(
-        Regex("""(?i)^\\s*(?:s'il te plaît[, ]*)?(?:souviens[- ]toi(?: bien)?|n'oublie pas|mémorise|enregistre)(?:\\s+(?:que|ceci|cela|ça))?\\s*[:,-]?\\s+(.+?)\\s*$"""),
-        Regex("""(?i)^\\s*(?:sonje sa|sonje sa pou mwen|pa bliye)\\s*[:,-]?\\s+(.+?)\\s*$""")
+        Regex("""(?i)^\s*(?:s'il te plaît[, ]*)?(?:souviens[- ]toi(?: bien)?|n'oublie pas|mémorise|enregistre)(?:\s+(?:que|ceci|cela|ça))?\s*[:,-]?\s+(.+?)\s*$"""),
+        Regex("""(?i)^\s*(?:sonje sa|sonje sa pou mwen|pa bliye)\s*[:,-]?\s+(.+?)\s*$""")
     )
     val detail = patterns.firstNotNullOfOrNull { it.find(message)?.groupValues?.getOrNull(1) }
         ?.trim()?.trim('"', '“', '”', '«', '»', ' ', '.', '!')
