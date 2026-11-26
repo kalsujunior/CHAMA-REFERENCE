@@ -31,6 +31,7 @@ internal fun SceneScope.ChamaBodyNodes(
     gesture: ChamaBodyGesture,
     rootPosition: ChamaRoomPoint,
     headingDegrees: Float,
+    gaitPhase: Float = 0f,
     motionEnabled: Boolean = true
 ) {
     val sweater = remember(materialLoader) {
@@ -192,8 +193,10 @@ internal fun SceneScope.ChamaBodyNodes(
     val hipY = 0.78f
     val thighLength = 0.36f
     val calfLength = 0.34f
-    val leftThighAngle = if (gesture == ChamaBodyGesture.DANCE) step * 95f else if (gesture == ChamaBodyGesture.WALK) step * 75f else 0f
-    val rightThighAngle = if (gesture == ChamaBodyGesture.DANCE) -step * 95f else if (gesture == ChamaBodyGesture.WALK) -step * 75f else 0f
+    // During walking, leg phase follows the distance-driven locomotion clock.
+    val walkStep = chamaSinDeg(gaitPhase.coerceIn(0f, 1f) * 360f) * 0.12f
+    val leftThighAngle = if (gesture == ChamaBodyGesture.DANCE) step * 95f else if (gesture == ChamaBodyGesture.WALK) walkStep * 75f else 0f
+    val rightThighAngle = if (gesture == ChamaBodyGesture.DANCE) -step * 95f else if (gesture == ChamaBodyGesture.WALK) -walkStep * 75f else 0f
     val leftKneeBend = if (gesture == ChamaBodyGesture.DANCE || gesture == ChamaBodyGesture.WALK) -8f else 0f
     val rightKneeBend = if (gesture == ChamaBodyGesture.DANCE || gesture == ChamaBodyGesture.WALK) 8f else 0f
     val leftHipX = bodyCenterX - 0.15f
