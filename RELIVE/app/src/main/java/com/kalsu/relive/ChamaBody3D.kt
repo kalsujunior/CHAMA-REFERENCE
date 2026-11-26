@@ -99,6 +99,12 @@ internal fun ChamaBody3D(
         animationSpec = infiniteRepeatable(tween(1450), RepeatMode.Reverse),
         label = "body_sway"
     )
+    val step by motion.animateFloat(
+        initialValue = -0.035f,
+        targetValue = if (gesture == ChamaBodyGesture.DANCE) 0.075f else 0.012f,
+        animationSpec = infiniteRepeatable(tween(if (gesture == ChamaBodyGesture.DANCE) 520 else 1800), RepeatMode.Reverse),
+        label = "body_step"
+    )
 
     SceneView(
         modifier = modifier,
@@ -231,12 +237,12 @@ internal fun ChamaBody3D(
 
         // Legs and shoes complete the independent body silhouette.
         CapsuleNode(radius = 0.13f, height = 0.68f, materialInstance = trousers,
-            position = Position(-0.16f, 0.36f, 0f))
+            position = Position(-0.16f, 0.36f + step, 0f), rotation = Rotation(z = if (gesture == ChamaBodyGesture.DANCE) 5f else 0f))
         CapsuleNode(radius = 0.13f, height = 0.68f, materialInstance = trousers,
-            position = Position(0.16f, 0.36f, 0f))
+            position = Position(0.16f, 0.36f - step, 0f), rotation = Rotation(z = if (gesture == ChamaBodyGesture.DANCE) -5f else 0f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(-0.16f, 0.025f, 0.09f))
+            position = Position(-0.16f, 0.025f + step, 0.09f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(0.16f, 0.025f, 0.09f))
+            position = Position(0.16f, 0.025f - step, 0.09f))
     }
 }
