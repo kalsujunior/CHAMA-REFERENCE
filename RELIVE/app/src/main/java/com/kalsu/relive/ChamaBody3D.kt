@@ -16,6 +16,7 @@ import io.github.sceneview.math.Size
 import io.github.sceneview.rememberCameraManipulator
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
+import com.kalsu.relive.avatar.ChamaBodyGesture
 
 /**
  * Body-only procedural character blockout.
@@ -24,7 +25,10 @@ import io.github.sceneview.rememberMaterialLoader
  * remains a separate Compose image and is never used as a texture or mesh.
  */
 @Composable
-internal fun ChamaBody3D(modifier: Modifier = Modifier) {
+internal fun ChamaBody3D(
+    modifier: Modifier = Modifier,
+    gesture: ChamaBodyGesture = ChamaBodyGesture.IDLE
+) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
     val sweater = remember(materialLoader) {
@@ -42,17 +46,25 @@ internal fun ChamaBody3D(modifier: Modifier = Modifier) {
     val shoe = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFF4A3433), roughness = 0.8f)
     }
+    val cuff = remember(materialLoader) {
+        materialLoader.createColorInstance(Color(0xFFE8D9D0), roughness = 0.9f)
+    }
 
     val motion = rememberInfiniteTransition(label = "chama_body_motion")
     val wave by motion.animateFloat(
         initialValue = -8f,
-        targetValue = 34f,
+        targetValue = when (gesture) {
+            ChamaBodyGesture.IDLE -> 2f
+            ChamaBodyGesture.WAVE -> 38f
+            ChamaBodyGesture.LISTEN -> -12f
+            ChamaBodyGesture.DANCE -> 27f
+        },
         animationSpec = infiniteRepeatable(tween(1050), RepeatMode.Reverse),
         label = "right_arm_wave"
     )
     val breathe by motion.animateFloat(
         initialValue = 0.0f,
-        targetValue = 0.018f,
+        targetValue = if (gesture == ChamaBodyGesture.DANCE) 0.032f else 0.018f,
         animationSpec = infiniteRepeatable(tween(2200), RepeatMode.Reverse),
         label = "body_breathing"
     )
@@ -122,6 +134,20 @@ internal fun ChamaBody3D(modifier: Modifier = Modifier) {
             position = Position(-0.53f, 0.79f, 0f))
         SphereNode(radius = 0.105f, materialInstance = skin,
             position = Position(0.54f, 0.80f, 0f))
+
+        // Cuffs, palms and simple fingers make the hands readable at phone scale.
+        SphereNode(radius = 0.075f, materialInstance = cuff,
+            position = Position(-0.50f, 0.88f, 0f))
+        SphereNode(radius = 0.075f, materialInstance = cuff,
+            position = Position(0.51f, 0.89f, 0f))
+        CapsuleNode(radius = 0.035f, height = 0.13f, materialInstance = skin,
+            position = Position(-0.58f, 0.73f, 0.015f), rotation = Rotation(z = -18f))
+        CapsuleNode(radius = 0.035f, height = 0.13f, materialInstance = skin,
+            position = Position(0.59f, 0.74f, 0.015f), rotation = Rotation(z = 18f))
+
+        // Sweater hem and subtle seams are separate geometry, not portrait pixels.
+        CubeNode(size = Size(0.48f, 0.045f, 0.43f), materialInstance = cuff,
+            position = Position(0f, 1.02f + breathe, 0f))
 
         // Legs and shoes complete the independent body silhouette.
         CapsuleNode(radius = 0.13f, height = 0.68f, materialInstance = trousers,
