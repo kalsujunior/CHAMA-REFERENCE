@@ -88,16 +88,18 @@ export default {
     if ((!hasGroq && !hasGemini) || !env.RELIVE_ACCESS_TOKEN || !env.RATE_LIMITER) {
       return json({ error: "Backend is not fully configured" }, 503, cors);
     }
-    if (request.headers.get("X-RELIVE-ACCESS") !== env.RELIVE_ACCESS_TOKEN) {
-      return json({ error: "Unauthorized" }, 401, cors);
-    }
 
+    // Rate-limit every IP before checking the shared token to slow down token guessing.
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
     try {
       const result = await env.RATE_LIMITER.limit({ key: ip });
       if (!result.success) return json({ error: "Rate limit exceeded" }, 429, cors);
     } catch (_) {
       return json({ error: "Rate limiter unavailable" }, 503, cors);
+    }
+
+    if (request.headers.get("X-RELIVE-ACCESS") !== env.RELIVE_ACCESS_TOKEN) {
+      return json({ error: "Unauthorized" }, 401, cors);
     }
 
     const length = Number(request.headers.get("Content-Length") || "0");
