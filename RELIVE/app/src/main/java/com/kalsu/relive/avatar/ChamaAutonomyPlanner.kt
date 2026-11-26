@@ -154,7 +154,7 @@ class ChamaAutonomyPlanner(
             Candidate(ChamaAutonomyActivity.LOOK_AROUND, ChamaAutonomyTarget.ROOM_CENTER,
                 ChamaBodyGesture.LISTEN, "Je prends un instant pour observer mon espace."),
             Candidate(ChamaAutonomyActivity.WALK_TO_LAMP, ChamaAutonomyTarget.LAMP,
-                ChamaBodyGesture.IDLE, "Je vais ajuster la petite lampe du salon.")
+                ChamaBodyGesture.ADJUST_LAMP, "Je vais ajuster la petite lampe du salon.")
         )
 
         if (energy > 0.68f && curiosity > 0.72f && sequence % 5 == 3) {
