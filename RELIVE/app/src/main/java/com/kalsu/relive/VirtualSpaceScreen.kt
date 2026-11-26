@@ -152,10 +152,12 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     lampOn = lampOn,
                     evening = eveningAmbience,
                     sofaWelcoming = sofaWelcoming || (
-                        autonomyEnabled && autonomyFrame.currentWaypoint == ChamaRoomWaypoint.SOFA_STOP
+                        autonomyEnabled && autonomyFrame.currentWaypoint == ChamaRoomWaypoint.SOFA_STOP &&
+                            autonomyFrame.locomotion.status == com.kalsu.relive.avatar.ChamaLocomotionStatus.ARRIVED
                     ),
                     bouquetHighlighted = bouquetHighlighted || (
-                        autonomyEnabled && autonomyFrame.currentWaypoint == ChamaRoomWaypoint.FLOWERS_STOP
+                        autonomyEnabled && autonomyFrame.currentWaypoint == ChamaRoomWaypoint.FLOWERS_STOP &&
+                            autonomyFrame.locomotion.status == com.kalsu.relive.avatar.ChamaLocomotionStatus.ARRIVED
                     ),
                     bodyGesture = if (autonomyEnabled) autonomyFrame.bodyGesture else bodyGesture,
                     bodyPosition = autonomyFrame.locomotion.position,
