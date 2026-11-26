@@ -356,6 +356,33 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun flowerReachIsAimedAtTheVaseFromTheValidatedApproach() {
+        val approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.FLOWERS_STOP)
+        assertTrue(ChamaRoomCollisionMap.isPointWalkable(approach))
+        val heading = ChamaRoomNavigation.facingDegreesAt(
+            ChamaAutonomyTarget.FLOWERS,
+            approach
+        )
+        val pose = ChamaBodyPoseMath.reachingArm(
+            shoulder = ChamaLimbPoint3D(0.31f, 1.70f, 0f),
+            lateralAngleDegrees = -35f,
+            upperForwardTiltDegrees = 55f,
+            forearmForwardTiltDegrees = 60f
+        )
+        val radians = Math.toRadians(heading.toDouble())
+        val worldX = approach.x +
+            pose.hand.x * kotlin.math.cos(radians).toFloat() +
+            pose.hand.z * kotlin.math.sin(radians).toFloat()
+        val worldZ = approach.z -
+            pose.hand.x * kotlin.math.sin(radians).toFloat() +
+            pose.hand.z * kotlin.math.cos(radians).toFloat()
+        val dx = 1.72f - worldX
+        val dz = -0.78f - worldZ
+        val horizontalGap = kotlin.math.sqrt(dx * dx + dz * dz)
+        assertTrue("The extended hand should point toward the vase", horizontalGap < 0.15f)
+    }
+
+    @Test
     fun seatedLegsProjectForwardAndKeepFeetNearFloor() {
         val left = ChamaBodyPoseMath.blendLegToSeat(
             hipX = -0.15f,
