@@ -17,6 +17,9 @@ import androidx.compose.material.icons.filled.WavingHand
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import androidx.compose.ui.Alignment
@@ -52,6 +55,10 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     val autonomyNeeds = remember { ChamaAutonomyNeeds() }
     var needsSnapshot by remember { mutableStateOf(autonomyNeeds.snapshot()) }
     val powerManager = remember(context) { context.getSystemService(PowerManager::class.java) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var screenResumed by remember(lifecycleOwner) {
+        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+    }
     var autonomyEnabled by remember { mutableStateOf(false) }
     var autonomyFrame by remember { mutableStateOf(autonomyRuntime.stop()) }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
@@ -69,6 +76,18 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     DisposableEffect(autonomyRuntime) {
         onDispose { autonomyRuntime.stop() }
     }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> screenResumed = true
+                Lifecycle.Event.ON_PAUSE,
+                Lifecycle.Event.ON_STOP -> screenResumed = false
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     fun pauseAutonomyForUser() {
         val wasEnabled = autonomyEnabled
@@ -79,9 +98,25 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         }
     }
 
-    LaunchedEffect(autonomyEnabled, lightMode) {
+    LaunchedEffect(autonomyEnabled, lightMode, screenResumed) {
         if (!autonomyEnabled) {
             autonomyFrame = autonomyRuntime.stop()
+            autonomyNeeds.resetClock()
+            return@LaunchedEffect
+        }
+        if (!screenResumed) {
+            val now = SystemClock.elapsedRealtime()
+            autonomyFrame = autonomyRuntime.tick(
+                ChamaAutonomyRuntimeInput(
+                    enabled = true,
+                    virtualSpaceVisible = false,
+                    userInteracting = false,
+                    lowPowerMode = true,
+                    energy = needsSnapshot.energy,
+                    curiosity = needsSnapshot.curiosity,
+                    nowElapsedRealtimeMs = now
+                )
+            )
             autonomyNeeds.resetClock()
             return@LaunchedEffect
         }
