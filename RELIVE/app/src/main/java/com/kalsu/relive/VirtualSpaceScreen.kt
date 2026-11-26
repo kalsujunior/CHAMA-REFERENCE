@@ -32,6 +32,7 @@ import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.avatar.ChamaBodyGesture
 import com.kalsu.relive.avatar.ChamaAutonomyRuntime
 import com.kalsu.relive.avatar.ChamaAutonomyRuntimeInput
+import com.kalsu.relive.avatar.ChamaAutonomyNeeds
 import com.kalsu.relive.voice.ChamaSpeech
 
 private val RoomGold: Color @Composable get() = LocalRelivePalette.current.primary
@@ -46,6 +47,8 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
     val autonomyRuntime = remember { ChamaAutonomyRuntime() }
+    val autonomyNeeds = remember { ChamaAutonomyNeeds() }
+    var needsSnapshot by remember { mutableStateOf(autonomyNeeds.snapshot()) }
     val powerManager = remember(context) { context.getSystemService(PowerManager::class.java) }
     var autonomyEnabled by remember { mutableStateOf(false) }
     var autonomyFrame by remember { mutableStateOf(autonomyRuntime.stop()) }
@@ -73,18 +76,25 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     LaunchedEffect(autonomyEnabled, lightMode) {
         if (!autonomyEnabled) {
             autonomyFrame = autonomyRuntime.stop()
+            autonomyNeeds.resetClock()
             return@LaunchedEffect
         }
         while (isActive) {
+            val now = SystemClock.elapsedRealtime()
+            needsSnapshot = autonomyNeeds.advance(
+                nowElapsedRealtimeMs = now,
+                activity = autonomyFrame.decision.activity,
+                locomotionStatus = autonomyFrame.locomotion.status
+            )
             val nextFrame = autonomyRuntime.tick(
                 ChamaAutonomyRuntimeInput(
                     enabled = true,
                     virtualSpaceVisible = !lightMode,
                     userInteracting = false,
                     lowPowerMode = lightMode || powerManager?.isPowerSaveMode == true,
-                    energy = 0.82f,
-                    curiosity = 0.88f,
-                    nowElapsedRealtimeMs = SystemClock.elapsedRealtime()
+                    energy = needsSnapshot.energy,
+                    curiosity = needsSnapshot.curiosity,
+                    nowElapsedRealtimeMs = now
                 )
             )
             autonomyFrame = nextFrame
@@ -172,6 +182,13 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
                 Spacer(Modifier.height(12.dp))
                 Text(status, color = RoomCream, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
+                if (autonomyEnabled) {
+                    Text(
+                        "Énergie de Chama : ${(needsSnapshot.energy * 100f).toInt()} %",
+                        color = palette.muted,
+                        fontSize = 10.sp
+                    )
+                }
                 Text("Choisis une interaction", color = palette.muted, fontSize = 11.sp, modifier = Modifier.padding(top = 5.dp, bottom = 8.dp))
                 Row(
                     Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 10.dp),
