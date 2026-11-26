@@ -524,7 +524,7 @@ private fun ProfileScreen(modifier: Modifier, onThemeChanged: (String, String) -
         Row(Modifier.padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
             FilterChip(selected = language == "fr-FR", onClick = { language = "fr-FR" }, label = { Text("Français") })
             Spacer(Modifier.width(10.dp))
-            FilterChip(selected = language == "ht-HT", onClick = { language = "ht-HT" }, label = { Text("Kreyòl ayisyen") })
+            FilterChip(selected = language == "ht-HT", onClick = { language = "ht-HT"; personalizedVoiceEnabled = false }, label = { Text("Kreyòl ayisyen") })
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("Activer la lecture vocale", color = Cream, modifier = Modifier.weight(1f))
