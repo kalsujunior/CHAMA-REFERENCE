@@ -339,7 +339,7 @@ private fun ChatScreen(modifier: Modifier) {
                         }
                         val memories = memoryStore.load().map { it.text }
                         online.value = NetworkStatus.isOnline(context)
-                        val history = store.load().takeLast(20).map { it.author to it.text }
+                        val history = store.load().dropLast(1).takeLast(20).map { it.author to it.text }
                         val answer = if (online.value && preferences.remoteAiEnabled && preferences.remoteAccessToken.isNotBlank()) AiGateway.reply(text, preferences.languageTag, memories, history, preferences.remoteAccessToken) else null
                         val fallback = if (requestedMemory != null) {
                             if (preferences.languageTag == "ht-HT") "Mwen anrejistre sa nan memwa mwen sou telefòn sa a. M ap sonje l nan pwochen konvèsasyon nou yo."
