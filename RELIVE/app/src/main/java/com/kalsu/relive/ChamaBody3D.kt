@@ -109,6 +109,31 @@ internal fun ChamaBody3D(
         label = "torso_lateral_flex"
     )
 
+    // Wrist articulation adds a small independent palm rotation. The motion
+    // is intentionally restrained so the hands remain attached to the forearms.
+    val rightWristFlex by motion.animateFloat(
+        initialValue = 0f,
+        targetValue = if (!motionEnabled) 0f else when (gesture) {
+            ChamaBodyGesture.IDLE -> 2f
+            ChamaBodyGesture.WAVE -> 24f
+            ChamaBodyGesture.LISTEN -> 7f
+            ChamaBodyGesture.DANCE -> 18f
+        },
+        animationSpec = infiniteRepeatable(tween(680), RepeatMode.Reverse),
+        label = "right_wrist_flex"
+    )
+    val leftWristFlex by motion.animateFloat(
+        initialValue = 0f,
+        targetValue = if (!motionEnabled) 0f else when (gesture) {
+            ChamaBodyGesture.IDLE -> -2f
+            ChamaBodyGesture.WAVE -> -5f
+            ChamaBodyGesture.LISTEN -> -9f
+            ChamaBodyGesture.DANCE -> -16f
+        },
+        animationSpec = infiniteRepeatable(tween(820), RepeatMode.Reverse),
+        label = "left_wrist_flex"
+    )
+
     // Two-link arm kinematics: each forearm starts at the calculated elbow,
     // and each hand follows the calculated wrist. Angles are measured from
     // the downward vertical axis; the portrait/head are not part of this rig.
@@ -145,10 +170,12 @@ internal fun ChamaBody3D(
     val rightWristY = rightElbowY - chamaCosDeg(rightForearmAngle) * forearmLength
     val leftWristX = leftElbowX + chamaSinDeg(leftForearmAngle) * forearmLength
     val leftWristY = leftElbowY - chamaCosDeg(leftForearmAngle) * forearmLength
-    val rightHandX = rightWristX + chamaSinDeg(rightForearmAngle) * 0.09f
-    val rightHandY = rightWristY - chamaCosDeg(rightForearmAngle) * 0.09f
-    val leftHandX = leftWristX + chamaSinDeg(leftForearmAngle) * 0.09f
-    val leftHandY = leftWristY - chamaCosDeg(leftForearmAngle) * 0.09f
+    val rightHandAngle = rightForearmAngle + rightWristFlex
+    val leftHandAngle = leftForearmAngle + leftWristFlex
+    val rightHandX = rightWristX + chamaSinDeg(rightHandAngle) * 0.09f
+    val rightHandY = rightWristY - chamaCosDeg(rightHandAngle) * 0.09f
+    val leftHandX = leftWristX + chamaSinDeg(leftHandAngle) * 0.09f
+    val leftHandY = leftWristY - chamaCosDeg(leftHandAngle) * 0.09f
 
     // Hip -> knee -> ankle chain. The dance step shifts the two legs in
     // opposite phases while preserving a continuous thigh/calf connection.
@@ -248,23 +275,30 @@ internal fun ChamaBody3D(
         SphereNode(radius = 0.105f, materialInstance = skin,
             position = Position(rightHandX, rightHandY, 0.015f))
 
-        // Fingers follow the palms instead of remaining fixed at the hips.
-        CapsuleNode(radius = 0.024f, height = 0.12f, materialInstance = skin,
-            position = Position(leftHandX - 0.075f, leftHandY - 0.095f, 0.025f), rotation = Rotation(z = leftForearmAngle - 8f))
-        CapsuleNode(radius = 0.024f, height = 0.12f, materialInstance = skin,
-            position = Position(leftHandX - 0.025f, leftHandY - 0.105f, 0.03f), rotation = Rotation(z = leftForearmAngle - 3f))
-        CapsuleNode(radius = 0.024f, height = 0.12f, materialInstance = skin,
-            position = Position(leftHandX + 0.025f, leftHandY - 0.105f, 0.03f), rotation = Rotation(z = leftForearmAngle + 3f))
-        CapsuleNode(radius = 0.024f, height = 0.11f, materialInstance = skin,
-            position = Position(leftHandX + 0.075f, leftHandY - 0.095f, 0.025f), rotation = Rotation(z = leftForearmAngle + 8f))
-        CapsuleNode(radius = 0.024f, height = 0.12f, materialInstance = skin,
-            position = Position(rightHandX - 0.075f, rightHandY - 0.095f, 0.025f), rotation = Rotation(z = rightForearmAngle - 8f))
-        CapsuleNode(radius = 0.024f, height = 0.12f, materialInstance = skin,
-            position = Position(rightHandX - 0.025f, rightHandY - 0.105f, 0.03f), rotation = Rotation(z = rightForearmAngle - 3f))
-        CapsuleNode(radius = 0.024f, height = 0.12f, materialInstance = skin,
-            position = Position(rightHandX + 0.025f, rightHandY - 0.105f, 0.03f), rotation = Rotation(z = rightForearmAngle + 3f))
-        CapsuleNode(radius = 0.024f, height = 0.11f, materialInstance = skin,
-            position = Position(rightHandX + 0.075f, rightHandY - 0.095f, 0.025f), rotation = Rotation(z = rightForearmAngle + 8f))
+        // Four simplified finger capsules per palm. Their spread axis and
+        // direction rotate with the wrist; this remains a stylized blockout.
+        val leftFingerOffsets = listOf(-0.075f, -0.025f, 0.025f, 0.075f)
+        leftFingerOffsets.forEachIndexed { index, spread ->
+            val angleOffset = (index - 1.5f) * 5f
+            val fingerX = leftHandX + chamaCosDeg(leftHandAngle) * spread +
+                chamaSinDeg(leftHandAngle) * 0.055f
+            val fingerY = leftHandY + chamaSinDeg(leftHandAngle) * spread -
+                chamaCosDeg(leftHandAngle) * 0.055f
+            CapsuleNode(radius = 0.024f, height = if (index == 0 || index == 3) 0.11f else 0.12f,
+                materialInstance = skin, position = Position(fingerX, fingerY, 0.03f),
+                rotation = Rotation(z = leftHandAngle + angleOffset))
+        }
+        val rightFingerOffsets = listOf(-0.075f, -0.025f, 0.025f, 0.075f)
+        rightFingerOffsets.forEachIndexed { index, spread ->
+            val angleOffset = (index - 1.5f) * 5f
+            val fingerX = rightHandX + chamaCosDeg(rightHandAngle) * spread +
+                chamaSinDeg(rightHandAngle) * 0.055f
+            val fingerY = rightHandY + chamaSinDeg(rightHandAngle) * spread -
+                chamaCosDeg(rightHandAngle) * 0.055f
+            CapsuleNode(radius = 0.024f, height = if (index == 0 || index == 3) 0.11f else 0.12f,
+                materialInstance = skin, position = Position(fingerX, fingerY, 0.03f),
+                rotation = Rotation(z = rightHandAngle + angleOffset))
+        }
 
         // Sweater hem and subtle seams are separate geometry, not portrait pixels.
         CubeNode(size = Size(0.48f, 0.045f, 0.43f), materialInstance = cuff,
