@@ -475,6 +475,7 @@ class ChamaAutonomyTest {
         )
         assertEquals(ChamaRoomWaypoint.SOFA_SEAT, held.currentWaypoint)
         assertEquals(safeApproach, held.locomotion.position)
+        assertEquals(ChamaLocomotionStatus.ARRIVED, held.locomotion.status)
         assertEquals(ChamaBodyGesture.SIT, held.bodyGesture)
     }
 
