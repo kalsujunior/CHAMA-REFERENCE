@@ -1,5 +1,6 @@
 package com.kalsu.relive.avatar
 
+import kotlin.math.atan2
 import kotlin.math.sqrt
 
 /**
@@ -135,12 +136,25 @@ object ChamaRoomNavigation {
      */
     fun nearestReachableWaypoint(point: ChamaRoomPoint): ChamaRoomWaypoint? =
         positions.entries
-            .filter { (waypoint, waypointPoint) ->
+            .filter { (_, waypointPoint) ->
                 waypointPoint.x.isFinite() && waypointPoint.z.isFinite() &&
                     ChamaRoomCollisionMap.isSegmentWalkable(point, waypointPoint)
             }
             .minByOrNull { (_, waypointPoint) -> distance(point, waypointPoint) }
             ?.key
+
+    /** Heading for the body to face the semantic object after arriving. */
+    fun facingDegreesAt(target: ChamaAutonomyTarget, from: ChamaRoomPoint): Float {
+        val focus = when (target) {
+            ChamaAutonomyTarget.WINDOW -> ChamaRoomPoint(-1.15f, -2.29f)
+            ChamaAutonomyTarget.FLOWERS -> ChamaRoomPoint(1.72f, -0.78f)
+            ChamaAutonomyTarget.SOFA -> ChamaRoomPoint(0.05f, -0.92f)
+            ChamaAutonomyTarget.ROOM_CENTER -> ChamaRoomPoint(0f, 0f)
+        }
+        val dx = focus.x - from.x
+        val dz = focus.z - from.z
+        return Math.toDegrees(atan2(dx.toDouble(), dz.toDouble())).toFloat()
+    }
 
     private fun distance(a: ChamaRoomPoint, b: ChamaRoomPoint): Float {
         val dx = a.x - b.x
