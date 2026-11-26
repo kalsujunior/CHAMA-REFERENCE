@@ -27,3 +27,8 @@ Les clés des fournisseurs restent exclusivement dans les secrets Cloudflare. Ne
 Dans RELIVE > Profil, saisir exactement le même `RELIVE_ACCESS_TOKEN` et activer le consentement IA distant. La limite existante RATE_LIMITER (15 requêtes par IP et par 60 secondes) est conservée.
 
 Le Worker accepte une configuration partielle : un seul fournisseur suffit pour démarrer. Le basculement automatique est actif dès que les deux fournisseurs sont configurés.
+
+
+## Protection des requêtes
+
+Chaque adresse IP est désormais soumise à la limite `RATE_LIMITER` avant la vérification du code partagé. Les tentatives de code erroné consomment donc elles aussi le quota et ne peuvent pas contourner la limitation pour essayer des jetons en boucle. Les requêtes restent limitées à 24 Ko déclarés et les messages à 6 000 caractères.
