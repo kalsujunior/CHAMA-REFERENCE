@@ -26,8 +26,8 @@ data class ChamaRoomObstacle(
  * detection or continuous collision detection in the final renderer.
  */
 object ChamaRoomCollisionMap {
-    const val DEFAULT_AVATAR_RADIUS_METERS = 0.30f
-    const val DEFAULT_SAFETY_MARGIN_METERS = 0.05f
+    const val DEFAULT_AVATAR_RADIUS_METERS = 0.38f
+    const val DEFAULT_SAFETY_MARGIN_METERS = 0.07f
 
     private const val MIN_X = -2.20f
     private const val MAX_X = 2.20f
@@ -51,7 +51,9 @@ object ChamaRoomCollisionMap {
         safetyMarginMeters: Float = DEFAULT_SAFETY_MARGIN_METERS
     ): Boolean {
         if (!point.x.isFinite() || !point.z.isFinite()) return false
-        if (avatarRadiusMeters < 0f || safetyMarginMeters < 0f) return false
+        if (!avatarRadiusMeters.isFinite() || !safetyMarginMeters.isFinite() ||
+            avatarRadiusMeters < 0f || safetyMarginMeters < 0f
+        ) return false
         val clearance = avatarRadiusMeters + safetyMarginMeters
         if (point.x < MIN_X + clearance || point.x > MAX_X - clearance ||
             point.z < MIN_Z + clearance || point.z > MAX_Z - clearance
@@ -70,7 +72,7 @@ object ChamaRoomCollisionMap {
         safetyMarginMeters: Float = DEFAULT_SAFETY_MARGIN_METERS,
         sampleSpacingMeters: Float = 0.05f
     ): Boolean {
-        if (sampleSpacingMeters <= 0f) return false
+        if (!sampleSpacingMeters.isFinite() || sampleSpacingMeters <= 0f) return false
         if (!isPointWalkable(start, avatarRadiusMeters, safetyMarginMeters) ||
             !isPointWalkable(end, avatarRadiusMeters, safetyMarginMeters)
         ) return false
