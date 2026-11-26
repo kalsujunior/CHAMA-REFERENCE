@@ -132,9 +132,9 @@ export default {
       "Réponds dans la langue demandée : " + language + ". Pour fr-FR, utilise un français naturel. Pour ht-HT, utilise un créole haïtien naturel et respectueux.",
       "Privilégie des réponses concises mais utiles. Explique les étapes clairement lorsque l'utilisateur demande de l'aide technique. Ne prétends jamais qu'un changement a été enregistré dans l'application ou sur GitHub sans confirmation d'un outil.",
       memories.length
-        ? "Souvenirs explicitement enregistrés par l'utilisateur (à utiliser seulement lorsqu'ils sont pertinents) :\\n" + memories.map((item, index) => (index + 1) + ". " + item).join("\\n")
+        ? "Souvenirs explicitement enregistrés par l'utilisateur (à utiliser seulement lorsqu'ils sont pertinents) :\n" + memories.map((item, index) => (index + 1) + ". " + item).join("\n")
         : "Aucun souvenir personnel n'a été fourni."
-    ].join("\\n\\n");
+    ].join("\n\n");
 
     const providers = [];
     if (hasGroq) providers.push({ name: "groq", run: () => askGroq(env, [{ role: "system", content: system }, ...history, { role: "user", content: message }], groqModel) });
