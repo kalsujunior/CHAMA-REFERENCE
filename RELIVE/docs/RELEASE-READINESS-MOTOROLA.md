@@ -48,8 +48,8 @@ L'APK est copié vers `/storage/emulated/0/Download/RELIVE-MOTOROLA-debug.apk` l
 
 ## Vérifications et éléments bloquants
 
-- vingt tests JUnit d'autonomie et de cinématique du corps sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
-- Le module pur Kotlin `ChamaBodyPoseMath.kt` a été compilé séparément avec Kotlin/JVM 1.9 et vérifié sur les longueurs des bras, l'avancée des jambes, la hauteur des pieds, la transition vers le coussin et l'orientation assise. Cette vérification ciblée ne constitue ni l'exécution des tests JUnit ni une compilation Android.
+- vingt-et-un tests JUnit d'autonomie et de cinématique du corps sont présents dans `ChamaAutonomyTest.kt`, mais ils n'ont pas encore été exécutés.
+- Le module pur Kotlin `ChamaBodyPoseMath.kt` a été compilé séparément avec Kotlin/JVM 1.9 et vérifié sur les longueurs des bras, l'avancée des jambes, la hauteur des pieds, la transition vers le coussin et l'orientation assise et l'alignement géométrique des capsules articulaires. Cette vérification ciblée ne constitue ni l'exécution des tests JUnit ni une compilation Android.
 - Aucune compilation Android n'a été exécutée sur cette branche pendant cet audit.
 - Aucun APK n'a encore été installé ni testé sur le Motorola.
 - La collision dynamique du corps articulé, le rig 3D skinné, la physique réelle de l'assise sur le coussin du canapé et les manipulations physiques d'objets restent à réaliser. Les poses assises et de portée sont des cinématiques géométriques testables, mais pas un rig squelettique.
