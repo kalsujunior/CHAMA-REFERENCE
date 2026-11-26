@@ -100,6 +100,14 @@ internal fun ChamaBody3D(
         animationSpec = infiniteRepeatable(tween(if (gesture == ChamaBodyGesture.DANCE) 520 else 1800), RepeatMode.Reverse),
         label = "body_step"
     )
+    // Small lateral torso flex is represented as coordinated layer offsets.
+    // It is a blockout approximation, not a production skeletal bend.
+    val torsoLean by motion.animateFloat(
+        initialValue = 0f,
+        targetValue = if (!motionEnabled) 0f else if (gesture == ChamaBodyGesture.DANCE) 0.055f else 0.008f,
+        animationSpec = infiniteRepeatable(tween(1750), RepeatMode.Reverse),
+        label = "torso_lateral_flex"
+    )
 
     // Two-link arm kinematics: each forearm starts at the calculated elbow,
     // and each hand follows the calculated wrist. Angles are measured from
@@ -125,8 +133,10 @@ internal fun ChamaBody3D(
     val leftForearmAngle = leftShoulderAngle + leftElbowBend
 
     val bodyCenterX = sway
-    val rightShoulderX = bodyCenterX + 0.31f
-    val leftShoulderX = bodyCenterX - 0.31f
+    val upperTorsoX = bodyCenterX + torsoLean
+    val waistCenterX = bodyCenterX + torsoLean * 0.55f
+    val rightShoulderX = upperTorsoX + 0.31f
+    val leftShoulderX = upperTorsoX - 0.31f
     val rightElbowX = rightShoulderX + chamaSinDeg(rightShoulderAngle) * upperArmLength
     val rightElbowY = shoulderY - chamaCosDeg(rightShoulderAngle) * upperArmLength
     val leftElbowX = leftShoulderX + chamaSinDeg(leftShoulderAngle) * upperArmLength
@@ -176,17 +186,17 @@ internal fun ChamaBody3D(
         // The body starts below the absent neck; no head or neck is generated.
         CapsuleNode(radius = 0.255f, height = 0.48f,
             materialInstance = sweater,
-            position = Position(bodyCenterX, 1.57f + breathe, 0f))
+            position = Position(upperTorsoX, 1.57f + breathe, 0f))
         CapsuleNode(radius = 0.205f, height = 0.43f,
             materialInstance = sweater,
-            position = Position(bodyCenterX, 1.25f + breathe, 0f))
+            position = Position(waistCenterX, 1.25f + breathe, 0f))
         CapsuleNode(radius = 0.135f, height = 0.56f,
             materialInstance = sweater,
-            position = Position(bodyCenterX - 0.245f, 1.56f + breathe, 0f),
+            position = Position(upperTorsoX - 0.245f, 1.56f + breathe, 0f),
             rotation = Rotation(z = 90f))
         CapsuleNode(radius = 0.135f, height = 0.56f,
             materialInstance = sweater,
-            position = Position(bodyCenterX + 0.245f, 1.56f + breathe, 0f),
+            position = Position(upperTorsoX + 0.245f, 1.56f + breathe, 0f),
             rotation = Rotation(z = 90f))
         // Pelvis volume bridges the fitted top and both trouser legs.
         CapsuleNode(radius = 0.255f, height = 0.34f,
@@ -196,13 +206,13 @@ internal fun ChamaBody3D(
         // Small red heart-like sweater details are geometric decorations,
         // not a texture of the protected portrait.
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(bodyCenterX - 0.12f, 1.58f + breathe, 0.255f))
+            position = Position(upperTorsoX - 0.12f, 1.58f + breathe, 0.255f))
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(bodyCenterX - 0.055f, 1.58f + breathe, 0.255f))
+            position = Position(upperTorsoX - 0.055f, 1.58f + breathe, 0.255f))
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(bodyCenterX + 0.08f, 1.42f + breathe, 0.255f))
+            position = Position(upperTorsoX + 0.08f, 1.42f + breathe, 0.255f))
         SphereNode(radius = 0.055f, materialInstance = heartRed,
-            position = Position(bodyCenterX + 0.145f, 1.42f + breathe, 0.255f))
+            position = Position(upperTorsoX + 0.145f, 1.42f + breathe, 0.255f))
 
         // Shoulder, elbow and wrist joints are placed from a two-link chain.
         SphereNode(radius = 0.13f, materialInstance = sweater,
@@ -258,13 +268,13 @@ internal fun ChamaBody3D(
 
         // Sweater hem and subtle seams are separate geometry, not portrait pixels.
         CubeNode(size = Size(0.48f, 0.045f, 0.43f), materialInstance = cuff,
-            position = Position(bodyCenterX, 1.02f + breathe, 0f))
+            position = Position(waistCenterX, 1.02f + breathe, 0f))
         CubeNode(size = Size(0.34f, 0.025f, 0.018f), materialInstance = heartRed,
-            position = Position(bodyCenterX, 1.50f + breathe, 0.286f))
+            position = Position(upperTorsoX, 1.50f + breathe, 0.286f))
         CubeNode(size = Size(0.40f, 0.022f, 0.018f), materialInstance = cuff,
-            position = Position(bodyCenterX, 1.30f + breathe, 0.285f))
+            position = Position(waistCenterX, 1.30f + breathe, 0.285f))
         CubeNode(size = Size(0.42f, 0.035f, 0.035f), materialInstance = cuff,
-            position = Position(bodyCenterX, 0.99f + breathe, 0.22f))
+            position = Position(waistCenterX, 0.99f + breathe, 0.22f))
 
         // Hip pivots and leg segments follow the calculated hip-knee-ankle chain.
         SphereNode(radius = 0.14f, materialInstance = trousers,
