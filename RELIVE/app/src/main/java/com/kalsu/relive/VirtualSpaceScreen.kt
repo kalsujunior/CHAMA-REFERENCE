@@ -246,6 +246,35 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         }
     }
 
+    // Chama may adjust the virtual lamp after reaching the validated console approach.
+    // The effect is cancelled automatically when autonomy is interrupted or the route changes.
+    LaunchedEffect(
+        autonomyEnabled,
+        autonomyFrame.currentWaypoint,
+        autonomyFrame.locomotion.status,
+        autonomyFrame.decision.activity
+    ) {
+        if (!autonomyEnabled ||
+            autonomyFrame.currentWaypoint != ChamaRoomWaypoint.FLOWERS_STOP ||
+            autonomyFrame.locomotion.status != ChamaLocomotionStatus.ARRIVED ||
+            autonomyFrame.decision.activity != com.kalsu.relive.avatar.ChamaAutonomyActivity.WALK_TO_LAMP
+        ) return@LaunchedEffect
+
+        delay(650L)
+        if (autonomyEnabled &&
+            autonomyFrame.currentWaypoint == ChamaRoomWaypoint.FLOWERS_STOP &&
+            autonomyFrame.locomotion.status == ChamaLocomotionStatus.ARRIVED &&
+            autonomyFrame.decision.activity == com.kalsu.relive.avatar.ChamaAutonomyActivity.WALK_TO_LAMP
+        ) {
+            lampOn = !lampOn
+            interactionStatus = if (lampOn) {
+                "J'ai allumé la petite lampe pour rendre le salon plus chaleureux. ✨"
+            } else {
+                "J'ai éteint la lampe pour profiter d'une lumière plus douce."
+            }
+        }
+    }
+
     fun act(line: String, gesture: ChamaBodyGesture) {
         pauseAutonomyForUser()
         status = line
