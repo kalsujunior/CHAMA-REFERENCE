@@ -21,7 +21,7 @@ import com.kalsu.relive.avatar.ChamaRoomPoint
  * Chama's protected portrait is not loaded, mapped, or modified here.
  */
 @Composable
-internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false, bodyGesture: ChamaBodyGesture = ChamaBodyGesture.IDLE, bodyPosition: ChamaRoomPoint = ChamaRoomPoint(0f, 1.10f), bodyHeadingDegrees: Float = 0f, onSceneInteraction: () -> Unit = {}) {
+internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false, bodyGesture: ChamaBodyGesture = ChamaBodyGesture.IDLE, bodyPosition: ChamaRoomPoint = ChamaRoomPoint(0f, 1.10f), bodyHeadingDegrees: Float = 0f, bodyGaitPhase: Float = 0f, onSceneInteraction: () -> Unit = {}) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
     val latestSceneInteraction = rememberUpdatedState(onSceneInteraction)
@@ -261,7 +261,8 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
         ChamaBodyNodes(
             gesture = bodyGesture,
             rootPosition = bodyPosition,
-            headingDegrees = bodyHeadingDegrees
+            headingDegrees = bodyHeadingDegrees,
+            gaitPhase = bodyGaitPhase
         )
     }
 }
