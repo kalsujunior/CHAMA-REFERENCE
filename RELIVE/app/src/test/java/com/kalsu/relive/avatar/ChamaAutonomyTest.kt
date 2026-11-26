@@ -544,7 +544,7 @@ class ChamaAutonomyTest {
                 lowPowerMode = false,
                 energy = 0.82f,
                 curiosity = 0.5f,
-                nowElapsedRealtimeMs = 36_050L,
+                nowElapsedRealtimeMs = 42_100L,
                 holdMovementForSeatTransition = false
             )
         )
