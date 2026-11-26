@@ -147,7 +147,15 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         .clip(RoundedCornerShape(26.dp)).background(palette.surface.copy(alpha = 0.90f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    ChamaPortrait(modifier = Modifier.fillMaxSize())
+                    Column(Modifier.fillMaxSize()) {
+                        Box(Modifier.weight(1.15f).fillMaxWidth()) {
+                            ChamaBody3D(modifier = Modifier.fillMaxSize())
+                        }
+                        Divider(color = palette.secondary.copy(alpha = 0.55f))
+                        Box(Modifier.weight(0.85f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            ChamaPortrait(modifier = Modifier.fillMaxSize())
+                        }
+                    }
                     if (speaking) {
                         Surface(
                             modifier = Modifier.align(Alignment.BottomCenter).padding(12.dp),
@@ -214,7 +222,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Portrait original protégé — visage inchangé. Première pièce 3D procédurale ; corps indépendant encore en développement.",
+            "Portrait original protégé — visage inchangé. Pièce 3D procédurale et corps 3D indépendant en première étape ; portrait original protégé.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
