@@ -24,8 +24,10 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 
 Le fichier de référence intégré est `app/src/main/res/drawable-nodpi/chama_portrait.png`.
 
-Son SHA-256 de référence est :
+Son identifiant d'objet Git (blob SHA-1) de référence est :
 `ad9091b7ea61919de0bab0dd0921b7a164982f92`.
+
+Le workflow GitHub Actions vérifie automatiquement cet identifiant pour `shama.png` et pour la copie intégrée à l'application. Le contrôle `RELIVE/scripts/verify-chama-portrait.sh` valide aussi les verrous du manifeste ; la compilation échoue si l'image de référence change ou si une règle protégeant le visage est affaiblie.
 
 Toute future représentation animée devra garder cette image dans une couche indépendante et immuable. Aucun recadrage, recoloration, déformation, reconstruction, mouvement de tête, clignement, mouvement des yeux, de la bouche ou de la mâchoire n'est autorisé. Les animations concernent exclusivement le corps et les éléments séparés qui ne modifient pas la photographie.
 
