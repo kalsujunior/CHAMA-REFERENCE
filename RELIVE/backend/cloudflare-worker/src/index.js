@@ -81,11 +81,15 @@ export default {
     }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, cors);
 
+    const pathname = new URL(request.url).pathname;
+    const isSpeech = pathname === "/speech";
+    if (pathname !== "/chat" && !isSpeech) return json({ error: "Not found" }, 404, cors);
+
     const groqModel = env.GROQ_MODEL || 'openai/gpt-oss-20b';
     const geminiModel = env.GEMINI_MODEL || 'gemini-3.8-flash';
     const hasGroq = Boolean(env.GROQ_API_KEY);
     const hasGemini = Boolean(env.GEMINI_API_KEY);
-    if ((!hasGroq && !hasGemini) || !env.RELIVE_ACCESS_TOKEN || !env.RATE_LIMITER) {
+    if ((!isSpeech && !hasGroq && !hasGemini) || !env.RELIVE_ACCESS_TOKEN || !env.RATE_LIMITER) {
       return json({ error: "Backend is not fully configured" }, 503, cors);
     }
 
@@ -108,6 +112,53 @@ export default {
     let body;
     try { body = await request.json(); }
     catch (_) { return json({ error: "Invalid JSON" }, 400, cors); }
+
+    if (isSpeech) {
+      const text = typeof body.text === "string" ? body.text.trim() : "";
+      const language = typeof body.language === "string" ? body.language : "fr-FR";
+      if (!text || text.length > 3000) return json({ error: "Speech text is empty or too long" }, 400, cors);
+      if (language !== "fr-FR") return json({ error: "Personalized voice is currently enabled for French only" }, 422, cors);
+      if (!env.ELEVENLABS_API_KEY || !env.CHAMA_VOICE_ID) {
+        return json({ error: "Personalized voice is not configured" }, 503, cors);
+      }
+
+      try {
+        const endpoint = "https://api.elevenlabs.io/v1/text-to-speech/" +
+          encodeURIComponent(env.CHAMA_VOICE_ID) + "?output_format=mp3_44100_128";
+        const voiceResponse = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "xi-api-key": env.ELEVENLABS_API_KEY,
+            "Content-Type": "application/json",
+            "Accept": "audio/mpeg"
+          },
+          body: JSON.stringify({
+            text,
+            model_id: env.CHAMA_VOICE_MODEL || "eleven_multilingual_v2",
+            voice_settings: {
+              stability: 0.48,
+              similarity_boost: 0.82,
+              style: 0.2,
+              use_speaker_boost: true
+            }
+          })
+        });
+        if (!voiceResponse.ok) return json({ error: "Voice provider unavailable" }, 502, cors);
+        const audioLength = Number(voiceResponse.headers.get("Content-Length") || "0");
+        if (audioLength > 8 * 1024 * 1024) return json({ error: "Voice response too large" }, 502, cors);
+        return new Response(voiceResponse.body, {
+          status: 200,
+          headers: {
+            ...cors,
+            "Content-Type": "audio/mpeg",
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff"
+          }
+        });
+      } catch (_) {
+        return json({ error: "Voice provider unavailable" }, 502, cors);
+      }
+    }
 
     const message = typeof body.message === "string" ? body.message.trim() : "";
     if (!message || message.length > 6000) return json({ error: "Message is empty or too long" }, 400, cors);
