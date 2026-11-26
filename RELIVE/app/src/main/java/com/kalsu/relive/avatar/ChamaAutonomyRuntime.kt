@@ -85,8 +85,10 @@ class ChamaAutonomyRuntime(
             val target = decision.target
             if (target != null) {
                 val route = ChamaRoomNavigation.findRoute(currentWaypoint, target)
-                if (route == null) {
-                    routeError = "Aucun itinéraire disponible vers $target."
+                val startConnectorIsSafe = route != null &&
+                    ChamaRoomCollisionMap.isSegmentWalkable(lastFrame.position, route.points.first())
+                if (route == null || !ChamaRoomCollisionMap.validateRoute(route) || !startConnectorIsSafe) {
+                    routeError = "Aucun itinéraire entièrement validé n'est disponible vers $target."
                     lastFrame = locomotion.cancel()
                     destinationWaypoint = null
                 } else {
