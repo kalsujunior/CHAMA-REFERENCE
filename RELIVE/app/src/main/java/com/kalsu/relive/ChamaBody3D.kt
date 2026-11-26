@@ -193,31 +193,31 @@ internal fun ChamaBody3D(
         SphereNode(radius = 0.105f, materialInstance = sweater,
             position = Position(0.49f + sway, 1.17f, 0f))
         SphereNode(radius = 0.105f, materialInstance = skin,
-            position = Position(-0.53f, 0.79f, 0f))
+            position = Position(-0.53f + sway + leftWave * 0.0015f, 0.79f + leftWave * 0.002f, 0f))
         SphereNode(radius = 0.105f, materialInstance = skin,
-            position = Position(0.54f, 0.80f, 0f))
+            position = Position(0.54f + sway + wave * 0.0015f, 0.80f + wave * 0.002f, 0f))
 
         // Cuffs, palms and simple fingers make the hands readable at phone scale.
         SphereNode(radius = 0.075f, materialInstance = cuff,
-            position = Position(-0.50f, 0.88f, 0f))
+            position = Position(-0.50f + sway + leftWave * 0.0015f, 0.88f + leftWave * 0.002f, 0f))
         SphereNode(radius = 0.075f, materialInstance = cuff,
-            position = Position(0.51f, 0.89f, 0f))
+            position = Position(0.51f + sway + wave * 0.0015f, 0.89f + wave * 0.002f, 0f))
         CapsuleNode(radius = 0.026f, height = 0.12f, materialInstance = skin,
-            position = Position(-0.63f, 0.69f, 0.015f), rotation = Rotation(z = -8f))
+            position = Position(-0.63f + sway + leftWave * 0.0015f, 0.69f + leftWave * 0.002f, 0.015f), rotation = Rotation(z = -8f))
         CapsuleNode(radius = 0.026f, height = 0.12f, materialInstance = skin,
-            position = Position(-0.59f, 0.68f, 0.025f))
+            position = Position(-0.59f + sway + leftWave * 0.0015f, 0.68f + leftWave * 0.002f, 0.025f))
         CapsuleNode(radius = 0.026f, height = 0.12f, materialInstance = skin,
-            position = Position(-0.55f, 0.68f, 0.025f))
+            position = Position(-0.55f + sway + leftWave * 0.0015f, 0.68f + leftWave * 0.002f, 0.025f))
         CapsuleNode(radius = 0.026f, height = 0.11f, materialInstance = skin,
-            position = Position(-0.51f, 0.69f, 0.015f), rotation = Rotation(z = 8f))
+            position = Position(-0.51f + sway + leftWave * 0.0015f, 0.69f + leftWave * 0.002f, 0.015f), rotation = Rotation(z = 8f))
         CapsuleNode(radius = 0.026f, height = 0.12f, materialInstance = skin,
-            position = Position(0.49f, 0.69f, 0.015f), rotation = Rotation(z = -8f))
+            position = Position(0.49f + sway + wave * 0.0015f, 0.69f + wave * 0.002f, 0.015f), rotation = Rotation(z = -8f))
         CapsuleNode(radius = 0.026f, height = 0.12f, materialInstance = skin,
-            position = Position(0.53f, 0.68f, 0.025f))
+            position = Position(0.53f + sway + wave * 0.0015f, 0.68f + wave * 0.002f, 0.025f))
         CapsuleNode(radius = 0.026f, height = 0.12f, materialInstance = skin,
-            position = Position(0.57f, 0.68f, 0.025f))
+            position = Position(0.57f + sway + wave * 0.0015f, 0.68f + wave * 0.002f, 0.025f))
         CapsuleNode(radius = 0.026f, height = 0.11f, materialInstance = skin,
-            position = Position(0.61f, 0.69f, 0.015f), rotation = Rotation(z = 8f))
+            position = Position(0.61f + sway + wave * 0.0015f, 0.69f + wave * 0.002f, 0.015f), rotation = Rotation(z = 8f))
 
         // Sweater hem and subtle seams are separate geometry, not portrait pixels.
         CubeNode(size = Size(0.48f, 0.045f, 0.43f), materialInstance = cuff,
