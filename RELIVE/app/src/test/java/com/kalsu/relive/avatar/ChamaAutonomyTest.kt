@@ -136,6 +136,13 @@ class ChamaAutonomyTest {
         assertTrue(kotlin.math.abs(hand.x - ChamaFlowerInteraction.VASE_POSE.x) < 0.15f)
         assertTrue(kotlin.math.abs(hand.z - ChamaFlowerInteraction.VASE_POSE.z) < 0.15f)
         assertTrue(kotlin.math.abs(hand.y - ChamaFlowerInteraction.VASE_POSE.y) < 0.10f)
+        val dx = hand.x - ChamaFlowerInteraction.VASE_POSE.x
+        val dy = hand.y - ChamaFlowerInteraction.VASE_POSE.y
+        val dz = hand.z - ChamaFlowerInteraction.VASE_POSE.z
+        val handToRoseDistance = kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+        assertTrue("Palm and rose heads should visually overlap", handToRoseDistance < 0.18f)
+        // The rose head bottom nearly touches the coffee table top (0.2725 m).
+        assertEquals(0.275f, ChamaFlowerInteraction.TABLE_POSE.y - 0.075f, 0.001f)
     }
 
     @Test
