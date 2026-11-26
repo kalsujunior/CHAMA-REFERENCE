@@ -52,7 +52,7 @@ object ChamaFlowerInteraction {
         require(bodyPosition.x.isFinite() && bodyPosition.z.isFinite())
         require(headingDegrees.isFinite())
         val hand = ChamaBodyPoseMath.reachingArm(
-            shoulder = ChamaLimbPoint3D(0.31f, 1.70f, 0f),
+            shoulder = ChamaLimbPoint3D(0.31f, 1.30f, 0f),
             upperArmLength = 0.42f,
             forearmLength = 0.36f,
             lateralAngleDegrees = -35f,
