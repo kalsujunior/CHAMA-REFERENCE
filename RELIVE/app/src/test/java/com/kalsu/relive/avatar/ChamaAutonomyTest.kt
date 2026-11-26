@@ -134,6 +134,27 @@ class ChamaAutonomyTest {
     }
 
     @Test
+    fun runtimePausesWhenSpaceIsHiddenAndReplansWhenVisible() {
+        val runtime = ChamaAutonomyRuntime()
+        runtime.tick(input(now = 0L))
+        for (time in 50L..500L step 50L) {
+            runtime.tick(input(now = time))
+        }
+
+        val hidden = runtime.tick(input(now = 550L).copy(virtualSpaceVisible = false))
+        assertEquals(ChamaAutonomyPauseReason.SPACE_NOT_VISIBLE, hidden.decision.pauseReason)
+        assertEquals(ChamaLocomotionStatus.PAUSED, hidden.locomotion.status)
+
+        val visible = runtime.tick(input(now = 600L))
+        assertNull(visible.routeError)
+        assertTrue(
+            visible.locomotion.status == ChamaLocomotionStatus.WALKING ||
+                visible.locomotion.status == ChamaLocomotionStatus.TURNING ||
+                visible.locomotion.status == ChamaLocomotionStatus.ARRIVED
+        )
+    }
+
+    @Test
     fun failedCollisionGuardCanRestoreLastSafePose() {
         val safePosition = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER)
         val controller = ChamaLocomotionController()
