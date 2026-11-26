@@ -1,5 +1,6 @@
 package com.kalsu.relive
 
+import android.os.SystemClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -15,6 +16,8 @@ import androidx.compose.material.icons.filled.WavingHand
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kalsu.relive.data.PreferenceStore
 import com.kalsu.relive.avatar.ChamaBodyGesture
+import com.kalsu.relive.avatar.ChamaAutonomyRuntime
+import com.kalsu.relive.avatar.ChamaAutonomyRuntimeInput
 import com.kalsu.relive.voice.ChamaSpeech
 
 private val RoomGold: Color @Composable get() = LocalRelivePalette.current.primary
@@ -39,6 +44,9 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     val palette = LocalRelivePalette.current
     val preferences = remember { PreferenceStore(context) }
     val speech = remember { ChamaSpeech(context) }
+    val autonomyRuntime = remember { ChamaAutonomyRuntime() }
+    var autonomyEnabled by remember { mutableStateOf(false) }
+    var autonomyFrame by remember { mutableStateOf(autonomyRuntime.stop()) }
     var status by remember { mutableStateOf("Je suis heureuse de te retrouver ici.") }
     var speaking by remember { mutableStateOf(false) }
     var bodyGesture by remember { mutableStateOf(ChamaBodyGesture.IDLE) }
@@ -52,7 +60,36 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
         onDispose { speech.release() }
     }
 
+    fun pauseAutonomyForUser() {
+        autonomyEnabled = false
+        autonomyFrame = autonomyRuntime.stop()
+    }
+
+    LaunchedEffect(autonomyEnabled, lightMode) {
+        if (!autonomyEnabled) {
+            autonomyFrame = autonomyRuntime.stop()
+            return@LaunchedEffect
+        }
+        while (isActive) {
+            val nextFrame = autonomyRuntime.tick(
+                ChamaAutonomyRuntimeInput(
+                    enabled = true,
+                    virtualSpaceVisible = !lightMode,
+                    userInteracting = false,
+                    lowPowerMode = lightMode,
+                    energy = 0.82f,
+                    curiosity = 0.88f,
+                    nowElapsedRealtimeMs = SystemClock.elapsedRealtime()
+                )
+            )
+            autonomyFrame = nextFrame
+            status = nextFrame.routeError ?: nextFrame.decision.statusFr
+            delay(50L)
+        }
+    }
+
     fun act(line: String, gesture: ChamaBodyGesture) {
+        pauseAutonomyForUser()
         status = line
         bodyGesture = gesture
         if (!preferences.voiceEnabled) {
@@ -93,7 +130,17 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 .background(Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.36f), palette.surface, palette.background)))
         ) {
             if (!lightMode) {
-                ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette, lampOn = lampOn, evening = eveningAmbience, sofaWelcoming = sofaWelcoming, bouquetHighlighted = bouquetHighlighted)
+                ChamaRoom3D(
+                    modifier = Modifier.fillMaxSize(),
+                    palette = palette,
+                    lampOn = lampOn,
+                    evening = eveningAmbience,
+                    sofaWelcoming = sofaWelcoming,
+                    bouquetHighlighted = bouquetHighlighted,
+                    bodyGesture = if (autonomyEnabled) autonomyFrame.bodyGesture else bodyGesture,
+                    bodyPosition = autonomyFrame.locomotion.position,
+                    bodyHeadingDegrees = autonomyFrame.locomotion.headingDegrees
+                )
             } else {
                 Box(
                     Modifier.fillMaxSize().background(
@@ -121,9 +168,9 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     contentAlignment = Alignment.Center
                 ) {
                     Column(Modifier.fillMaxSize()) {
-                        Box(Modifier.weight(1.15f).fillMaxWidth()) {
-                            ChamaBody3D(modifier = Modifier.fillMaxSize(), gesture = if (lightMode) ChamaBodyGesture.IDLE else bodyGesture, motionEnabled = !lightMode)
-                        }
+                        // Le corps 3D est maintenant rendu dans la scène commune du salon.
+                        // Cette zone transparente conserve la composition du portrait.
+                        Box(Modifier.weight(1.15f).fillMaxWidth())
                         Divider(color = palette.secondary.copy(alpha = 0.55f))
                         Box(Modifier.weight(0.85f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                             ChamaPortrait(modifier = Modifier.fillMaxSize())
@@ -152,19 +199,20 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedButton(
-                        onClick = { lampOn = !lampOn },
+                        onClick = { pauseAutonomyForUser(); lampOn = !lampOn },
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
                     ) { Text(if (lampOn) "Éteindre lampe" else "Allumer lampe", fontSize = 10.sp) }
 
                     OutlinedButton(
-                        onClick = { eveningAmbience = !eveningAmbience },
+                        onClick = { pauseAutonomyForUser(); eveningAmbience = !eveningAmbience },
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
                     ) { Text(if (eveningAmbience) "Ambiance jour" else "Ambiance soir", fontSize = 10.sp) }
 
                     OutlinedButton(
                         onClick = {
+                            pauseAutonomyForUser()
                             sofaWelcoming = !sofaWelcoming
                             status = if (sofaWelcoming) "J'ai préparé les coussins du canapé pour un moment de détente. ❤️" else "Le salon retrouve son aménagement habituel."
                             bodyGesture = ChamaBodyGesture.LISTEN
@@ -175,6 +223,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
                     OutlinedButton(
                         onClick = {
+                            pauseAutonomyForUser()
                             bouquetHighlighted = !bouquetHighlighted
                             status = if (bouquetHighlighted) "J'ai mis mes roses préférées en valeur. 🌹" else "Les roses retrouvent leur teinte naturelle."
                         },
@@ -183,10 +232,24 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     ) { Text(if (bouquetHighlighted) "Rétablir les roses" else "Valoriser les roses", fontSize = 10.sp) }
 
                     OutlinedButton(
-                        onClick = { lightMode = !lightMode },
+                        onClick = { pauseAutonomyForUser(); lightMode = !lightMode },
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
                     ) { Text(if (lightMode) "Activer le salon 3D" else "Mode léger", fontSize = 10.sp) }
+
+                    OutlinedButton(
+                        onClick = {
+                            if (autonomyEnabled) {
+                                pauseAutonomyForUser()
+                                status = "Mon autonomie est arrêtée. Je t'écoute."
+                            } else {
+                                autonomyEnabled = true
+                                status = "Je vais explorer mon salon à mon rythme."
+                            }
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
+                    ) { Text(if (autonomyEnabled) "Arrêter autonomie" else "Autonomie libre", fontSize = 10.sp) }
                 }
 
                 Row(
@@ -224,11 +287,11 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
 
                 Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(onClick = onTalk, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = RoomGold)) {
+                    Button(onClick = { pauseAutonomyForUser(); onTalk() }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = RoomGold)) {
                         Icon(Icons.Default.Chat, contentDescription = null, tint = RoomInk)
                         Spacer(Modifier.width(6.dp)); Text("Conversation", color = RoomInk, fontWeight = FontWeight.Bold)
                     }
-                    OutlinedButton(onClick = onGallery, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold)) {
+                    OutlinedButton(onClick = { pauseAutonomyForUser(); onGallery() }, modifier = Modifier.weight(1f), colors = ButtonDefaults.outlinedButtonColors(contentColor = RoomGold)) {
                         Icon(Icons.Default.PhotoLibrary, contentDescription = null)
                         Spacer(Modifier.width(6.dp)); Text("Galerie")
                     }
@@ -237,7 +300,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Salon 3D manipulable avec mode léger, lampe, ambiance jour/soir, coussins et bouquet interactifs ; corps animé. Le portrait original reste indépendant, intact et non animé. Le portrait original reste indépendant, intact et non animé.",
+            "Chama peut explorer son salon en autonomie locale, s'arrêter dès que tu interagis et économiser la batterie en mode léger. Son portrait original reste séparé, intact et non animé.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
