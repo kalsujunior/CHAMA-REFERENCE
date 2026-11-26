@@ -1,0 +1,143 @@
+package com.kalsu.relive.avatar
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class ChamaAutonomyTest {
+
+    @Test
+    fun everySemanticTargetHasACollisionValidatedRouteFromRoomCenter() {
+        ChamaAutonomyTarget.values().forEach { target ->
+            val route = ChamaRoomNavigation.findRoute(ChamaRoomWaypoint.ROOM_CENTER, target)
+            assertNotNull("Missing route for $target", route)
+            assertTrue("Unsafe route for $target", ChamaRoomCollisionMap.validateRoute(route!!))
+        }
+    }
+
+    @Test
+    fun routePlannerRejectsStraightPathThroughFurniture() {
+        val start = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER)
+        val farSide = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.WINDOW_STOP)
+        assertFalse(ChamaRoomCollisionMap.isSegmentWalkable(start, farSide))
+    }
+
+    @Test
+    fun nearestWaypointMustHaveClearConnector() {
+        val point = ChamaRoomPoint(-0.72f, 1.10f)
+        val nearest = ChamaRoomNavigation.nearestReachableWaypoint(point)
+        assertNotNull(nearest)
+        assertTrue(
+            ChamaRoomCollisionMap.isSegmentWalkable(
+                point,
+                ChamaRoomNavigation.pointOf(nearest!!)
+            )
+        )
+    }
+
+    @Test
+    fun locomotionReachesWindowWithoutTeleporting() {
+        val route = ChamaRoomNavigation.findRoute(
+            ChamaRoomWaypoint.ROOM_CENTER,
+            ChamaAutonomyTarget.WINDOW
+        )!!
+        val controller = ChamaLocomotionController()
+        var frame = controller.begin(
+            route = route,
+            currentPosition = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER),
+            currentHeadingDegrees = 0f,
+            nowElapsedRealtimeMs = 0L
+        )
+
+        var previousDistance = Float.POSITIVE_INFINITY
+        for (time in 50L..30_000L step 50L) {
+            frame = controller.update(
+                nowElapsedRealtimeMs = time,
+                enabled = true,
+                userInteracting = false,
+                lowPowerMode = false
+            )
+            assertTrue("A single frame must not teleport", frame.speedMetersPerSecond <= 0.73f)
+            if (frame.status != ChamaLocomotionStatus.ARRIVED) {
+                val target = route.points.last()
+                val dx = target.x - frame.position.x
+                val dz = target.z - frame.position.z
+                val distance = kotlin.math.sqrt(dx * dx + dz * dz)
+                assertTrue("Controller moved away from destination", distance <= previousDistance + 0.02f)
+                previousDistance = distance
+            }
+            if (frame.status == ChamaLocomotionStatus.ARRIVED) break
+        }
+
+        assertEquals(ChamaLocomotionStatus.ARRIVED, frame.status)
+        assertEquals(route.points.last().x, frame.position.x, 0.001f)
+        assertEquals(route.points.last().z, frame.position.z, 0.001f)
+    }
+
+    @Test
+    fun userInteractionImmediatelyCancelsActiveLocomotion() {
+        val route = ChamaRoomNavigation.findRoute(
+            ChamaRoomWaypoint.ROOM_CENTER,
+            ChamaAutonomyTarget.WINDOW
+        )!!
+        val controller = ChamaLocomotionController()
+        controller.begin(
+            route,
+            ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.ROOM_CENTER),
+            0f,
+            0L
+        )
+        controller.update(500L, enabled = true, userInteracting = false, lowPowerMode = false)
+
+        val paused = controller.update(
+            nowElapsedRealtimeMs = 510L,
+            enabled = true,
+            userInteracting = true,
+            lowPowerMode = false
+        )
+        assertEquals(ChamaLocomotionStatus.PAUSED, paused.status)
+        assertEquals(0f, paused.speedMetersPerSecond, 0.0001f)
+        assertEquals(ChamaLocomotionPauseReason.USER_INTERACTION, paused.pauseReason)
+    }
+
+    @Test
+    fun autonomyRuntimeCanReplanAfterInterruption() {
+        val runtime = ChamaAutonomyRuntime()
+        var frame = runtime.tick(input(now = 0L))
+        for (time in 50L..1_000L step 50L) {
+            frame = runtime.tick(input(now = time))
+        }
+        assertTrue(
+            frame.locomotion.status == ChamaLocomotionStatus.WALKING ||
+                frame.locomotion.status == ChamaLocomotionStatus.TURNING
+        )
+
+        val interrupted = runtime.tick(input(now = 1_050L, userInteracting = true))
+        assertEquals(ChamaAutonomyPauseReason.USER_INTERACTION, interrupted.decision.pauseReason)
+        assertEquals(ChamaLocomotionStatus.PAUSED, interrupted.locomotion.status)
+
+        val resumed = runtime.tick(input(now = 1_100L))
+        assertNull(resumed.routeError)
+        assertTrue(
+            resumed.locomotion.status == ChamaLocomotionStatus.WALKING ||
+                resumed.locomotion.status == ChamaLocomotionStatus.TURNING ||
+                resumed.locomotion.status == ChamaLocomotionStatus.ARRIVED
+        )
+    }
+
+    private fun input(
+        now: Long,
+        userInteracting: Boolean = false
+    ) = ChamaAutonomyRuntimeInput(
+        enabled = true,
+        virtualSpaceVisible = true,
+        userInteracting = userInteracting,
+        lowPowerMode = false,
+        energy = 0.82f,
+        curiosity = 0.88f,
+        nowElapsedRealtimeMs = now
+    )
+}
