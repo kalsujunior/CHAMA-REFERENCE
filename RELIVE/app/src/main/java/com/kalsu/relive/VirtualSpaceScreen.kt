@@ -135,7 +135,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                 .clip(RoundedCornerShape(30.dp))
                 .background(Brush.verticalGradient(listOf(palette.primary.copy(alpha = 0.36f), palette.surface, palette.background)))
         ) {
-            RoomEnvironment(modifier = Modifier.fillMaxSize(), palette = palette)
+            ChamaRoom3D(modifier = Modifier.fillMaxSize(), palette = palette)
             Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(Modifier.height(16.dp))
                 Text("Bienvenue dans mon univers", color = RoomCream, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
@@ -214,7 +214,7 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             }
         }
         Text(
-            "Portrait original protégé — visage inchangé. Décor 2D de prévisualisation ; corps indépendant et véritable environnement 3D encore en développement.",
+            "Portrait original protégé — visage inchangé. Première pièce 3D procédurale ; corps indépendant encore en développement.",
             color = RoomRose, fontSize = 10.sp,
             modifier = Modifier.fillMaxWidth().padding(12.dp)
         )
