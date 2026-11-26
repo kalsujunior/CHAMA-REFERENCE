@@ -1,5 +1,7 @@
 package com.kalsu.relive
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import android.os.SystemClock
 import android.os.PowerManager
 import androidx.compose.foundation.background
@@ -38,6 +40,8 @@ import com.kalsu.relive.avatar.ChamaAutonomyRuntimeInput
 import com.kalsu.relive.avatar.ChamaAutonomyNeeds
 import com.kalsu.relive.avatar.ChamaRoomWaypoint
 import com.kalsu.relive.avatar.ChamaLocomotionStatus
+import com.kalsu.relive.avatar.ChamaRoomNavigation
+import com.kalsu.relive.avatar.ChamaSeatTransitionMath
 import com.kalsu.relive.voice.ChamaSpeech
 
 private val RoomGold: Color @Composable get() = LocalRelivePalette.current.primary
@@ -69,6 +73,27 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
     var sofaWelcoming by remember { mutableStateOf(false) }
     var bouquetHighlighted by remember { mutableStateOf(false) }
     var lightMode by remember { mutableStateOf(false) }
+    val seatRequested = autonomyEnabled && !lightMode &&
+        autonomyFrame.currentWaypoint == ChamaRoomWaypoint.SOFA_SEAT &&
+        autonomyFrame.decision.bodyGesture == ChamaBodyGesture.SIT
+    val seatProgress by animateFloatAsState(
+        targetValue = if (seatRequested) 1f else 0f,
+        animationSpec = tween(durationMillis = 1_200),
+        label = "chama_sofa_seat_transition"
+    )
+    val latestSeatProgress by rememberUpdatedState(seatProgress)
+    val seatPose = remember(seatProgress) {
+        ChamaSeatTransitionMath.pose(
+            approach = ChamaRoomNavigation.pointOf(ChamaRoomWaypoint.SOFA_SEAT),
+            progress = seatProgress
+        )
+    }
+    val renderedBodyPosition = if (seatProgress > 0.001f) {
+        seatPose.position
+    } else {
+        autonomyFrame.locomotion.position
+    }
+    val renderedBodyRootHeight = if (seatProgress > 0.001f) seatPose.rootHeight else 0f
 
     DisposableEffect(speech) {
         onDispose { speech.release() }
@@ -135,7 +160,8 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                     lowPowerMode = lightMode || powerManager?.isPowerSaveMode == true,
                     energy = needsSnapshot.energy,
                     curiosity = needsSnapshot.curiosity,
-                    nowElapsedRealtimeMs = now
+                    nowElapsedRealtimeMs = now,
+                    holdMovementForSeatTransition = latestSeatProgress > 0.001f
                 )
             )
             autonomyFrame = nextFrame
@@ -201,10 +227,14 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
                         autonomyEnabled && autonomyFrame.currentWaypoint == ChamaRoomWaypoint.FLOWERS_STOP &&
                             autonomyFrame.locomotion.status == ChamaLocomotionStatus.ARRIVED
                     ),
-                    bodyGesture = if (autonomyEnabled) autonomyFrame.bodyGesture else bodyGesture,
-                    bodyPosition = autonomyFrame.locomotion.position,
+                    bodyGesture = if (autonomyEnabled) {
+                        if (seatProgress > 0.001f && autonomyFrame.decision.bodyGesture != ChamaBodyGesture.SIT) ChamaBodyGesture.IDLE
+                        else autonomyFrame.bodyGesture
+                    } else bodyGesture,
+                    bodyPosition = renderedBodyPosition,
                     bodyHeadingDegrees = autonomyFrame.locomotion.headingDegrees,
                     bodyGaitPhase = autonomyFrame.locomotion.gaitPhase,
+                    bodyRootHeight = renderedBodyRootHeight,
                     onSceneInteraction = { pauseAutonomyForUser() }
                 )
             } else {
