@@ -5,7 +5,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 ## État actuel de l'espace virtuel
 
 - Une pièce 3D procédurale SceneView/Filament est intégrée : sol, murs, fenêtre panoramique, rideaux, canapé, coussins, tapis, table, lampe, suspension, étagère, livres, cadre mural, vase de roses et plante.
-- Un premier blocage géométrique 3D du corps indépendant est intégré : torse, bassin, épaules, coudes, avant-bras, poignets, paumes, doigts géométriques, jambes, chaussures et détails géométriques du pull.
+- Un blocage géométrique 3D du corps indépendant est intégré : volumes séparés pour le buste, la poitrine, la taille et le bassin, épaules, coudes, avant-bras, poignets, paumes, doigts géométriques, jambes, chaussures et détails géométriques du haut et du pantalon denim.
 - Les interactions Bonjour, Écouter et Danser sélectionnent respectivement les gestes corporels WAVE, LISTEN et DANCE.
 - Un contrôle dans l'interface permet d'allumer et d'éteindre visuellement la lampe du salon 3D.
 - Un second contrôle bascule l'ambiance visuelle de la fenêtre panoramique entre le jour et le soir, indépendamment de la lampe.
@@ -22,7 +22,7 @@ Application Android native Kotlin + Jetpack Compose centrée sur ESPÉRANCE RUCH
 
 ## Références corporelles vidéo de Chama
 
-Les cinq vidéos validées par l'utilisateur servent de références qualitatives pour la posture et le mouvement : gestes des mains devant le buste, rotations du torse, changements d'appui, vues de dos et de trois-quarts, inclinaisons latérales, bras levés et mouvements de danse. Elles ne permettent pas de déduire des mensurations exactes, car les vêtements, le cadrage, la perspective et les angles de caméra varient. Les dimensions du blocage 3D restent donc des paramètres provisoires à ajuster visuellement, et non des mesures biométriques.
+Les cinq vidéos validées par l'utilisateur servent de références qualitatives pour la posture et le mouvement : gestes des mains devant le buste, rotations du torse, changements d'appui, vues de dos et de trois-quarts, inclinaisons latérales, bras levés et mouvements de danse. Elles ne permettent pas de déduire des mensurations exactes, car les vêtements, le cadrage, la perspective et les angles de caméra varient. Les dimensions du blocage 3D restent donc des paramètres provisoires à ajuster visuellement, et non des mesures biométriques. La silhouette utilise maintenant des volumes distincts pour éviter une largeur uniforme du thorax à la taille, un bassin de transition et des détails de couture denim ; ces volumes restent stylisés et ne constituent pas une reconstruction anatomique exacte.
 
 La géométrie actuelle reste un blocage procédural de développement : elle n'est pas un maillage anatomique final, un système de skinning de production ni un solveur d'IK complet. Les articulations sont simulées par le recalcul des centres et orientations des segments.
 
