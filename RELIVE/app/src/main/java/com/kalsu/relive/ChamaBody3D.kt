@@ -79,6 +79,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
             ChamaBodyGesture.REACH -> -8f
+            ChamaBodyGesture.ADJUST_LAMP -> -8f
             ChamaBodyGesture.ADMIRE -> -5f
             ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> 48f
@@ -94,6 +95,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> -10f
             ChamaBodyGesture.LISTEN -> -8f
             ChamaBodyGesture.REACH -> -6f
+            ChamaBodyGesture.ADJUST_LAMP -> -6f
             ChamaBodyGesture.ADMIRE -> -5f
             ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> -42f
@@ -148,6 +150,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> 24f
             ChamaBodyGesture.LISTEN -> 7f
             ChamaBodyGesture.REACH -> 8f
+            ChamaBodyGesture.ADJUST_LAMP -> 4f
             ChamaBodyGesture.ADMIRE -> 3f
             ChamaBodyGesture.SIT -> 0f
             ChamaBodyGesture.DANCE -> 18f
@@ -163,6 +166,7 @@ internal fun SceneScope.ChamaBodyNodes(
             ChamaBodyGesture.WAVE -> -5f
             ChamaBodyGesture.LISTEN -> -9f
             ChamaBodyGesture.REACH -> -2f
+            ChamaBodyGesture.ADJUST_LAMP -> -2f
             ChamaBodyGesture.ADMIRE -> -3f
             ChamaBodyGesture.SIT -> -2f
             ChamaBodyGesture.DANCE -> -16f
@@ -184,6 +188,7 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.DANCE -> -28f
         ChamaBodyGesture.LISTEN -> 8f
         ChamaBodyGesture.REACH -> 0f
+        ChamaBodyGesture.ADJUST_LAMP -> 0f
         ChamaBodyGesture.ADMIRE -> 3f
         ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
@@ -194,6 +199,7 @@ internal fun SceneScope.ChamaBodyNodes(
         ChamaBodyGesture.DANCE -> 30f
         ChamaBodyGesture.LISTEN -> -5f
         ChamaBodyGesture.REACH -> 5f
+        ChamaBodyGesture.ADJUST_LAMP -> 5f
         ChamaBodyGesture.ADMIRE -> -3f
         ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
@@ -208,12 +214,14 @@ internal fun SceneScope.ChamaBodyNodes(
     val rightShoulderX = upperTorsoX + 0.31f
     val leftShoulderX = upperTorsoX - 0.31f
     val reaching = gesture == ChamaBodyGesture.REACH
+    val adjustingLamp = gesture == ChamaBodyGesture.ADJUST_LAMP
+    val reachingObject = reaching || adjustingLamp
     val sitting = gesture == ChamaBodyGesture.SIT
     // Forward reach is solved in the body-local Y/Z plane so the hand travels
     // toward the flowers rather than sideways across the chest.
-    val rightReachPose = if (reaching) {
+    val rightReachPose = if (reachingObject) {
         ChamaBodyPoseMath.reachingArm(
-            shoulder = ChamaLimbPoint3D(rightShoulderX, shoulderY - 0.40f, 0f),
+            shoulder = ChamaLimbPoint3D(rightShoulderX, shoulderY - if (reaching) 0.40f else 0f, 0f),
             upperArmLength = upperArmLength,
             forearmLength = forearmLength,
             lateralAngleDegrees = -35f,
