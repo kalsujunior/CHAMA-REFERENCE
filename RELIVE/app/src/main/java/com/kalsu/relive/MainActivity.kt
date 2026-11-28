@@ -289,8 +289,8 @@ private fun ChatScreen(modifier: Modifier) {
                         AsyncImage(
                             model = chamaAvatar ?: R.drawable.chama_portrait,
                             contentDescription = "Avatar intégré de Chama",
-                            modifier = Modifier.size(38.dp).clip(CircleShape),
-                            contentScale = ContentScale.Crop
+                            modifier = Modifier.size(width = 32.dp, height = 56.dp).clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Fit
                         )
                         Spacer(Modifier.width(7.dp))
                     }
