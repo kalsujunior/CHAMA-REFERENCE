@@ -149,7 +149,9 @@ fun VirtualSpaceScreen(modifier: Modifier = Modifier, onTalk: () -> Unit, onGall
             autonomyNeeds.resetClock()
             return@LaunchedEffect
         }
-        if (!screenResumed) {
+        // Avoid keeping the 20 Hz autonomy loop alive while the scene is hidden
+        // or the user has selected lightweight mode.
+        if (!screenResumed || lightMode) {
             val now = SystemClock.elapsedRealtime()
             autonomyFrame = autonomyRuntime.tick(
                 ChamaAutonomyRuntimeInput(
