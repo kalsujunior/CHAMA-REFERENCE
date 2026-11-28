@@ -1,9 +1,6 @@
 name: RELIVE validation - tests and debug APK
 
 on:
-  push:
-    branches:
-      - chama-autonomy-foundation
   workflow_dispatch:
 
 permissions:
