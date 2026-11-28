@@ -20,8 +20,13 @@ enum class ChamaBodyJoint {
 
 enum class ChamaBodyGesture {
     IDLE,
+    WALK,
     WAVE,
     LISTEN,
+    REACH,
+    ADJUST_LAMP,
+    ADMIRE,
+    SIT,
     DANCE
 }
 

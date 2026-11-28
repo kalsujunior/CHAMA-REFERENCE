@@ -2,22 +2,22 @@ package com.kalsu.relive
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import io.github.sceneview.SceneView
+import com.kalsu.relive.avatar.ChamaBodyGesture
+import com.kalsu.relive.avatar.ChamaBodyPoseMath
+import com.kalsu.relive.avatar.ChamaLimbPoint3D
+import com.kalsu.relive.avatar.ChamaRoomPoint
+import io.github.sceneview.SceneScope
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Size
-import io.github.sceneview.rememberCameraManipulator
-import io.github.sceneview.rememberEngine
-import io.github.sceneview.rememberMaterialLoader
-import com.kalsu.relive.avatar.ChamaBodyGesture
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -25,19 +25,19 @@ private fun chamaSinDeg(degrees: Float): Float = sin(Math.toRadians(degrees.toDo
 private fun chamaCosDeg(degrees: Float): Float = cos(Math.toRadians(degrees.toDouble())).toFloat()
 
 /**
- * Body-only procedural character blockout.
- *
- * The head and face are intentionally omitted. The immutable source portrait
- * remains a separate Compose image and is never used as a texture or mesh.
+ * Corps géométrique sans tête, rendu comme enfant du salon dans le même graphe
+ * SceneView. Le Node racine reçoit position et orientation calculées par
+ * l'autonomie ; le portrait demeure une image Compose séparée et immuable.
  */
 @Composable
-internal fun ChamaBody3D(
-    modifier: Modifier = Modifier,
-    gesture: ChamaBodyGesture = ChamaBodyGesture.IDLE,
+internal fun SceneScope.ChamaBodyNodes(
+    gesture: ChamaBodyGesture,
+    rootPosition: ChamaRoomPoint,
+    rootHeight: Float = 0f,
+    headingDegrees: Float,
+    gaitPhase: Float = 0f,
     motionEnabled: Boolean = true
 ) {
-    val engine = rememberEngine()
-    val materialLoader = rememberMaterialLoader(engine)
     val sweater = remember(materialLoader) {
         materialLoader.createColorInstance(Color(0xFFF7F1E8), roughness = 0.88f)
     }
@@ -60,12 +60,28 @@ internal fun ChamaBody3D(
         materialLoader.createColorInstance(Color(0xFFE8D9D0), roughness = 0.9f)
     }
     val motion = rememberInfiniteTransition(label = "chama_body_motion")
+    val sitBlend by animateFloatAsState(
+        targetValue = if (gesture == ChamaBodyGesture.SIT) 1f else 0f,
+        animationSpec = tween(760),
+        label = "sit_stand_transition"
+    )
+    val postureDrop = -0.31f * sitBlend
+    val reachShoulder by animateFloatAsState(
+        targetValue = if (gesture == ChamaBodyGesture.REACH) 6f else 0f,
+        animationSpec = tween(500),
+        label = "flower_reach_transition"
+    )
     val wave by motion.animateFloat(
         initialValue = -8f,
         targetValue = if (!motionEnabled) -8f else when (gesture) {
             ChamaBodyGesture.IDLE -> 6f
+            ChamaBodyGesture.WALK -> 5f
             ChamaBodyGesture.WAVE -> 132f
             ChamaBodyGesture.LISTEN -> 4f
+            ChamaBodyGesture.REACH -> -8f
+            ChamaBodyGesture.ADJUST_LAMP -> -8f
+            ChamaBodyGesture.ADMIRE -> -5f
+            ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> 48f
         },
         animationSpec = infiniteRepeatable(tween(1050), RepeatMode.Reverse),
@@ -75,8 +91,13 @@ internal fun ChamaBody3D(
         initialValue = 7f,
         targetValue = if (!motionEnabled) 7f else when (gesture) {
             ChamaBodyGesture.IDLE -> -6f
+            ChamaBodyGesture.WALK -> -5f
             ChamaBodyGesture.WAVE -> -10f
             ChamaBodyGesture.LISTEN -> -8f
+            ChamaBodyGesture.REACH -> -6f
+            ChamaBodyGesture.ADJUST_LAMP -> -6f
+            ChamaBodyGesture.ADMIRE -> -5f
+            ChamaBodyGesture.SIT -> -8f
             ChamaBodyGesture.DANCE -> -42f
         },
         animationSpec = infiniteRepeatable(tween(1250), RepeatMode.Reverse),
@@ -94,11 +115,21 @@ internal fun ChamaBody3D(
         animationSpec = infiniteRepeatable(tween(1450), RepeatMode.Reverse),
         label = "body_sway"
     )
+    val glance by motion.animateFloat(
+        initialValue = -7f,
+        targetValue = if (!motionEnabled) -7f else when (gesture) {
+            ChamaBodyGesture.LISTEN -> 7f
+            ChamaBodyGesture.ADMIRE -> 4f
+            else -> -7f
+        },
+        animationSpec = infiniteRepeatable(tween(1600), RepeatMode.Reverse),
+        label = "gentle_look_around"
+    )
     val step by motion.animateFloat(
-        initialValue = -0.035f,
-        targetValue = if (!motionEnabled) -0.035f else if (gesture == ChamaBodyGesture.DANCE) 0.075f else 0.012f,
-        animationSpec = infiniteRepeatable(tween(if (gesture == ChamaBodyGesture.DANCE) 520 else 1800), RepeatMode.Reverse),
-        label = "body_step"
+        initialValue = 0f,
+        targetValue = if (motionEnabled && gesture == ChamaBodyGesture.DANCE) 0.075f else 0f,
+        animationSpec = infiniteRepeatable(tween(520), RepeatMode.Reverse),
+        label = "body_dance_step"
     )
     // Small lateral torso flex is represented as coordinated layer offsets.
     // It is a blockout approximation, not a production skeletal bend.
@@ -115,8 +146,13 @@ internal fun ChamaBody3D(
         initialValue = 0f,
         targetValue = if (!motionEnabled) 0f else when (gesture) {
             ChamaBodyGesture.IDLE -> 2f
+            ChamaBodyGesture.WALK -> 2f
             ChamaBodyGesture.WAVE -> 24f
             ChamaBodyGesture.LISTEN -> 7f
+            ChamaBodyGesture.REACH -> 8f
+            ChamaBodyGesture.ADJUST_LAMP -> 4f
+            ChamaBodyGesture.ADMIRE -> 3f
+            ChamaBodyGesture.SIT -> 0f
             ChamaBodyGesture.DANCE -> 18f
         },
         animationSpec = infiniteRepeatable(tween(680), RepeatMode.Reverse),
@@ -126,8 +162,13 @@ internal fun ChamaBody3D(
         initialValue = 0f,
         targetValue = if (!motionEnabled) 0f else when (gesture) {
             ChamaBodyGesture.IDLE -> -2f
+            ChamaBodyGesture.WALK -> -4f
             ChamaBodyGesture.WAVE -> -5f
             ChamaBodyGesture.LISTEN -> -9f
+            ChamaBodyGesture.REACH -> -2f
+            ChamaBodyGesture.ADJUST_LAMP -> -2f
+            ChamaBodyGesture.ADMIRE -> -3f
+            ChamaBodyGesture.SIT -> -2f
             ChamaBodyGesture.DANCE -> -16f
         },
         animationSpec = infiniteRepeatable(tween(820), RepeatMode.Reverse),
@@ -140,19 +181,29 @@ internal fun ChamaBody3D(
     val shoulderY = 1.70f + breathe
     val upperArmLength = 0.42f
     val forearmLength = 0.36f
-    val rightShoulderAngle = wave
+    val rightShoulderAngle = if (gesture == ChamaBodyGesture.REACH) reachShoulder else wave
     val leftShoulderAngle = leftWave
     val rightElbowBend = when (gesture) {
         ChamaBodyGesture.WAVE -> -112f
         ChamaBodyGesture.DANCE -> -28f
         ChamaBodyGesture.LISTEN -> 8f
+        ChamaBodyGesture.REACH -> 0f
+        ChamaBodyGesture.ADJUST_LAMP -> 0f
+        ChamaBodyGesture.ADMIRE -> 3f
+        ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
+        ChamaBodyGesture.WALK -> 4f
     }
     val leftElbowBend = when (gesture) {
         ChamaBodyGesture.WAVE -> 8f
         ChamaBodyGesture.DANCE -> 30f
         ChamaBodyGesture.LISTEN -> -5f
+        ChamaBodyGesture.REACH -> 5f
+        ChamaBodyGesture.ADJUST_LAMP -> 5f
+        ChamaBodyGesture.ADMIRE -> -3f
+        ChamaBodyGesture.SIT -> 12f
         ChamaBodyGesture.IDLE -> 5f
+        ChamaBodyGesture.WALK -> 6f
     }
     val rightForearmAngle = rightShoulderAngle + rightElbowBend
     val leftForearmAngle = leftShoulderAngle + leftElbowBend
@@ -162,53 +213,139 @@ internal fun ChamaBody3D(
     val waistCenterX = bodyCenterX + torsoLean * 0.55f
     val rightShoulderX = upperTorsoX + 0.31f
     val leftShoulderX = upperTorsoX - 0.31f
-    val rightElbowX = rightShoulderX + chamaSinDeg(rightShoulderAngle) * upperArmLength
-    val rightElbowY = shoulderY - chamaCosDeg(rightShoulderAngle) * upperArmLength
+    val reaching = gesture == ChamaBodyGesture.REACH
+    val adjustingLamp = gesture == ChamaBodyGesture.ADJUST_LAMP
+    val reachingObject = reaching || adjustingLamp
+    val sitting = gesture == ChamaBodyGesture.SIT
+    // Forward reach is solved in the body-local Y/Z plane so the hand travels
+    // toward the flowers rather than sideways across the chest.
+    val rightReachPose = if (reachingObject) {
+        ChamaBodyPoseMath.reachingArm(
+            shoulder = ChamaLimbPoint3D(rightShoulderX, shoulderY - if (reaching) 0.40f else 0f, 0f),
+            upperArmLength = upperArmLength,
+            forearmLength = forearmLength,
+            lateralAngleDegrees = -35f,
+            upperForwardTiltDegrees = 55f,
+            forearmForwardTiltDegrees = 60f
+        )
+    } else null
+    val rightElbowZ = rightReachPose?.elbow?.z ?: if (sitting) 0.12f * sitBlend else 0f
+    val rightWristZ = rightReachPose?.wrist?.z ?: if (sitting) 0.22f * sitBlend else 0f
+    val leftElbowZ = if (sitting) 0.12f * sitBlend else 0f
+    val leftWristZ = if (sitting) 0.30f * sitBlend else 0f
+    val rightElbowX = rightReachPose?.elbow?.x ?: rightShoulderX + chamaSinDeg(rightShoulderAngle) * upperArmLength
+    val rightElbowY = rightReachPose?.elbow?.y ?: shoulderY - chamaCosDeg(rightShoulderAngle) * upperArmLength
     val leftElbowX = leftShoulderX + chamaSinDeg(leftShoulderAngle) * upperArmLength
     val leftElbowY = shoulderY - chamaCosDeg(leftShoulderAngle) * upperArmLength
-    val rightWristX = rightElbowX + chamaSinDeg(rightForearmAngle) * forearmLength
-    val rightWristY = rightElbowY - chamaCosDeg(rightForearmAngle) * forearmLength
+    val rightWristX = rightReachPose?.wrist?.x ?: rightElbowX + chamaSinDeg(rightForearmAngle) * forearmLength
+    val rightWristY = rightReachPose?.wrist?.y ?: rightElbowY - chamaCosDeg(rightForearmAngle) * forearmLength
     val leftWristX = leftElbowX + chamaSinDeg(leftForearmAngle) * forearmLength
     val leftWristY = leftElbowY - chamaCosDeg(leftForearmAngle) * forearmLength
     val rightHandAngle = rightForearmAngle + rightWristFlex
     val leftHandAngle = leftForearmAngle + leftWristFlex
-    val rightHandX = rightWristX + chamaSinDeg(rightHandAngle) * 0.09f
-    val rightHandY = rightWristY - chamaCosDeg(rightHandAngle) * 0.09f
+    val rightHandX = rightReachPose?.hand?.x ?: rightWristX + chamaSinDeg(rightHandAngle) * 0.09f
+    val rightHandY = rightReachPose?.hand?.y ?: rightWristY - chamaCosDeg(rightHandAngle) * 0.09f
     val leftHandX = leftWristX + chamaSinDeg(leftHandAngle) * 0.09f
     val leftHandY = leftWristY - chamaCosDeg(leftHandAngle) * 0.09f
+    val rightHandZ = rightReachPose?.hand?.z ?: rightWristZ + if (sitting) 0.035f * sitBlend else 0f
+    val leftHandZ = leftWristZ + if (sitting) 0.035f * sitBlend else 0f
 
     // Hip -> knee -> ankle chain. The dance step shifts the two legs in
     // opposite phases while preserving a continuous thigh/calf connection.
     val hipY = 0.78f
     val thighLength = 0.36f
     val calfLength = 0.34f
-    val leftThighAngle = if (gesture == ChamaBodyGesture.DANCE) step * 95f else 0f
-    val rightThighAngle = if (gesture == ChamaBodyGesture.DANCE) -step * 95f else 0f
-    val leftKneeBend = if (gesture == ChamaBodyGesture.DANCE) -8f else 0f
-    val rightKneeBend = if (gesture == ChamaBodyGesture.DANCE) 8f else 0f
+    // During walking, leg phase follows the distance-driven locomotion clock.
+    val walkStep = chamaSinDeg(gaitPhase.coerceIn(0f, 1f) * 360f) * 0.12f
+    val leftThighAngle = when (gesture) {
+        ChamaBodyGesture.DANCE -> step * 95f
+        ChamaBodyGesture.WALK -> walkStep * 75f
+        else -> 0f
+    }
+    val rightThighAngle = when (gesture) {
+        ChamaBodyGesture.DANCE -> -step * 95f
+        ChamaBodyGesture.WALK -> -walkStep * 75f
+        else -> 0f
+    }
+    val leftKneeBend = when (gesture) {
+        ChamaBodyGesture.DANCE, ChamaBodyGesture.WALK -> -8f
+        ChamaBodyGesture.SIT -> -6f
+        else -> 0f
+    }
+    val rightKneeBend = when (gesture) {
+        ChamaBodyGesture.DANCE, ChamaBodyGesture.WALK -> 8f
+        ChamaBodyGesture.SIT -> 6f
+        else -> 0f
+    }
     val leftHipX = bodyCenterX - 0.15f
     val rightHipX = bodyCenterX + 0.15f
-    val leftKneeX = leftHipX + chamaSinDeg(leftThighAngle) * thighLength
-    val leftKneeY = hipY - chamaCosDeg(leftThighAngle) * thighLength
-    val rightKneeX = rightHipX + chamaSinDeg(rightThighAngle) * thighLength
-    val rightKneeY = hipY - chamaCosDeg(rightThighAngle) * thighLength
+    val leftStandingKneeX = leftHipX + chamaSinDeg(leftThighAngle) * thighLength
+    val leftStandingKneeY = hipY - chamaCosDeg(leftThighAngle) * thighLength
+    val rightStandingKneeX = rightHipX + chamaSinDeg(rightThighAngle) * thighLength
+    val rightStandingKneeY = hipY - chamaCosDeg(rightThighAngle) * thighLength
     val leftCalfAngle = leftThighAngle + leftKneeBend
     val rightCalfAngle = rightThighAngle + rightKneeBend
-    val leftAnkleX = leftKneeX + chamaSinDeg(leftCalfAngle) * calfLength
-    val leftAnkleY = leftKneeY - chamaCosDeg(leftCalfAngle) * calfLength
-    val rightAnkleX = rightKneeX + chamaSinDeg(rightCalfAngle) * calfLength
-    val rightAnkleY = rightKneeY - chamaCosDeg(rightCalfAngle) * calfLength
+    val leftStandingAnkleX = leftStandingKneeX + chamaSinDeg(leftCalfAngle) * calfLength
+    val leftStandingAnkleY = leftStandingKneeY - chamaCosDeg(leftCalfAngle) * calfLength
+    val rightStandingAnkleX = rightStandingKneeX + chamaSinDeg(rightCalfAngle) * calfLength
+    val rightStandingAnkleY = rightStandingKneeY - chamaCosDeg(rightCalfAngle) * calfLength
+    val leftLegPose = ChamaBodyPoseMath.blendLegToSeat(
+        leftHipX, hipY,
+        ChamaLimbPoint3D(leftStandingKneeX, leftStandingKneeY, 0f),
+        ChamaLimbPoint3D(leftStandingAnkleX, leftStandingAnkleY, 0f),
+        sitBlend, thighLength, calfLength
+    )
+    val rightLegPose = ChamaBodyPoseMath.blendLegToSeat(
+        rightHipX, hipY,
+        ChamaLimbPoint3D(rightStandingKneeX, rightStandingKneeY, 0f),
+        ChamaLimbPoint3D(rightStandingAnkleX, rightStandingAnkleY, 0f),
+        sitBlend, thighLength, calfLength
+    )
+    val leftKneeX = leftLegPose.knee.x
+    val leftKneeY = leftLegPose.knee.y
+    val leftKneeZ = leftLegPose.knee.z
+    val rightKneeX = rightLegPose.knee.x
+    val rightKneeY = rightLegPose.knee.y
+    val rightKneeZ = rightLegPose.knee.z
+    val leftAnkleX = leftLegPose.ankle.x
+    val leftAnkleY = leftLegPose.ankle.y
+    val leftAnkleZ = leftLegPose.ankle.z
+    val rightAnkleX = rightLegPose.ankle.x
+    val rightAnkleY = rightLegPose.ankle.y
+    val rightAnkleZ = rightLegPose.ankle.z
 
-    SceneView(
-        modifier = modifier,
-        engine = engine,
-        materialLoader = materialLoader,
-        cameraManipulator = rememberCameraManipulator(
-            orbitHomePosition = Position(0f, 1.15f, 3.9f),
-            targetPosition = Position(0f, 1.0f, 0f)
-        )
+    val rightShoulderPoint = ChamaLimbPoint3D(rightShoulderX, if (reaching) shoulderY - 0.40f else shoulderY, 0f)
+    val leftShoulderPoint = ChamaLimbPoint3D(leftShoulderX, shoulderY, 0f)
+    val rightElbowPoint = ChamaLimbPoint3D(rightElbowX, rightElbowY, rightElbowZ)
+    val leftElbowPoint = ChamaLimbPoint3D(leftElbowX, leftElbowY, leftElbowZ)
+    val rightWristPoint = ChamaLimbPoint3D(rightWristX, rightWristY, rightWristZ)
+    val leftWristPoint = ChamaLimbPoint3D(leftWristX, leftWristY, leftWristZ)
+    val rightUpperRotation = ChamaBodyPoseMath.segmentRotation(rightShoulderPoint, rightElbowPoint)
+    val leftUpperRotation = ChamaBodyPoseMath.segmentRotation(leftShoulderPoint, leftElbowPoint)
+    val rightForearmRotation = ChamaBodyPoseMath.segmentRotation(rightElbowPoint, rightWristPoint)
+    val leftForearmRotation = ChamaBodyPoseMath.segmentRotation(leftElbowPoint, leftWristPoint)
+
+    val leftHipPoint = ChamaLimbPoint3D(leftHipX, hipY, 0f)
+    val rightHipPoint = ChamaLimbPoint3D(rightHipX, hipY, 0f)
+    val leftKneePoint = ChamaLimbPoint3D(leftKneeX, leftKneeY, leftKneeZ)
+    val rightKneePoint = ChamaLimbPoint3D(rightKneeX, rightKneeY, rightKneeZ)
+    val leftAnklePoint = ChamaLimbPoint3D(leftAnkleX, leftAnkleY, leftAnkleZ)
+    val rightAnklePoint = ChamaLimbPoint3D(rightAnkleX, rightAnkleY, rightAnkleZ)
+    val leftThighRotation = ChamaBodyPoseMath.segmentRotation(leftHipPoint, leftKneePoint)
+    val rightThighRotation = ChamaBodyPoseMath.segmentRotation(rightHipPoint, rightKneePoint)
+    val leftCalfRotation = ChamaBodyPoseMath.segmentRotation(leftKneePoint, leftAnklePoint)
+    val rightCalfRotation = ChamaBodyPoseMath.segmentRotation(rightKneePoint, rightAnklePoint)
+    // Shoes stay grounded as the pelvis lowers: their seated center is 6 cm
+    // above the floor, while the ankle joints remain at floor level.
+    val leftShoeCenterY = (leftAnkleY - 0.055f) * (1f - sitBlend) + 0.37f * sitBlend
+    val rightShoeCenterY = (rightAnkleY - 0.055f) * (1f - sitBlend) + 0.37f * sitBlend
+
+    Node(
+        position = Position(rootPosition.x, rootHeight, rootPosition.z),
+        rotation = Rotation(y = headingDegrees + if (gesture == ChamaBodyGesture.LISTEN || gesture == ChamaBodyGesture.ADMIRE) glance else 0f)
     ) {
-        // Layered torso silhouette: upper chest, tapered waist and pelvis
+        Node(position = Position(0f, postureDrop, 0f)) {
+    // Layered torso silhouette: upper chest, tapered waist and pelvis
         // are separate volumes so the waist does not keep the chest width.
         // The body starts below the absent neck; no head or neck is generated.
         CapsuleNode(radius = 0.255f, height = 0.48f,
@@ -245,35 +382,35 @@ internal fun ChamaBody3D(
         SphereNode(radius = 0.13f, materialInstance = sweater,
             position = Position(leftShoulderX, shoulderY, 0f))
         SphereNode(radius = 0.13f, materialInstance = sweater,
-            position = Position(rightShoulderX, shoulderY, 0f))
+            position = Position(rightShoulderX, rightShoulderPoint.y, 0f))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
-            position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, 0f),
-            rotation = Rotation(z = leftShoulderAngle + 180f))
+            position = Position((leftShoulderX + leftElbowX) / 2f, (shoulderY + leftElbowY) / 2f, leftElbowZ / 2f),
+            rotation = Rotation(x = leftUpperRotation.xDegrees, z = leftUpperRotation.zDegrees))
         CapsuleNode(radius = 0.105f, height = upperArmLength,
             materialInstance = sweater,
-            position = Position((rightShoulderX + rightElbowX) / 2f, (shoulderY + rightElbowY) / 2f, 0f),
-            rotation = Rotation(z = rightShoulderAngle + 180f))
+            position = Position((rightShoulderX + rightElbowX) / 2f, (rightShoulderPoint.y + rightElbowY) / 2f, rightElbowZ / 2f),
+            rotation = Rotation(x = rightUpperRotation.xDegrees, z = rightUpperRotation.zDegrees))
         SphereNode(radius = 0.092f, materialInstance = sweater,
-            position = Position(leftElbowX, leftElbowY, 0f))
+            position = Position(leftElbowX, leftElbowY, leftElbowZ))
         SphereNode(radius = 0.092f, materialInstance = sweater,
-            position = Position(rightElbowX, rightElbowY, 0f))
+            position = Position(rightElbowX, rightElbowY, rightElbowZ))
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
-            position = Position((leftElbowX + leftWristX) / 2f, (leftElbowY + leftWristY) / 2f, 0f),
-            rotation = Rotation(z = leftForearmAngle + 180f))
+            position = Position((leftElbowX + leftWristX) / 2f, (leftElbowY + leftWristY) / 2f, (leftElbowZ + leftWristZ) / 2f),
+            rotation = Rotation(x = leftForearmRotation.xDegrees, z = leftForearmRotation.zDegrees))
         CapsuleNode(radius = 0.085f, height = forearmLength,
             materialInstance = sweater,
-            position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, 0f),
-            rotation = Rotation(z = rightForearmAngle + 180f))
+            position = Position((rightElbowX + rightWristX) / 2f, (rightElbowY + rightWristY) / 2f, (rightElbowZ + rightWristZ) / 2f),
+            rotation = Rotation(x = rightForearmRotation.xDegrees, z = rightForearmRotation.zDegrees))
         SphereNode(radius = 0.075f, materialInstance = cuff,
-            position = Position(leftWristX, leftWristY, 0f))
+            position = Position(leftWristX, leftWristY, leftWristZ))
         SphereNode(radius = 0.075f, materialInstance = cuff,
-            position = Position(rightWristX, rightWristY, 0f))
+            position = Position(rightWristX, rightWristY, rightWristZ))
         SphereNode(radius = 0.105f, materialInstance = skin,
-            position = Position(leftHandX, leftHandY, 0.015f))
+            position = Position(leftHandX, leftHandY, leftHandZ))
         SphereNode(radius = 0.105f, materialInstance = skin,
-            position = Position(rightHandX, rightHandY, 0.015f))
+            position = Position(rightHandX, rightHandY, rightHandZ))
 
         // Four simplified finger capsules per palm. Their spread axis and
         // direction rotate with the wrist; this remains a stylized blockout.
@@ -285,7 +422,7 @@ internal fun ChamaBody3D(
             val fingerY = leftHandY + chamaSinDeg(leftHandAngle) * spread -
                 chamaCosDeg(leftHandAngle) * 0.055f
             CapsuleNode(radius = 0.024f, height = if (index == 0 || index == 3) 0.11f else 0.12f,
-                materialInstance = skin, position = Position(fingerX, fingerY, 0.03f),
+                materialInstance = skin, position = Position(fingerX, fingerY, leftHandZ + 0.03f),
                 rotation = Rotation(z = leftHandAngle + angleOffset))
         }
         val rightFingerOffsets = listOf(-0.075f, -0.025f, 0.025f, 0.075f)
@@ -296,7 +433,7 @@ internal fun ChamaBody3D(
             val fingerY = rightHandY + chamaSinDeg(rightHandAngle) * spread -
                 chamaCosDeg(rightHandAngle) * 0.055f
             CapsuleNode(radius = 0.024f, height = if (index == 0 || index == 3) 0.11f else 0.12f,
-                materialInstance = skin, position = Position(fingerX, fingerY, 0.03f),
+                materialInstance = skin, position = Position(fingerX, fingerY, rightHandZ + 0.03f),
                 rotation = Rotation(z = rightHandAngle + angleOffset))
         }
 
@@ -316,25 +453,25 @@ internal fun ChamaBody3D(
         SphereNode(radius = 0.14f, materialInstance = trousers,
             position = Position(rightHipX, hipY, 0f))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
-            position = Position((leftHipX + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, 0f),
-            rotation = Rotation(z = leftThighAngle + 180f))
+            position = Position((leftHipX + leftKneeX) / 2f, (hipY + leftKneeY) / 2f, leftKneeZ / 2f),
+            rotation = Rotation(x = leftThighRotation.xDegrees, z = leftThighRotation.zDegrees))
         CapsuleNode(radius = 0.135f, height = thighLength, materialInstance = trousers,
-            position = Position((rightHipX + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, 0f),
-            rotation = Rotation(z = rightThighAngle + 180f))
+            position = Position((rightHipX + rightKneeX) / 2f, (hipY + rightKneeY) / 2f, rightKneeZ / 2f),
+            rotation = Rotation(x = rightThighRotation.xDegrees, z = rightThighRotation.zDegrees))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(leftKneeX, leftKneeY, 0f))
+            position = Position(leftKneeX, leftKneeY, leftKneeZ))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(rightKneeX, rightKneeY, 0f))
+            position = Position(rightKneeX, rightKneeY, rightKneeZ))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
-            position = Position((leftKneeX + leftAnkleX) / 2f, (leftKneeY + leftAnkleY) / 2f, 0f),
-            rotation = Rotation(z = leftCalfAngle + 180f))
+            position = Position((leftKneeX + leftAnkleX) / 2f, (leftKneeY + leftAnkleY) / 2f, (leftKneeZ + leftAnkleZ) / 2f),
+            rotation = Rotation(x = leftCalfRotation.xDegrees, z = leftCalfRotation.zDegrees))
         CapsuleNode(radius = 0.115f, height = calfLength, materialInstance = trousers,
-            position = Position((rightKneeX + rightAnkleX) / 2f, (rightKneeY + rightAnkleY) / 2f, 0f),
-            rotation = Rotation(z = rightCalfAngle + 180f))
+            position = Position((rightKneeX + rightAnkleX) / 2f, (rightKneeY + rightAnkleY) / 2f, (rightKneeZ + rightAnkleZ) / 2f),
+            rotation = Rotation(x = rightCalfRotation.xDegrees, z = rightCalfRotation.zDegrees))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(leftAnkleX, leftAnkleY, 0f))
+            position = Position(leftAnkleX, leftAnkleY, leftAnkleZ))
         SphereNode(radius = 0.105f, materialInstance = trousers,
-            position = Position(rightAnkleX, rightAnkleY, 0f))
+            position = Position(rightAnkleX, rightAnkleY, rightAnkleZ))
         // Denim waistband and outer seams clarify the pelvis and leg silhouette.
         CubeNode(size = Size(0.48f, 0.055f, 0.34f), materialInstance = denimSeam,
             position = Position(bodyCenterX, 1.055f, 0.015f))
@@ -356,8 +493,10 @@ internal fun ChamaBody3D(
         CapsuleNode(radius = 0.018f, height = 0.62f, materialInstance = denimSeam,
             position = Position(rightHipX + 0.105f, 0.49f, 0.13f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(leftAnkleX, leftAnkleY - 0.055f, 0.09f))
+            position = Position(leftAnkleX, leftShoeCenterY, leftAnkleZ + 0.09f))
         CubeNode(size = Size(0.30f, 0.12f, 0.42f), materialInstance = shoe,
-            position = Position(rightAnkleX, rightAnkleY - 0.055f, 0.09f))
+            position = Position(rightAnkleX, rightShoeCenterY, rightAnkleZ + 0.09f))
+
+        }
     }
 }

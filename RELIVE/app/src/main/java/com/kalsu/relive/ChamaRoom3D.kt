@@ -1,7 +1,11 @@
 package com.kalsu.relive
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import io.github.sceneview.SceneView
@@ -11,6 +15,9 @@ import io.github.sceneview.rememberMaterialLoader
 import io.github.sceneview.math.Direction
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Size
+import com.kalsu.relive.avatar.ChamaBodyGesture
+import com.kalsu.relive.avatar.ChamaRoomPoint
+import com.kalsu.relive.avatar.ChamaFlowerPose
 
 /**
  * First real-time 3D room blockout for RELIVE.
@@ -18,9 +25,25 @@ import io.github.sceneview.math.Size
  * Chama's protected portrait is not loaded, mapped, or modified here.
  */
 @Composable
-internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false) {
+internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, lampOn: Boolean = true, evening: Boolean = false, sofaWelcoming: Boolean = false, bouquetHighlighted: Boolean = false, bodyGesture: ChamaBodyGesture = ChamaBodyGesture.IDLE, bodyPosition: ChamaRoomPoint = ChamaRoomPoint(0f, 1.10f), bodyHeadingDegrees: Float = 0f, bodyGaitPhase: Float = 0f, bodyRootHeight: Float = 0f, bouquetPose: ChamaFlowerPose = ChamaFlowerPose(1.72f, 0.84f, -0.78f), onSceneInteraction: () -> Unit = {}) {
     val engine = rememberEngine()
     val materialLoader = rememberMaterialLoader(engine)
+    val latestSceneInteraction = rememberUpdatedState(onSceneInteraction)
+    val bouquetX by animateFloatAsState(
+        targetValue = bouquetPose.x,
+        animationSpec = tween(durationMillis = 850),
+        label = "bouquet_world_x"
+    )
+    val bouquetY by animateFloatAsState(
+        targetValue = bouquetPose.y,
+        animationSpec = tween(durationMillis = 850),
+        label = "bouquet_world_y"
+    )
+    val bouquetZ by animateFloatAsState(
+        targetValue = bouquetPose.z,
+        animationSpec = tween(durationMillis = 850),
+        label = "bouquet_world_z"
+    )
 
     val wall = remember(materialLoader, palette.background) {
         materialLoader.createColorInstance(palette.background)
@@ -96,7 +119,11 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
         cameraManipulator = rememberCameraManipulator(
             orbitHomePosition = Position(0f, 1.35f, 5.6f),
             targetPosition = Position(0f, 0.75f, 0f)
-        )
+        ),
+        onTouchEvent = { _, _ ->
+            latestSceneInteraction.value()
+            false
+        }
     ) {
         // Sol et murs de la pièce.
         PlaneNode(
@@ -230,12 +257,14 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
         // Vase de roses sur la console.
         CylinderNode(radius = 0.11f, height = 0.22f, materialInstance = gold,
             position = Position(1.72f, 0.60f, -0.78f))
+        // Bouquet meshes interpolate between the vase, Chama's reaching
+        // hand and the coffee table. The vase itself remains in place.
         SphereNode(radius = 0.075f, materialInstance = rose,
-            position = Position(1.65f, 0.82f, -0.78f))
+            position = Position(bouquetX - 0.07f, bouquetY, bouquetZ))
         SphereNode(radius = 0.075f, materialInstance = rose,
-            position = Position(1.78f, 0.84f, -0.78f))
+            position = Position(bouquetX + 0.06f, bouquetY + 0.015f, bouquetZ))
         SphereNode(radius = 0.07f, materialInstance = leaf,
-            position = Position(1.72f, 0.91f, -0.78f))
+            position = Position(bouquetX, bouquetY + 0.07f, bouquetZ - 0.015f))
 
         // Plante décorative à droite.
         CylinderNode(radius = 0.18f, height = 0.34f, materialInstance = wood,
@@ -248,5 +277,14 @@ internal fun ChamaRoom3D(modifier: Modifier = Modifier, palette: RelivePalette, 
             position = Position(2.20f, 1.12f, -1.65f))
         SphereNode(radius = 0.20f, materialInstance = leaf,
             position = Position(2.02f, 1.34f, -1.65f))
+        // Chama partage le même graphe 3D que le salon : son Node racine
+        // reçoit la position et le cap de la simulation de locomotion.
+        ChamaBodyNodes(
+            gesture = bodyGesture,
+            rootPosition = bodyPosition,
+            headingDegrees = bodyHeadingDegrees,
+            rootHeight = bodyRootHeight,
+            gaitPhase = bodyGaitPhase
+        )
     }
 }
